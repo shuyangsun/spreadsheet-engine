@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "Admin Portal front-end prototype for configuring spreadsheet inputs and outputs"
 
+## Clarifications
+
+### Session 2025-10-23
+
+- Q: What differentiates this prototype from a production-ready version? → A: Proof-of-concept with simplified/mocked functionality to validate UX approach only
+- Q: What design approach should guide the prototype's UI for enterprise intuitiveness? → A: Follow established enterprise design system patterns (Material Design, Fluent, Carbon, etc.)
+- Q: What primary layout pattern should organize the Admin Portal interface? → A: Single-page form with all configuration options visible at once
+- Q: How should the interface communicate configuration completeness and validation status? → A: Simple form validation only on submit/export attempt
+- Q: What information density approach should the prototype use? → A: Compact view with expandable details for each mapping (click/expand to see constraints, types, etc.)
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Map Named Cells to Inputs and Outputs (Priority: P1)
@@ -117,17 +127,22 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **FR-011**: System MUST generate valid JSON output containing all configuration data (cell mappings, labels, types, constraints)
 - **FR-012**: System MUST provide a copy-to-clipboard function for the generated JSON
 - **FR-013**: System MUST provide a download function for the generated JSON with a descriptive filename
-- **FR-014**: System MUST validate that all required fields are completed before allowing JSON generation
-- **FR-015**: System MUST display clear error messages for any validation failures
+- **FR-014**: System MUST validate that all required fields are completed when user attempts to generate JSON
+- **FR-015**: System MUST display clear error messages for any validation failures during JSON generation or export
 - **FR-016**: System MUST automatically save configuration drafts to browser local storage
 - **FR-017**: System MUST automatically load the most recent draft when the Admin Portal opens
 - **FR-018**: System MUST provide a clear draft function with confirmation prompt
 - **FR-019**: System MUST prevent duplicate cell name mappings and display an error if attempted
 - **FR-020**: System MUST display an empty state with helpful instructions when no mappings exist
-- **FR-021**: System MUST use a clean, modern, minimal design suitable for enterprise applications
+- **FR-021**: System MUST use a clean, modern, minimal design following established enterprise design system patterns (e.g., Material Design, Fluent UI, Carbon Design System)
 - **FR-022**: System MUST provide intuitive navigation and clear visual hierarchy for all configuration elements
-- **FR-023**: System MUST display all configuration data in a scannable, organized format
+- **FR-023**: System MUST display all configuration data in a scannable, organized format using a single-page layout with all options visible
 - **FR-024**: System MUST provide immediate visual feedback for all user actions (save, delete, copy, etc.)
+- **FR-025**: System MUST use consistent spacing, typography, and color schemes aligned with enterprise design standards
+- **FR-026**: System MUST provide clear affordances (buttons, inputs, interactive elements) that communicate their purpose without additional explanation
+- **FR-027**: System MUST organize the single-page interface with logical sections (inputs section, outputs section, constraints section, export section) clearly delineated
+- **FR-028**: System MUST display cell mappings in a compact view showing essential information (cell name, label, type) with expandable details for additional properties (data type, constraints)
+- **FR-029**: System MUST allow users to expand/collapse individual mapping details through click or tap interactions
 
 ### Key Entities
 
@@ -147,11 +162,12 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **SC-005**: The interface displays correctly and remains functional on screen sizes from 1024px width and above
 - **SC-006**: Configuration drafts persist in local storage and can be restored after closing and reopening the browser
 - **SC-007**: Administrators can configure spreadsheets with at least 50 input mappings and 50 output mappings without performance degradation
+- **SC-008**: Users can scan and identify specific mappings among 20+ entries within 5 seconds using the compact view
 
 ## Assumptions
 
 - **A-001**: Administrators are familiar with their Excel spreadsheets and know which cells are named and what they represent
-- **A-002**: The Admin Portal is a front-end only prototype and does not require backend services or database storage
+- **A-002**: The Admin Portal is a proof-of-concept prototype focused on validating the UX approach rather than production deployment
 - **A-003**: Administrators will use modern browsers with local storage capabilities (Chrome, Firefox, Safari, Edge)
 - **A-004**: Named cell references in Excel follow standard Excel naming conventions
 - **A-005**: The JSON configuration format will have a defined schema that matches what the Calculation Engine expects
@@ -160,6 +176,7 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **A-008**: Data types are limited to the five basic types (number, text, percentage, currency, date) for this prototype
 - **A-009**: Administrators will manually enter cell names rather than importing them from an Excel file
 - **A-010**: The prototype does not require user authentication or multi-user collaboration features
+- **A-011**: Prototype may use simplified/mocked data storage mechanisms to demonstrate functionality without backend infrastructure
 
 ## Out of Scope
 
