@@ -5,9 +5,7 @@ import App from "./App.tsx";
 
 const rootElement = document.getElementById("root");
 
-if (!document.documentElement.classList.contains("dark")) {
-  document.documentElement.classList.add("dark");
-}
+document.documentElement.classList.remove("dark");
 
 if (rootElement) {
   createRoot(rootElement).render(
