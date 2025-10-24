@@ -18,9 +18,9 @@ When prototyping, make a judgment call about whether it is necessary to add a sl
 
 ### 4. Optimize for LLM agents
 
-Design artifacts primarily for consumption by LLMs rather than humans. Structure content to maximize clarity and machine readability, following current best practices for LLM optimization. When uncertain about optimal formats or conventions, research and apply the latest recommendations.
+Design artifacts primarily for consumption by LLMs rather than humans. Structure content to maximize clarity and machine readability, following current best practices for LLM optimization. When uncertain about optimal formats or conventions, research and apply the latest recommendations. For example, as of late 2025, LLMs typically interpret XML and YAML more effectively than JSON.
 
-Example: As of late 2025, LLMs typically interpret XML and YAML more effectively than JSON.
+Do not generate too many tokens when creating specs, I'm poor, I can't pay for them. Keep things clear but concise.
 
 ### 5. No testing unless explicitly asked
 
@@ -47,6 +47,10 @@ If React is the library of choice (usually for production code only), use React 
 ### 10. Production environment
 
 We will deploy prototypes and production code with GitHub Pages and/or Cloudflare Workers. Make sure both deployment environments are set up properly.
+
+### 11. CSS and branding
+
+When prototyping, keep colors in CSS variables, so it is easier to rebrand later.
 
 ## Governance
 
