@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Plus, X } from "lucide-react";
 
 import { Header } from "@/components/Header";
 import {
@@ -82,6 +83,8 @@ function App() {
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
     []
   );
+  const [showInputForm, setShowInputForm] = useState(false);
+  const [showOutputForm, setShowOutputForm] = useState(false);
 
   const { toast } = useToast();
 
@@ -119,14 +122,12 @@ function App() {
   }, [configuration, hasLoaded]);
 
   const sortedInputs = useMemo(
-    () =>
-      [...configuration.inputs].sort((a, b) => a.label.localeCompare(b.label)),
+    () => configuration.inputs,
     [configuration.inputs]
   );
 
   const sortedOutputs = useMemo(
-    () =>
-      [...configuration.outputs].sort((a, b) => a.label.localeCompare(b.label)),
+    () => configuration.outputs,
     [configuration.outputs]
   );
 
@@ -162,8 +163,10 @@ function App() {
 
     setConfiguration((current) => ({
       ...current,
-      inputs: [...current.inputs, mapping],
+      inputs: [mapping, ...current.inputs],
     }));
+
+    setShowInputForm(false);
 
     toast({
       title: "Input mapping added",
@@ -200,8 +203,10 @@ function App() {
 
     setConfiguration((current) => ({
       ...current,
-      outputs: [...current.outputs, mapping],
+      outputs: [mapping, ...current.outputs],
     }));
+
+    setShowOutputForm(false);
 
     toast({
       title: "Output mapping added",
@@ -382,16 +387,44 @@ function App() {
         <section className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
           <div className="space-y-8">
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">
-                  Input mappings
-                </h2>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Input mappings
+                  </h2>
+                  <Button
+                    variant={showInputForm ? "secondary" : "outline"}
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      setShowInputForm(true);
+                      setShowOutputForm(false);
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Input
+                  </Button>
+                  {showInputForm && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-2"
+                      onClick={() => setShowInputForm(false)}
+                    >
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </Button>
+                  )}
+                </div>
                 <span className="text-xs uppercase tracking-wide text-muted-foreground">
                   {totalInputs} configured
                 </span>
               </div>
+              {showInputForm && (
+                <MappingForm type="input" onSubmit={handleAddInput} />
+              )}
               {sortedInputs.length === 0 ? (
-                <EmptyState message="No input mappings yet. Use the form on the right to add your first input." />
+                <EmptyState message="No input mappings yet. Use Add Input to configure your first mapping." />
               ) : (
                 <div className="grid gap-4">
                   {sortedInputs.map((mapping) => (
@@ -408,16 +441,44 @@ function App() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">
-                  Output mappings
-                </h2>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Output mappings
+                  </h2>
+                  <Button
+                    variant={showOutputForm ? "secondary" : "outline"}
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      setShowOutputForm(true);
+                      setShowInputForm(false);
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Output
+                  </Button>
+                  {showOutputForm && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-2"
+                      onClick={() => setShowOutputForm(false)}
+                    >
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </Button>
+                  )}
+                </div>
                 <span className="text-xs uppercase tracking-wide text-muted-foreground">
                   {totalOutputs} configured
                 </span>
               </div>
+              {showOutputForm && (
+                <MappingForm type="output" onSubmit={handleAddOutput} />
+              )}
               {sortedOutputs.length === 0 ? (
-                <EmptyState message="No outputs configured yet. Add outputs to capture calculated cells." />
+                <EmptyState message="No outputs configured yet. Use Add Output to capture calculated cells." />
               ) : (
                 <div className="grid gap-4">
                   {sortedOutputs.map((mapping) => (
@@ -435,8 +496,6 @@ function App() {
           </div>
 
           <aside className="space-y-6">
-            <MappingForm type="input" onSubmit={handleAddInput} />
-            <MappingForm type="output" onSubmit={handleAddOutput} />
             <div className="rounded-lg border border-border/60 bg-card/50 p-4 text-sm leading-relaxed text-muted-foreground">
               <p className="font-medium text-foreground">Prototype notes</p>
               <Separator className="my-3" />

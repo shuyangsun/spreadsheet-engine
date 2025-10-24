@@ -173,7 +173,7 @@ export function MappingForm(props: MappingFormProps) {
               type="submit"
               className="bg-primary text-primary-foreground"
             >
-              Add {type === "input" ? "Input" : "Output"}
+              Done
             </Button>
           </div>
         </form>
