@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal · Spreadsheet Configuration Prototype</title>
+    <style>
+      :root {
+        --color-primary: #1d4ed8;
+        --color-primary-dark: #1e3a8a;
+        --color-primary-light: #60a5fa;
+        --color-surface: #ffffff;
+        --color-background: #f1f5f9;
+        --color-on-surface: #0f172a;
+        --color-on-surface-variant: #64748b;
+        --color-outline: #cbd5f5;
+        --color-outline-strong: #94a3b8;
+        --color-error: #dc2626;
+        --color-error-dark: #b91c1c;
+        --color-success: #0f766e;
+        --spacing: 8px;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+        --shadow-1: 0 2px 4px rgba(15, 23, 42, 0.08);
+        --shadow-2: 0 12px 24px rgba(15, 23, 42, 0.12);
+        --shadow-inset: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+        --transition: 0.18s ease;
+      }
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-background);
+        color: var(--color-on-surface);
+        line-height: 1.6;
+        min-width: 1024px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: linear-gradient(
+          135deg,
+          var(--color-primary) 0%,
+          var(--color-primary-dark) 100%
+        );
+        color: #fff;
+        padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 4);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--shadow-1);
+      }
+
+      .app-header h1 {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.4px;
+      }
+
+      .app-header p {
+        font-size: 14px;
+        opacity: 0.85;
+        margin-top: calc(var(--spacing) / 2);
+      }
+
+      .branding {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) / 2);
+      }
+
+      .header-actions {
+        display: flex;
+        gap: calc(var(--spacing) * 1.5);
+        align-items: center;
+      }
+
+      .btn {
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 2.25);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition),
+          background-color var(--transition), color var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 0.75);
+      }
+
+      .btn-primary {
+        background-color: #fff;
+        color: var(--color-primary);
+        box-shadow: var(--shadow-inset);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-1);
+      }
+
+      .btn-secondary {
+        background-color: rgba(255, 255, 255, 0.18);
+        color: #fff;
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(8px);
+      }
+
+      .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+      }
+
+      .btn-tonal {
+        background-color: rgba(37, 99, 235, 0.08);
+        color: var(--color-primary);
+        border: 1px solid rgba(37, 99, 235, 0.24);
+      }
+
+      .btn-tonal:hover {
+        background-color: rgba(37, 99, 235, 0.12);
+      }
+
+      .btn-danger {
+        background-color: var(--color-error);
+        color: #fff;
+      }
+
+      .btn-danger:hover {
+        background-color: var(--color-error-dark);
+      }
+
+      main {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: calc(var(--spacing) * 4) calc(var(--spacing) * 4)
+          calc(var(--spacing) * 14);
+      }
+
+      .mappings-section {
+        background-color: var(--color-surface);
+        border-radius: var(--radius-lg);
+        padding: calc(var(--spacing) * 4);
+        box-shadow: var(--shadow-1);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        margin-bottom: calc(var(--spacing) * 4);
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: calc(var(--spacing) * 2);
+        margin-bottom: calc(var(--spacing) * 3);
+      }
+
+      .section-heading h2 {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+      }
+
+      .section-description {
+        font-size: 14px;
+        color: var(--color-on-surface-variant);
+        margin-bottom: calc(var(--spacing) * 3);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: calc(var(--spacing) * 5);
+        border: 1.5px dashed rgba(148, 163, 184, 0.4);
+        border-radius: var(--radius-md);
+        color: var(--color-on-surface-variant);
+        font-size: 14px;
+        background-color: rgba(241, 245, 249, 0.6);
+      }
+
+      .mappings-container {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .mapping-card {
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        background-color: var(--color-surface);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        transition: border-color var(--transition), box-shadow var(--transition),
+          transform var(--transition);
+      }
+
+      .mapping-card[open] {
+        box-shadow: var(--shadow-1);
+        border-color: var(--color-primary-light);
+      }
+
+      .mapping-card summary {
+        list-style: none;
+        cursor: pointer;
+        padding: calc(var(--spacing) * 2.5);
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .mapping-card summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .summary-content {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 2);
+        flex: 1;
+      }
+
+      .summary-text {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .summary-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--color-on-surface);
+      }
+
+      .summary-subtitle {
+        font-size: 13px;
+        color: var(--color-on-surface-variant);
+        margin-top: calc(var(--spacing) / 2);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .type-badge {
+        text-transform: uppercase;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        border-radius: 999px;
+        padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 1.75);
+      }
+
+      .type-badge.input {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e3a8a;
+        border: 1px solid rgba(59, 130, 246, 0.45);
+      }
+
+      .type-badge.output {
+        background: linear-gradient(135deg, #f5d0fe, #ede9fe);
+        color: #6b21a8;
+        border: 1px solid rgba(192, 132, 252, 0.45);
+      }
+
+      .summary-meta {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 1.25);
+      }
+
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: calc(var(--spacing) / 2);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-on-surface-variant);
+        background-color: rgba(15, 23, 42, 0.05);
+        border-radius: 999px;
+        padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 1.25);
+      }
+
+      .status-chip.complete {
+        color: var(--color-success);
+        background-color: rgba(15, 118, 110, 0.12);
+      }
+
+      .remove-button {
+        border: none;
+        background: rgba(239, 68, 68, 0.12);
+        color: var(--color-error);
+        border-radius: var(--radius-sm);
+        padding: calc(var(--spacing)) calc(var(--spacing) * 1.5);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color var(--transition),
+          transform var(--transition);
+      }
+
+      .remove-button:hover {
+        background: rgba(239, 68, 68, 0.18);
+        transform: translateY(-1px);
+      }
+
+      .mapping-details {
+        padding: 0 calc(var(--spacing) * 3) calc(var(--spacing) * 3);
+        border-top: 1px solid rgba(148, 163, 184, 0.24);
+      }
+
+      .form-grid {
+        display: grid;
+        gap: calc(var(--spacing) * 2);
+        margin-top: calc(var(--spacing) * 3);
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing));
+      }
+
+      .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-on-surface);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        border-radius: var(--radius-sm);
+        border: 1.5px solid rgba(148, 163, 184, 0.35);
+        padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 1.5);
+        font-size: 14px;
+        transition: border-color var(--transition), box-shadow var(--transition),
+          background-color var(--transition);
+        background-color: var(--color-surface);
+        color: inherit;
+        resize: vertical;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      }
+
+      .form-group .hint {
+        font-size: 12px;
+        color: var(--color-on-surface-variant);
+      }
+
+      .input-error {
+        border-color: var(--color-error) !important;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14) !important;
+      }
+
+      .required::after {
+        content: " *";
+        color: var(--color-error);
+      }
+
+      .constraints-wrapper {
+        margin-top: calc(var(--spacing) * 3);
+        padding-top: calc(var(--spacing) * 3);
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .constraint-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--spacing) * 1.75);
+      }
+
+      .constraint-option {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing));
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .constraint-fields {
+        display: none;
+      }
+
+      .constraint-fields.active {
+        display: grid;
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .range-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .action-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          0deg,
+          rgba(241, 245, 249, 0.94) 0%,
+          rgba(241, 245, 249, 0.85) 65%,
+          rgba(241, 245, 249, 0) 100%
+        );
+        padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 -6px 32px rgba(15, 23, 42, 0.16);
+        z-index: 15;
+      }
+
+      .primary-action {
+        min-width: 260px;
+        border-radius: 999px;
+        font-size: 16px;
+        font-weight: 600;
+        padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5);
+        background: linear-gradient(135deg, var(--color-primary), #2563eb);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition);
+        box-shadow: var(--shadow-2);
+      }
+
+      .primary-action:hover {
+        transform: translateY(-2px);
+      }
+
+      .primary-action:active {
+        transform: translateY(0);
+      }
+
+      .error-banner {
+        position: sticky;
+        top: calc(var(--spacing) * 1.5);
+        z-index: 12;
+        margin: 0 auto calc(var(--spacing) * 3);
+        max-width: 960px;
+        border-radius: var(--radius-md);
+        padding: calc(var(--spacing) * 2.5);
+        background-color: rgba(220, 38, 38, 0.12);
+        border: 1px solid rgba(220, 38, 38, 0.32);
+        color: var(--color-error-dark);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .error-banner.hidden {
+        display: none;
+      }
+
+      .error-heading {
+        font-weight: 700;
+        font-size: 15px;
+      }
+
+      .error-list {
+        padding-left: calc(var(--spacing) * 2);
+        display: grid;
+        gap: calc(var(--spacing));
+        font-size: 14px;
+      }
+
+      .error-dismiss {
+        align-self: flex-start;
+        border: none;
+        background-color: transparent;
+        color: var(--color-error-dark);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: calc(var(--spacing) * 12);
+        right: calc(var(--spacing) * 4);
+        background: var(--color-on-surface);
+        color: #fff;
+        padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-2);
+        font-size: 14px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity var(--transition), transform var(--transition);
+        z-index: 30;
+      }
+
+      .toast.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast.success {
+        background: var(--color-success);
+      }
+
+      .toast.error {
+        background: var(--color-error);
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.48);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: calc(var(--spacing) * 3);
+        z-index: 40;
+      }
+
+      .modal-backdrop.hidden {
+        display: none;
+      }
+
+      .modal {
+        background: var(--color-surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-2);
+        max-width: 720px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        max-height: min(80vh, 800px);
+      }
+
+      .modal-header {
+        padding: calc(var(--spacing) * 3);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: calc(var(--spacing) * 2);
+      }
+
+      .modal-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .modal-close {
+        border: none;
+        background: rgba(148, 163, 184, 0.12);
+        border-radius: 999px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .modal-body {
+        padding: calc(var(--spacing) * 3);
+        overflow: auto;
+      }
+
+      .modal-body pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: var(--radius-md);
+        padding: calc(var(--spacing) * 3);
+        font-size: 13px;
+        line-height: 1.6;
+        max-height: 420px;
+        overflow: auto;
+        border: 1px solid rgba(15, 23, 42, 0.4);
+      }
+
+      .modal-footer {
+        padding: calc(var(--spacing) * 3);
+        border-top: 1px solid rgba(148, 163, 184, 0.24);
+        display: flex;
+        justify-content: flex-end;
+        gap: calc(var(--spacing) * 1.5);
+      }
+
+      .badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: calc(var(--spacing) / 2);
+        background: rgba(96, 165, 250, 0.16);
+        color: var(--color-primary-dark);
+        padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 1.25);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.001ms !important;
+          animation-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="branding">
+        <h1>Admin Portal</h1>
+        <p>Configure spreadsheet inputs and outputs for rapid prototyping</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="saveDraft" class="btn btn-secondary">
+          Save Draft
+        </button>
+        <button type="button" id="clearDraft" class="btn btn-secondary">
+          Clear Draft
+        </button>
+      </div>
+    </header>
+
+    <div id="errorBanner" class="error-banner hidden" role="alert">
+      <div>
+        <div class="error-heading">We need a few updates before exporting</div>
+        <ul id="errorList" class="error-list"></ul>
+      </div>
+      <button type="button" id="dismissErrors" class="error-dismiss">
+        Dismiss
+      </button>
+    </div>
+
+    <main>
+      <section class="mappings-section" aria-labelledby="inputs-heading">
+        <div class="section-heading">
+          <div>
+            <h2 id="inputs-heading">Input Mappings</h2>
+            <p class="section-description">
+              Map spreadsheet cells that collect user-provided values. Each
+              input needs a data type and optional constraints.
+            </p>
+          </div>
+          <button type="button" id="addInput" class="btn btn-primary">
+            + Add Input
+          </button>
+        </div>
+        <div id="inputsContainer" class="mappings-container" role="list"></div>
+      </section>
+
+      <section class="mappings-section" aria-labelledby="outputs-heading">
+        <div class="section-heading">
+          <div>
+            <h2 id="outputs-heading">Output Mappings</h2>
+            <p class="section-description">
+              Select the spreadsheet results you want to expose through the API.
+              Outputs inherit formatting from the workbook.
+            </p>
+          </div>
+          <button type="button" id="addOutput" class="btn btn-primary">
+            + Add Output
+          </button>
+        </div>
+        <div id="outputsContainer" class="mappings-container" role="list"></div>
+      </section>
+    </main>
+
+    <footer class="action-bar">
+      <button type="button" id="generateJson" class="primary-action">
+        Generate JSON
+      </button>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div
+      id="modalBackdrop"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="modal" role="document">
+        <div class="modal-header">
+          <h3>Configuration Ready</h3>
+          <button
+            type="button"
+            id="closeModal"
+            class="modal-close"
+            aria-label="Close export dialog"
+          >
+            ×
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="section-description">
+            Share this configuration with the Spreadsheet Engine team or save it
+            for later. Copy the JSON or download it as a file.
+          </p>
+          <pre id="jsonOutput" aria-label="Generated configuration"></pre>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="copyJson" class="btn btn-tonal">
+            Copy to Clipboard
+          </button>
+          <button type="button" id="downloadJson" class="btn btn-primary">
+            Download JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        const STORAGE_KEY = "adminPortalDraft";
+        const SAVE_DEBOUNCE = 300;
+        const DATA_TYPES = [
+          { value: "", label: "Select data type…" },
+          { value: "number", label: "Number" },
+          { value: "text", label: "Text" },
+          { value: "percentage", label: "Percentage" },
+          { value: "currency", label: "Currency" },
+          { value: "date", label: "Date" },
+        ];
+
+        const SAMPLE_CONFIGURATION = {
+          version: "1.0",
+          inputs: [
+            {
+              id: uid(),
+              sheetName: "Loan Calculator",
+              cellId: "B2",
+              label: "Loan Amount",
+              type: "input",
+              dataType: "currency",
+              constraints: {
+                type: "range",
+                min: 1000,
+                max: 1000000,
+              },
+            },
+            {
+              id: uid(),
+              sheetName: "Loan Calculator",
+              cellId: "B3",
+              label: "Annual Interest Rate",
+              type: "input",
+              dataType: "percentage",
+              constraints: {
+                type: "range",
+                min: 0,
+                max: 20,
+              },
+            },
+            {
+              id: uid(),
+              sheetName: "Loan Calculator",
+              cellId: "B4",
+              label: "Loan Term",
+              type: "input",
+              dataType: "number",
+              constraints: {
+                type: "discrete",
+                values: ["15", "20", "30"],
+              },
+            },
+          ],
+          outputs: [
+            {
+              id: uid(),
+              sheetName: "Loan Calculator",
+              cellId: "B6",
+              label: "Monthly Payment",
+              type: "output",
+              dataType: null,
+              constraints: null,
+            },
+            {
+              id: uid(),
+              sheetName: "Loan Calculator",
+              cellId: "B7",
+              label: "Total Interest Paid",
+              type: "output",
+              dataType: null,
+              constraints: null,
+            },
+          ],
+          metadata: {
+            createdAt: new Date().toISOString(),
+            version: "v0",
+          },
+        };
+
+        const selectors = {
+          inputsContainer: document.getElementById("inputsContainer"),
+          outputsContainer: document.getElementById("outputsContainer"),
+          addInput: document.getElementById("addInput"),
+          addOutput: document.getElementById("addOutput"),
+          saveDraft: document.getElementById("saveDraft"),
+          clearDraft: document.getElementById("clearDraft"),
+          generateJson: document.getElementById("generateJson"),
+          errorBanner: document.getElementById("errorBanner"),
+          errorList: document.getElementById("errorList"),
+          dismissErrors: document.getElementById("dismissErrors"),
+          toast: document.getElementById("toast"),
+          modalBackdrop: document.getElementById("modalBackdrop"),
+          closeModal: document.getElementById("closeModal"),
+          jsonOutput: document.getElementById("jsonOutput"),
+          copyJson: document.getElementById("copyJson"),
+          downloadJson: document.getElementById("downloadJson"),
+        };
+
+        let configuration = createEmptyConfiguration();
+        let saveTimer = null;
+        let latestJsonPayload = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+          attachGlobalListeners();
+          loadConfiguration();
+          renderAll();
+        });
+
+        function attachGlobalListeners() {
+          selectors.addInput.addEventListener("click", () =>
+            addMapping("input")
+          );
+          selectors.addOutput.addEventListener("click", () =>
+            addMapping("output")
+          );
+          selectors.saveDraft.addEventListener("click", () => {
+            saveConfiguration(true);
+          });
+          selectors.clearDraft.addEventListener("click", () => clearDraft());
+          selectors.generateJson.addEventListener("click", () =>
+            handleGenerateJson()
+          );
+          selectors.dismissErrors.addEventListener("click", () => hideErrors());
+          selectors.closeModal.addEventListener("click", closeModal);
+          selectors.modalBackdrop.addEventListener("click", (event) => {
+            if (event.target === selectors.modalBackdrop) {
+              closeModal();
+            }
+          });
+          selectors.copyJson.addEventListener("click", copyJsonToClipboard);
+          selectors.downloadJson.addEventListener("click", downloadJsonFile);
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              if (!selectors.errorBanner.classList.contains("hidden")) {
+                hideErrors();
+              }
+              if (!selectors.modalBackdrop.classList.contains("hidden")) {
+                closeModal();
+              }
+            }
+          });
+        }
+
+        function createEmptyConfiguration() {
+          return {
+            version: "1.0",
+            inputs: [],
+            outputs: [],
+            metadata: {
+              createdAt: new Date().toISOString(),
+              version: "v0",
+            },
+          };
+        }
+
+        function loadConfiguration() {
+          const stored = window.localStorage.getItem(STORAGE_KEY);
+          if (!stored) {
+            configuration = cloneConfiguration(SAMPLE_CONFIGURATION);
+            showToast("Loaded sample configuration", "success");
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(stored);
+            configuration = hydrateConfiguration(parsed);
+            showToast("Draft restored from browser storage", "success");
+          } catch (error) {
+            console.error("Failed to parse stored configuration", error);
+            configuration = cloneConfiguration(SAMPLE_CONFIGURATION);
+            showToast(
+              "Saved draft was corrupted. Loaded sample data instead.",
+              "error"
+            );
+          }
+        }
+
+        function hydrateConfiguration(raw) {
+          const base = createEmptyConfiguration();
+          base.version = raw.version || "1.0";
+          base.metadata = {
+            createdAt: raw?.metadata?.createdAt || new Date().toISOString(),
+            version: raw?.metadata?.version || "v0",
+          };
+          base.inputs = Array.isArray(raw.inputs)
+            ? raw.inputs.map((item) => ({
+                id: item.id || uid(),
+                sheetName: item.sheetName || "",
+                cellId: item.cellId || "",
+                label: item.label || "",
+                type: "input",
+                dataType: item.dataType || "",
+                constraints: normalizeConstraints(item.constraints),
+              }))
+            : [];
+          base.outputs = Array.isArray(raw.outputs)
+            ? raw.outputs.map((item) => ({
+                id: item.id || uid(),
+                sheetName: item.sheetName || "",
+                cellId: item.cellId || "",
+                label: item.label || "",
+                type: "output",
+                dataType: null,
+                constraints: null,
+              }))
+            : [];
+          return base;
+        }
+
+        function normalizeConstraints(value) {
+          if (!value) return null;
+          if (value.type === "discrete") {
+            const rawValues = Array.isArray(value.values)
+              ? value.values
+              : String(value.values || "")
+                  .split(",")
+                  .map((token) => token.trim())
+                  .filter(Boolean);
+            if (!rawValues.length) return null;
+            return { type: "discrete", values: rawValues };
+          }
+          if (value.type === "range") {
+            const min = value.min !== undefined ? Number(value.min) : null;
+            const max = value.max !== undefined ? Number(value.max) : null;
+            if (Number.isFinite(min) && Number.isFinite(max)) {
+              return { type: "range", min, max };
+            }
+          }
+          return null;
+        }
+
+        function cloneConfiguration(source) {
+          return JSON.parse(JSON.stringify(source));
+        }
+
+        function renderAll() {
+          renderSection("input");
+          renderSection("output");
+          updateEmptyStates();
+        }
+
+        function renderSection(type) {
+          const isInput = type === "input";
+          const container = isInput
+            ? selectors.inputsContainer
+            : selectors.outputsContainer;
+          const items = configuration[isInput ? "inputs" : "outputs"];
+
+          container.innerHTML = "";
+
+          items.forEach((mapping) => {
+            container.appendChild(createMappingElement(mapping, type));
+          });
+        }
+
+        function createMappingElement(mapping, type) {
+          const details = document.createElement("details");
+          details.className = "mapping-card";
+          details.dataset.mappingId = mapping.id;
+
+          const summary = document.createElement("summary");
+          const summaryContent = document.createElement("div");
+          summaryContent.className = "summary-content";
+
+          const textBlock = document.createElement("div");
+          textBlock.className = "summary-text";
+          const title = document.createElement("div");
+          title.className = "summary-title";
+          title.textContent = formatSummaryTitle(mapping);
+          const subtitle = document.createElement("div");
+          subtitle.className = "summary-subtitle";
+          subtitle.textContent = mapping.label || "Label pending";
+          textBlock.appendChild(title);
+          textBlock.appendChild(subtitle);
+
+          const badge = document.createElement("span");
+          badge.className = `type-badge ${type}`;
+          badge.textContent = type === "input" ? "Input" : "Output";
+
+          const status = document.createElement("span");
+          status.className = "status-chip";
+          status.textContent = computeStatusLabel(mapping, type);
+          if (status.textContent === "Complete") {
+            status.classList.add("complete");
+          }
+
+          summaryContent.appendChild(badge);
+          summaryContent.appendChild(textBlock);
+          summaryContent.appendChild(status);
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "remove-button";
+          removeBtn.textContent = "Remove";
+          removeBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            removeMapping(type, mapping.id);
+          });
+
+          summary.appendChild(summaryContent);
+          summary.appendChild(removeBtn);
+          details.appendChild(summary);
+
+          const detailsBody = document.createElement("div");
+          detailsBody.className = "mapping-details";
+          detailsBody.appendChild(createMappingForm(mapping, type, details));
+
+          details.appendChild(detailsBody);
+
+          return details;
+        }
+
+        function createMappingForm(mapping, type, rootDetails) {
+          const wrapper = document.createElement("div");
+          wrapper.className = "form-grid";
+
+          const sheetInput = createTextField({
+            label: "Sheet Name",
+            required: true,
+            value: mapping.sheetName,
+            placeholder: "e.g. Loan Calculator",
+            mappingId: mapping.id,
+            field: "sheetName",
+            onInput: (value) => {
+              mapping.sheetName = value;
+              updateSummary(mapping, rootDetails);
+              scheduleSave();
+            },
+          });
+          wrapper.appendChild(sheetInput);
+
+          const cellInput = createTextField({
+            label: "Cell ID",
+            required: true,
+            value: mapping.cellId,
+            placeholder: "e.g. B2",
+            mappingId: mapping.id,
+            field: "cellId",
+            transform: (value) => value.toUpperCase(),
+            onInput: (value) => {
+              mapping.cellId = value.toUpperCase();
+              updateSummary(mapping, rootDetails);
+              scheduleSave();
+            },
+          });
+          wrapper.appendChild(cellInput);
+
+          const labelInput = createTextField({
+            label: "Label",
+            required: true,
+            value: mapping.label,
+            placeholder: "e.g. Loan Amount",
+            mappingId: mapping.id,
+            field: "label",
+            onInput: (value) => {
+              mapping.label = value;
+              updateSummary(mapping, rootDetails);
+              scheduleSave();
+            },
+          });
+          wrapper.appendChild(labelInput);
+
+          if (type === "input") {
+            const selectGroup = document.createElement("div");
+            selectGroup.className = "form-group";
+            const label = document.createElement("label");
+            label.textContent = "Data Type";
+            label.classList.add("required");
+            const select = document.createElement("select");
+            select.dataset.mappingId = mapping.id;
+            select.dataset.field = "dataType";
+            DATA_TYPES.forEach((option) => {
+              const opt = document.createElement("option");
+              opt.value = option.value;
+              opt.textContent = option.label;
+              select.appendChild(opt);
+            });
+            select.value = mapping.dataType || "";
+            select.addEventListener("change", (event) => {
+              mapping.dataType = event.target.value;
+              updateSummary(mapping, rootDetails);
+              scheduleSave();
+            });
+            selectGroup.appendChild(label);
+            selectGroup.appendChild(select);
+            wrapper.appendChild(selectGroup);
+
+            wrapper.appendChild(createConstraintsSection(mapping));
+          }
+
+          return wrapper;
+        }
+
+        function createConstraintsSection(mapping) {
+          const section = document.createElement("div");
+          section.className = "constraints-wrapper";
+
+          const heading = document.createElement("div");
+          heading.className = "summary-title";
+          heading.textContent = "Constraints";
+          section.appendChild(heading);
+
+          const options = document.createElement("div");
+          options.className = "constraint-options";
+
+          const noneOption = buildConstraintOption(
+            "none",
+            "No constraint",
+            mapping
+          );
+          const discreteOption = buildConstraintOption(
+            "discrete",
+            "Discrete values",
+            mapping
+          );
+          const rangeOption = buildConstraintOption(
+            "range",
+            "Numeric range",
+            mapping
+          );
+
+          options.appendChild(noneOption);
+          options.appendChild(discreteOption);
+          options.appendChild(rangeOption);
+
+          section.appendChild(options);
+
+          const discreteFields = document.createElement("div");
+          discreteFields.className = "constraint-fields";
+          const discreteInput = createTextField({
+            label: "Allowed values",
+            value:
+              mapping.constraints?.type === "discrete"
+                ? mapping.constraints.values.join(", ")
+                : "",
+            placeholder: "e.g. Low, Medium, High",
+            mappingId: mapping.id,
+            field: "constraintValues",
+            onInput: (value) => {
+              const values = value
+                .split(",")
+                .map((token) => token.trim())
+                .filter(Boolean);
+              if (
+                !mapping.constraints ||
+                mapping.constraints.type !== "discrete"
+              ) {
+                mapping.constraints = values.length
+                  ? { type: "discrete", values }
+                  : null;
+              } else {
+                mapping.constraints.values = values;
+                if (!values.length) {
+                  mapping.constraints = null;
+                }
+              }
+              scheduleSave();
+            },
+          });
+          discreteFields.appendChild(discreteInput);
+
+          const rangeFields = document.createElement("div");
+          rangeFields.className = "constraint-fields";
+          const rangeGrid = document.createElement("div");
+          rangeGrid.className = "range-fields";
+
+          const minField = createNumberField({
+            label: "Minimum",
+            value:
+              mapping.constraints?.type === "range" &&
+              isFinite(mapping.constraints.min)
+                ? mapping.constraints.min
+                : "",
+            placeholder: "e.g. 0",
+            mappingId: mapping.id,
+            field: "constraintMin",
+            onInput: (value) => {
+              ensureRangeConstraint(mapping);
+              mapping.constraints.min = value === "" ? null : Number(value);
+              scheduleSave();
+            },
+          });
+
+          const maxField = createNumberField({
+            label: "Maximum",
+            value:
+              mapping.constraints?.type === "range" &&
+              isFinite(mapping.constraints.max)
+                ? mapping.constraints.max
+                : "",
+            placeholder: "e.g. 100000",
+            mappingId: mapping.id,
+            field: "constraintMax",
+            onInput: (value) => {
+              ensureRangeConstraint(mapping);
+              mapping.constraints.max = value === "" ? null : Number(value);
+              scheduleSave();
+            },
+          });
+
+          rangeGrid.appendChild(minField);
+          rangeGrid.appendChild(maxField);
+          rangeFields.appendChild(rangeGrid);
+
+          section.appendChild(discreteFields);
+          section.appendChild(rangeFields);
+
+          const controlGroup = [noneOption, discreteOption, rangeOption];
+
+          controlGroup.forEach((control) => {
+            control
+              .querySelector("input")
+              .addEventListener("change", (event) => {
+                const value = event.target.value;
+                if (value === "none") {
+                  mapping.constraints = null;
+                } else if (value === "discrete") {
+                  mapping.constraints = {
+                    type: "discrete",
+                    values:
+                      mapping.constraints?.type === "discrete"
+                        ? mapping.constraints.values
+                        : [],
+                  };
+                } else if (value === "range") {
+                  mapping.constraints = {
+                    type: "range",
+                    min:
+                      mapping.constraints?.type === "range"
+                        ? mapping.constraints.min
+                        : null,
+                    max:
+                      mapping.constraints?.type === "range"
+                        ? mapping.constraints.max
+                        : null,
+                  };
+                }
+                toggleConstraintFields(mapping, discreteFields, rangeFields);
+                scheduleSave();
+              });
+          });
+
+          toggleConstraintFields(mapping, discreteFields, rangeFields);
+
+          return section;
+        }
+
+        function buildConstraintOption(value, label, mapping) {
+          const wrapper = document.createElement("label");
+          wrapper.className = "constraint-option";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `constraint-${mapping.id}`;
+          input.value = value;
+          input.checked =
+            (value === "none" && !mapping.constraints) ||
+            mapping.constraints?.type === value;
+          const text = document.createElement("span");
+          text.textContent = label;
+          wrapper.appendChild(input);
+          wrapper.appendChild(text);
+          return wrapper;
+        }
+
+        function ensureRangeConstraint(mapping) {
+          if (!mapping.constraints || mapping.constraints.type !== "range") {
+            mapping.constraints = { type: "range", min: null, max: null };
+          }
+        }
+
+        function toggleConstraintFields(mapping, discreteFields, rangeFields) {
+          const type = mapping.constraints?.type || "none";
+          discreteFields.classList.toggle("active", type === "discrete");
+          rangeFields.classList.toggle("active", type === "range");
+        }
+
+        function createTextField({
+          label,
+          value,
+          required = false,
+          placeholder = "",
+          onInput,
+          mappingId,
+          field,
+          transform,
+        }) {
+          const group = document.createElement("div");
+          group.className = "form-group";
+          const textLabel = document.createElement("label");
+          textLabel.textContent = label;
+          if (required) {
+            textLabel.classList.add("required");
+          }
+          const input = document.createElement("input");
+          input.type = "text";
+          input.value = value || "";
+          input.placeholder = placeholder;
+          input.dataset.mappingId = mappingId;
+          input.dataset.field = field;
+          input.addEventListener("input", (event) => {
+            const currentValue = transform
+              ? transform(event.target.value)
+              : event.target.value;
+            event.target.value = currentValue;
+            onInput(currentValue);
+          });
+          group.appendChild(textLabel);
+          group.appendChild(input);
+          return group;
+        }
+
+        function createNumberField({
+          label,
+          value,
+          placeholder,
+          onInput,
+          mappingId,
+          field,
+        }) {
+          const group = document.createElement("div");
+          group.className = "form-group";
+          const textLabel = document.createElement("label");
+          textLabel.textContent = label;
+          const input = document.createElement("input");
+          input.type = "number";
+          input.step = "any";
+          input.value = value === null || value === undefined ? "" : value;
+          input.placeholder = placeholder;
+          input.dataset.mappingId = mappingId;
+          input.dataset.field = field;
+          input.addEventListener("input", (event) => {
+            onInput(event.target.value);
+          });
+          group.appendChild(textLabel);
+          group.appendChild(input);
+          return group;
+        }
+
+        function updateSummary(mapping, detailsElement) {
+          const title = detailsElement.querySelector(".summary-title");
+          const subtitle = detailsElement.querySelector(".summary-subtitle");
+          const status = detailsElement.querySelector(".status-chip");
+          if (title) {
+            title.textContent = formatSummaryTitle(mapping);
+          }
+          if (subtitle) {
+            subtitle.textContent = mapping.label || "Label pending";
+          }
+          if (status) {
+            status.textContent = computeStatusLabel(mapping, mapping.type);
+            status.classList.toggle(
+              "complete",
+              status.textContent === "Complete"
+            );
+          }
+        }
+
+        function formatSummaryTitle(mapping) {
+          const sheet = mapping.sheetName || "Sheet";
+          const cell = mapping.cellId || "Cell";
+          return `${sheet} · ${cell}`;
+        }
+
+        function computeStatusLabel(mapping, type) {
+          if (!mapping.sheetName || !mapping.cellId || !mapping.label) {
+            return "Needs details";
+          }
+          if (type === "input" && !mapping.dataType) {
+            return "Select data type";
+          }
+          return "Complete";
+        }
+
+        function updateEmptyStates() {
+          selectors.inputsEmpty.classList.toggle(
+            "hidden",
+            configuration.inputs.length > 0
+          );
+          selectors.outputsEmpty.classList.toggle(
+            "hidden",
+            configuration.outputs.length > 0
+          );
+        }
+
+        function addMapping(type) {
+          if (type === "input") {
+            configuration.inputs.unshift({
+              id: uid(),
+              sheetName: "",
+              cellId: "",
+              label: "",
+              type: "input",
+              dataType: "",
+              constraints: null,
+            });
+          } else {
+            configuration.outputs.unshift({
+              id: uid(),
+              sheetName: "",
+              cellId: "",
+              label: "",
+              type: "output",
+              dataType: null,
+              constraints: null,
+            });
+          }
+          renderSection(type);
+          updateEmptyStates();
+          scheduleSave();
+          focusFirstField(type);
+        }
+
+        function focusFirstField(type) {
+          const container =
+            type === "input"
+              ? selectors.inputsContainer
+              : selectors.outputsContainer;
+          const firstDetails = container.querySelector("details");
+          if (firstDetails) {
+            firstDetails.open = true;
+            const firstInput = firstDetails.querySelector("input");
+            if (firstInput) {
+              firstInput.focus();
+            }
+          }
+        }
+
+        function removeMapping(type, id) {
+          const confirmation = window.confirm(
+            "Remove this mapping? This action cannot be undone."
+          );
+          if (!confirmation) return;
+
+          const key = type === "input" ? "inputs" : "outputs";
+          configuration[key] = configuration[key].filter(
+            (item) => item.id !== id
+          );
+          renderSection(type);
+          updateEmptyStates();
+          scheduleSave();
+        }
+
+        function scheduleSave() {
+          if (saveTimer) {
+            clearTimeout(saveTimer);
+          }
+          saveTimer = window.setTimeout(() => {
+            saveConfiguration(false);
+          }, SAVE_DEBOUNCE);
+        }
+
+        function saveConfiguration(feedback) {
+          const serialized = JSON.stringify(configuration);
+          try {
+            window.localStorage.setItem(STORAGE_KEY, serialized);
+            if (feedback) {
+              showToast("Draft saved", "success");
+            }
+          } catch (error) {
+            console.error("Unable to save configuration", error);
+            showToast(
+              "Browser storage is full. Export or clear draft.",
+              "error"
+            );
+          }
+        }
+
+        function clearDraft() {
+          const confirmation = window.confirm(
+            "Clear the current draft and restore sample data?"
+          );
+          if (!confirmation) {
+            return;
+          }
+          window.localStorage.removeItem(STORAGE_KEY);
+          configuration = cloneConfiguration(SAMPLE_CONFIGURATION);
+          configuration.metadata.createdAt = new Date().toISOString();
+          renderAll();
+          showToast("Draft cleared. Sample data restored.", "success");
+        }
+
+        function handleGenerateJson() {
+          const errors = validateConfiguration();
+          if (errors.length) {
+            showErrors(errors);
+            showToast("Resolve validation issues before exporting", "error");
+            return;
+          }
+
+          hideErrors();
+          const payload = buildExportPayload();
+          latestJsonPayload = payload;
+          selectors.jsonOutput.textContent = JSON.stringify(payload, null, 2);
+          openModal();
+        }
+
+        function buildExportPayload() {
+          const now = new Date().toISOString();
+          return {
+            version: configuration.version || "1.0",
+            inputs: configuration.inputs.map((item) => ({
+              sheetName: item.sheetName,
+              cellId: item.cellId,
+              label: item.label,
+              type: "input",
+              dataType: item.dataType,
+              constraints: formatConstraints(item.constraints),
+            })),
+            outputs: configuration.outputs.map((item) => ({
+              sheetName: item.sheetName,
+              cellId: item.cellId,
+              label: item.label,
+              type: "output",
+              dataType: null,
+              constraints: null,
+            })),
+            metadata: {
+              createdAt: now,
+              version: "v0",
+            },
+          };
+        }
+
+        function formatConstraints(constraints) {
+          if (!constraints) return null;
+          if (constraints.type === "discrete") {
+            const values = Array.isArray(constraints.values)
+              ? constraints.values.filter(Boolean)
+              : [];
+            return values.length ? { type: "discrete", values } : null;
+          }
+          if (constraints.type === "range") {
+            const min = Number(constraints.min);
+            const max = Number(constraints.max);
+            if (Number.isFinite(min) && Number.isFinite(max)) {
+              return { type: "range", min, max };
+            }
+          }
+          return null;
+        }
+
+        function validateConfiguration() {
+          const errors = [];
+          clearFieldErrors();
+
+          if (!configuration.inputs.length) {
+            errors.push(
+              "Configuration must include at least one input mapping."
+            );
+          }
+          if (!configuration.outputs.length) {
+            errors.push(
+              "Configuration must include at least one output mapping."
+            );
+          }
+
+          const seenLocations = new Map();
+          const allMappings = [
+            ...configuration.inputs,
+            ...configuration.outputs,
+          ];
+
+          allMappings.forEach((mapping) => {
+            if (!mapping.sheetName) {
+              errors.push(`${mapping.label || "Input"} requires a sheet name.`);
+              flagField(mapping.id, "sheetName");
+            }
+            if (!mapping.cellId) {
+              errors.push(`${mapping.label || "Mapping"} needs a cell ID.`);
+              flagField(mapping.id, "cellId");
+            } else if (!/^[A-Z]+[0-9]+$/.test(mapping.cellId)) {
+              errors.push(
+                `Cell ID "${mapping.cellId}" is not a valid Excel reference.`
+              );
+              flagField(mapping.id, "cellId");
+            }
+            if (!mapping.label) {
+              errors.push(
+                `Provide a label for ${mapping.sheetName || "this mapping"}.`
+              );
+              flagField(mapping.id, "label");
+            }
+
+            const locationKey = `${mapping.sheetName}::${mapping.cellId}`;
+            if (mapping.sheetName && mapping.cellId) {
+              if (seenLocations.has(locationKey)) {
+                errors.push(
+                  `Cell ${mapping.sheetName} ${mapping.cellId} is duplicated. Each location must be unique.`
+                );
+                flagField(mapping.id, "sheetName");
+                flagField(mapping.id, "cellId");
+                const otherId = seenLocations.get(locationKey);
+                flagField(otherId, "sheetName");
+                flagField(otherId, "cellId");
+              } else {
+                seenLocations.set(locationKey, mapping.id);
+              }
+            }
+
+            if (mapping.type === "input") {
+              if (!mapping.dataType) {
+                errors.push(
+                  `${
+                    mapping.label || "Input"
+                  } must have a data type before exporting.`
+                );
+                flagField(mapping.id, "dataType");
+              }
+
+              if (mapping.constraints) {
+                if (mapping.constraints.type === "discrete") {
+                  const hasValues = Array.isArray(mapping.constraints.values)
+                    ? mapping.constraints.values.filter(Boolean).length > 0
+                    : false;
+                  if (!hasValues) {
+                    errors.push(
+                      `${
+                        mapping.label || "Input"
+                      } discrete constraint must include at least one value.`
+                    );
+                    flagField(mapping.id, "constraintValues");
+                  }
+                }
+
+                if (mapping.constraints.type === "range") {
+                  const min = Number(mapping.constraints.min);
+                  const max = Number(mapping.constraints.max);
+                  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+                    errors.push(
+                      `${
+                        mapping.label || "Input"
+                      } range constraint requires numeric minimum and maximum.`
+                    );
+                    flagField(mapping.id, "constraintMin");
+                    flagField(mapping.id, "constraintMax");
+                  } else if (min > max) {
+                    errors.push(
+                      `${
+                        mapping.label || "Input"
+                      } range minimum (${min}) must be less than or equal to maximum (${max}).`
+                    );
+                    flagField(mapping.id, "constraintMin");
+                    flagField(mapping.id, "constraintMax");
+                  }
+                }
+              }
+            }
+          });
+
+          return Array.from(new Set(errors));
+        }
+
+        function clearFieldErrors() {
+          document
+            .querySelectorAll("[data-field]")
+            .forEach((node) => node.classList.remove("input-error"));
+        }
+
+        function flagField(mappingId, field) {
+          const element = document.querySelector(
+            `[data-mapping-id="${mappingId}"][data-field="${field}"]`
+          );
+          if (element) {
+            element.classList.add("input-error");
+          }
+        }
+
+        function showErrors(errors) {
+          selectors.errorList.innerHTML = "";
+          errors.forEach((error) => {
+            const item = document.createElement("li");
+            item.textContent = error;
+            selectors.errorList.appendChild(item);
+          });
+          selectors.errorBanner.classList.remove("hidden");
+          selectors.errorBanner.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+
+        function hideErrors() {
+          selectors.errorBanner.classList.add("hidden");
+          selectors.errorList.innerHTML = "";
+        }
+
+        function showToast(message, variant = "success") {
+          if (!selectors.toast) return;
+          selectors.toast.textContent = message;
+          selectors.toast.className = `toast ${variant} visible`;
+          window.setTimeout(() => {
+            selectors.toast.classList.remove("visible");
+          }, 2600);
+        }
+
+        function openModal() {
+          selectors.modalBackdrop.classList.remove("hidden");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeModal() {
+          selectors.modalBackdrop.classList.add("hidden");
+          document.body.style.overflow = "auto";
+        }
+
+        async function copyJsonToClipboard() {
+          if (!latestJsonPayload) return;
+          const text = JSON.stringify(latestJsonPayload, null, 2);
+          try {
+            await navigator.clipboard.writeText(text);
+            showToast("Configuration copied to clipboard", "success");
+          } catch (error) {
+            console.error("Clipboard write failed", error);
+            showToast(
+              "Clipboard access was blocked. Try downloading instead.",
+              "error"
+            );
+          }
+        }
+
+        function downloadJsonFile() {
+          if (!latestJsonPayload) return;
+          const text = JSON.stringify(latestJsonPayload, null, 2);
+          const blob = new Blob([text], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `spreadsheet-configuration-${Date.now()}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showToast("JSON downloaded", "success");
+        }
+
+        function uid() {
+          return `map-${Date.now().toString(36)}-${Math.random()
+            .toString(16)
+            .slice(2, 10)}`;
+        }
+      })();
+    </script>
+  </body>
+</html>
