@@ -6,7 +6,7 @@
 
 When prototyping, produce only the minimal artifacts — prompts, specs, and code — required to validate ideas. Avoid over-engineering: iterate quickly, gather feedback, and refine based on real learning. Keep prototypes simple and reproducible with a minimal tech stack.
 
-For front-end code, always prefer vanilla HTML, CSS, and JavaScript over libraries or frameworks. Prefer embedding CSS and JavaScript directly inside the HTML file.
+For front-end code, always prefer vanilla HTML, CSS, and JavaScript over libraries or frameworks. Prefer embedding CSS and JavaScript directly inside the HTML file. When a component library would significantly accelerate prototyping, shadcn/ui is allowed and should be used with React and Tailwind CSS.
 
 ### 2. Hardcode data when prototyping
 

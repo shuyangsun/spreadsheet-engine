@@ -7,34 +7,34 @@
 
 ## Summary
 
-Create a proof-of-concept front-end prototype for the Admin Portal that allows administrators to configure spreadsheet inputs and outputs by mapping cell locations (sheet name and cell ID), defining data types, and setting constraints. The prototype validates the UX approach using vanilla HTML/CSS/JavaScript with hardcoded/mocked data, following enterprise design system patterns in a single-page layout with compact, expandable views. All code will be placed under `src/prototype/admin-portal/v0`.
+Create a proof-of-concept front-end prototype for the Admin Portal that allows administrators to configure spreadsheet inputs and outputs by mapping cell locations (sheet name and cell ID), defining data types, and setting constraints. The prototype validates the UX approach using React with shadcn/ui component library and Tailwind CSS with hardcoded/mocked data. All code will be placed under `src/prototype/admin-portal/v0-shadcn`.
 
 ## Technical Context
 
-**Language/Version**: Vanilla HTML5, CSS3, JavaScript (ES6+)
-**Primary Dependencies**: None (single HTML file with embedded CSS/JS per constitution)
+**Language/Version**: React 19 with TypeScript (or JavaScript ES6+)
+**Primary Dependencies**: shadcn/ui, Tailwind CSS, React 19
 **Storage**: Browser LocalStorage for draft persistence (mocked data for demonstration)
 **Testing**: Not required (per constitution - no testing for prototypes)
 **Target Platform**: Modern desktop browsers (Chrome, Firefox, Safari, Edge) - 1024px+ width
-**Project Type**: Single-file web prototype
+**Project Type**: React single-page application prototype
 **Performance Goals**: <200ms visual feedback for all user actions, support 50+ mappings without lag
 **Constraints**: Single-page layout, proof-of-concept only (UX validation), no backend/API calls
-**Scale/Scope**: Single administrator interface, approximately 500-800 lines of code in single HTML file## Constitution Check
+**Scale/Scope**: Single administrator interface, multi-file React component structure## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle                                          | Compliance | Notes                                                           |
-| -------------------------------------------------- | ---------- | --------------------------------------------------------------- |
-| **1. Speed over quality when prototyping**         | ✅ PASS    | Using vanilla HTML/CSS/JS in single file, minimal tech stack    |
-| **2. Hardcode data when prototyping**              | ✅ PASS    | All data hardcoded/mocked, no API calls                         |
-| **3. Simulate latency when prototyping**           | ✅ PASS    | No network calls needed for this prototype (local storage only) |
-| **4. Optimize for LLM agents**                     | ✅ PASS    | Documentation structured for clarity                            |
-| **5. No testing unless explicitly asked**          | ✅ PASS    | No tests implemented                                            |
-| **6. File organization and dependency boundaries** | ✅ PASS    | Code placed in `src/prototype/admin-portal/v0/`                 |
-| **7. Prototype version control**                   | ✅ PASS    | Version v0 explicitly tracked in directory structure            |
-| **8. Use .env file for secrets**                   | N/A        | No secrets in prototype                                         |
-| **9. Use React 19 and React compiler**             | N/A        | Not using React (vanilla JS per constitution for prototypes)    |
-| **10. Production environment**                     | N/A        | Prototype only, not for production deployment                   |
+| Principle                                          | Compliance | Notes                                                                 |
+| -------------------------------------------------- | ---------- | --------------------------------------------------------------------- |
+| **1. Speed over quality when prototyping**         | ✅ PASS    | Using shadcn/ui with React and Tailwind CSS to accelerate development |
+| **2. Hardcode data when prototyping**              | ✅ PASS    | All data hardcoded/mocked, no API calls                               |
+| **3. Simulate latency when prototyping**           | ✅ PASS    | No network calls needed for this prototype (local storage only)       |
+| **4. Optimize for LLM agents**                     | ✅ PASS    | Documentation structured for clarity                                  |
+| **5. No testing unless explicitly asked**          | ✅ PASS    | No tests implemented                                                  |
+| **6. File organization and dependency boundaries** | ✅ PASS    | Code placed in `src/prototype/admin-portal/v0-shadcn/`                |
+| **7. Prototype version control**                   | ✅ PASS    | Version v0-shadcn explicitly tracked in directory structure           |
+| **8. Use .env file for secrets**                   | N/A        | No secrets in prototype                                               |
+| **9. Use React 19 and React compiler**             | ✅ PASS    | Using React 19 with React compiler as specified in constitution       |
+| **10. Production environment**                     | N/A        | Prototype only, not for production deployment                         |
 
 **Status**: ✅ ALL GATES PASSED - Ready to proceed with Phase 0
 
@@ -60,13 +60,22 @@ specs/001-admin-portal-prototype/
 src/
 ├── prototype/
 │   └── admin-portal/
-│       └── v0/
-│           └── index.html    # Single-file prototype with embedded CSS/JS
-├── shared/                   # (not used in this prototype)
-└── production/               # (not used in this prototype)
+│       └── v0-shadcn/
+│           ├── package.json          # React, shadcn/ui, Tailwind dependencies
+│           ├── vite.config.js        # Vite build configuration
+│           ├── tailwind.config.js    # Tailwind CSS configuration
+│           ├── index.html            # HTML entry point
+│           └── src/
+│               ├── main.jsx          # React application entry
+│               ├── App.jsx           # Main application component
+│               ├── components/       # React components
+│               │   └── ui/           # shadcn/ui components
+│               └── lib/              # Utilities
+├── shared/                           # (not used in this prototype)
+└── production/                       # (not used in this prototype)
 ```
 
-**Structure Decision**: Single-file prototype approach following constitution principle #1 (speed over quality when prototyping) and #6 (file organization). The entire prototype is contained in one HTML file with embedded CSS and JavaScript, placed under `src/prototype/admin-portal/v0/` to maintain version history per constitution principle #7.
+**Structure Decision**: React application with shadcn/ui component library following constitution principle #1 (speed over quality when prototyping - shadcn accelerates development) and #6 (file organization). Using Vite for fast development, placed under `src/prototype/admin-portal/v0-shadcn/` to maintain version history per constitution principle #7.
 
 ## Complexity Tracking
 
@@ -78,9 +87,9 @@ src/
 
 **Summary**: All technical unknowns resolved:
 
-- Enterprise design system: Material Design 3 principles adapted for vanilla CSS
-- Layout pattern: Vertical scroll with sticky header and fixed action bar
-- Expandable UI: Native HTML `<details>`/`<summary>` elements
+- UI Framework: React 19 with shadcn/ui component library and Tailwind CSS
+- Component Library: shadcn/ui for consistent, accessible components
+- Build Tool: Vite for fast development experience
 - Validation approach: Simple form validation on submit/export only
 - Storage: LocalStorage with debounced auto-save
 - Data format: JSON schema defined
@@ -115,18 +124,18 @@ The `/speckit.plan` command ends here. To generate implementation tasks, run:
 /speckit.tasks
 ```
 
-## Summary
+## Implementation Summary
 
 **Branch**: `001-admin-portal-prototype`
-**Implementation Path**: `src/prototype/admin-portal/v0/index.html`
+**Implementation Path**: `src/prototype/admin-portal/v0-shadcn/`
 
 **Key Decisions**:
 
-1. Single HTML file with embedded CSS/JS (per constitution)
-2. Material Design 3 visual principles for enterprise intuitiveness
+1. React 19 with shadcn/ui component library and Tailwind CSS
+2. Vite for fast development and hot module replacement
 3. Hardcoded sample data for immediate demonstration
 4. LocalStorage for draft persistence (no backend)
-5. Native HTML elements where possible (details/summary for expand/collapse)
+5. Component-based architecture with reusable shadcn/ui components
 
 **Artifacts Generated**:
 

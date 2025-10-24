@@ -10,10 +10,7 @@
 ### Session 2025-10-23
 
 - Q: What differentiates this prototype from a production-ready version? → A: Proof-of-concept with simplified/mocked functionality to validate UX approach only
-- Q: What design approach should guide the prototype's UI for enterprise intuitiveness? → A: Follow established enterprise design system patterns (Material Design, Fluent, Carbon, etc.)
-- Q: What primary layout pattern should organize the Admin Portal interface? → A: Single-page form with all configuration options visible at once
-- Q: How should the interface communicate configuration completeness and validation status? → A: Simple form validation only on submit/export attempt
-- Q: What information density approach should the prototype use? → A: Compact view with expandable details for each mapping (click/expand to see constraints, types, etc.)
+- Q: What UI technology should be used for the prototype? → A: shadcn/ui component library with React and Tailwind CSS
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -134,15 +131,8 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **FR-018**: System MUST provide a clear draft function with confirmation prompt
 - **FR-019**: System MUST prevent duplicate cell location mappings (same sheet and cell ID) and display an error if attempted
 - **FR-020**: System MUST display an empty state with helpful instructions when no mappings exist
-- **FR-021**: System MUST use a clean, modern, minimal design following established enterprise design system patterns (e.g., Material Design, Fluent UI, Carbon Design System)
-- **FR-022**: System MUST provide intuitive navigation and clear visual hierarchy for all configuration elements
-- **FR-023**: System MUST display all configuration data in a scannable, organized format using a single-page layout with all options visible
-- **FR-024**: System MUST provide immediate visual feedback for all user actions (save, delete, copy, etc.)
-- **FR-025**: System MUST use consistent spacing, typography, and color schemes aligned with enterprise design standards
-- **FR-026**: System MUST provide clear affordances (buttons, inputs, interactive elements) that communicate their purpose without additional explanation
-- **FR-027**: System MUST organize the single-page interface with logical sections (inputs section, outputs section, constraints section, export section) clearly delineated
-- **FR-028**: System MUST display cell mappings in a compact view showing essential information (cell name, label, type) with expandable details for additional properties (data type, constraints)
-- **FR-029**: System MUST allow users to expand/collapse individual mapping details through click or tap interactions
+- **FR-021**: System MUST use shadcn/ui component library with React and Tailwind CSS for the user interface
+- **FR-022**: System MUST provide immediate visual feedback for all user actions (save, delete, copy, etc.)
 
 ### Key Entities
 
@@ -159,10 +149,8 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **SC-002**: The generated JSON configuration can be successfully parsed and validated as proper JSON format
 - **SC-003**: 95% of administrators can complete the configuration workflow without consulting documentation on their first attempt
 - **SC-004**: All user actions (add, remove, edit, save, generate) provide visual feedback within 200 milliseconds
-- **SC-005**: The interface displays correctly and remains functional on screen sizes from 1024px width and above
-- **SC-006**: Configuration drafts persist in local storage and can be restored after closing and reopening the browser
-- **SC-007**: Administrators can configure spreadsheets with at least 50 input mappings and 50 output mappings without performance degradation
-- **SC-008**: Users can scan and identify specific mappings among 20+ entries within 5 seconds using the compact view
+- **SC-005**: Configuration drafts persist in local storage and can be restored after closing and reopening the browser
+- **SC-006**: Administrators can configure spreadsheets with at least 50 input mappings and 50 output mappings without performance degradation
 
 ## Assumptions
 
