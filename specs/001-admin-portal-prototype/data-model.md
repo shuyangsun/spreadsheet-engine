@@ -12,13 +12,14 @@ This document defines the data structures used in the Admin Portal prototype for
 
 ### 1. CellMapping
 
-Represents a single mapping between a named cell in the spreadsheet and a labeled parameter for the API.
+Represents a single mapping between a cell location (sheet name and cell ID) in the spreadsheet and a labeled parameter for the API.
 
 **Properties**:
 
 | Property      | Type       | Required | Description                                                            |
 | ------------- | ---------- | -------- | ---------------------------------------------------------------------- |
-| `cellName`    | string     | Yes      | The named cell reference from Excel (e.g., "LoanAmount")               |
+| `sheetName`   | string     | Yes      | The name of the Excel sheet (e.g., "Sheet1", "Calculations")           |
+| `cellId`      | string     | Yes      | The cell ID in Excel format (e.g., "A2", "B10", "AA5")                 |
 | `label`       | string     | Yes      | Human-readable label for display (e.g., "Loan Amount")                 |
 | `type`        | enum       | Yes      | Either "input" or "output"                                             |
 | `dataType`    | string     | No       | For inputs only: "number", "text", "percentage", "currency", or "date" |
@@ -26,8 +27,9 @@ Represents a single mapping between a named cell in the spreadsheet and a labele
 
 **Validation Rules**:
 
-- `cellName` must not be empty
-- `cellName` must be unique across all mappings
+- `sheetName` must not be empty
+- `cellId` must not be empty and must follow Excel cell reference format (e.g., "A1", "B2", "AA100")
+- Combination of `sheetName` and `cellId` must be unique across all mappings
 - `label` must not be empty
 - `type` must be exactly "input" or "output"
 - `dataType` is required if `type` is "input"
@@ -83,7 +85,7 @@ The complete set of all cell mappings. This is the root data structure that gets
 - Must have at least one output mapping
 - All `inputs` array items must have `type` = "input"
 - All `outputs` array items must have `type` = "output"
-- No duplicate `cellName` values across inputs and outputs combined
+- No duplicate cell locations (same `sheetName` and `cellId` combination) across inputs and outputs combined
 
 ### 4. Metadata
 
@@ -150,7 +152,8 @@ User clicks "Generate JSON"
   "version": "1.0",
   "inputs": [
     {
-      "cellName": "LoanAmount",
+      "sheetName": "Loan Calculator",
+      "cellId": "B2",
       "label": "Loan Amount",
       "type": "input",
       "dataType": "currency",
@@ -161,7 +164,8 @@ User clicks "Generate JSON"
       }
     },
     {
-      "cellName": "LoanTerm",
+      "sheetName": "Loan Calculator",
+      "cellId": "B3",
       "label": "Loan Term (years)",
       "type": "input",
       "dataType": "number",
@@ -171,7 +175,8 @@ User clicks "Generate JSON"
       }
     },
     {
-      "cellName": "InterestRate",
+      "sheetName": "Loan Calculator",
+      "cellId": "B4",
       "label": "Annual Interest Rate",
       "type": "input",
       "dataType": "percentage",
@@ -180,14 +185,16 @@ User clicks "Generate JSON"
   ],
   "outputs": [
     {
-      "cellName": "MonthlyPayment",
+      "sheetName": "Loan Calculator",
+      "cellId": "B6",
       "label": "Monthly Payment",
       "type": "output",
       "dataType": null,
       "constraints": null
     },
     {
-      "cellName": "TotalInterest",
+      "sheetName": "Loan Calculator",
+      "cellId": "B7",
       "label": "Total Interest Paid",
       "type": "output",
       "dataType": null,
@@ -249,9 +256,10 @@ Valid constraint types:
 
 ### On Add/Edit Mapping
 
-- Cell name must not be empty
+- Sheet name must not be empty
+- Cell ID must not be empty and must match Excel cell reference format
 - Label must not be empty
-- Cell name must be unique
+- Combination of sheet name and cell ID must be unique
 - Type must be "input" or "output"
 
 ### On Generate JSON
@@ -265,21 +273,22 @@ Valid constraint types:
 
 ### Error Messages
 
-| Error Condition       | Message                                               |
-| --------------------- | ----------------------------------------------------- |
-| No inputs             | "Configuration must have at least one input mapping"  |
-| No outputs            | "Configuration must have at least one output mapping" |
-| Duplicate cell name   | "Cell name '{name}' already exists"                   |
-| Missing data type     | "Input '{label}' is missing a data type"              |
-| Invalid range         | "Constraint range min ({min}) must be ≤ max ({max})"  |
-| Empty discrete values | "Discrete constraint must have at least one value"    |
+| Error Condition         | Message                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| No inputs               | "Configuration must have at least one input mapping"                                 |
+| No outputs              | "Configuration must have at least one output mapping"                                |
+| Duplicate cell location | "Cell location '{sheetName}' - '{cellId}' already exists"                            |
+| Missing data type       | "Input '{label}' is missing a data type"                                             |
+| Invalid range           | "Constraint range min ({min}) must be ≤ max ({max})"                                 |
+| Empty discrete values   | "Discrete constraint must have at least one value"                                   |
+| Invalid cell ID format  | "Cell ID '{cellId}' is not a valid Excel cell reference (e.g., 'A1', 'B2', 'AA100')" |
 
 ## Entity Lifecycle
 
 ### CellMapping
 
 1. **Created**: User clicks "Add Input" or "Add Output"
-2. **Editing**: User fills in cell name, label
+2. **Editing**: User fills in sheet name, cell ID, and label
 3. **Configured**: User selects data type (for inputs)
 4. **Enhanced**: User adds constraints (optional)
 5. **Persisted**: Auto-saved to localStorage

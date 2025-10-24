@@ -153,20 +153,22 @@ This document consolidates research findings for implementing the Admin Portal p
   "version": "1.0",
   "inputs": [
     {
-      "cellName": "string",
+      "sheetName": "string",
+      "cellId": "string",
       "label": "string",
       "dataType": "number|text|percentage|currency|date",
       "constraints": {
         "type": "discrete|range",
-        "values": ["string"],  // for discrete
-        "min": number,         // for range
-        "max": number          // for range
+        "values": ["string"], // for discrete
+        "min": "number", // for range
+        "max": "number" // for range
       }
     }
   ],
   "outputs": [
     {
-      "cellName": "string",
+      "sheetName": "string",
+      "cellId": "string",
       "label": "string"
     }
   ],
@@ -194,7 +196,8 @@ This document consolidates research findings for implementing the Admin Portal p
 const sampleConfiguration = {
   inputs: [
     {
-      cellName: "LoanAmount",
+      sheetName: "Loan Calculator",
+      cellId: "B2",
       label: "Loan Amount",
       dataType: "currency",
       constraints: {
@@ -204,7 +207,8 @@ const sampleConfiguration = {
       },
     },
     {
-      cellName: "InterestRate",
+      sheetName: "Loan Calculator",
+      cellId: "B3",
       label: "Annual Interest Rate",
       dataType: "percentage",
       constraints: {
@@ -214,7 +218,8 @@ const sampleConfiguration = {
       },
     },
     {
-      cellName: "LoanTerm",
+      sheetName: "Loan Calculator",
+      cellId: "B4",
       label: "Loan Term",
       dataType: "number",
       constraints: {
@@ -225,11 +230,13 @@ const sampleConfiguration = {
   ],
   outputs: [
     {
-      cellName: "MonthlyPayment",
+      sheetName: "Loan Calculator",
+      cellId: "B6",
       label: "Monthly Payment",
     },
     {
-      cellName: "TotalInterest",
+      sheetName: "Loan Calculator",
+      cellId: "B7",
       label: "Total Interest Paid",
     },
   ],

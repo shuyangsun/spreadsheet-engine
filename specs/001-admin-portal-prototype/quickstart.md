@@ -67,7 +67,8 @@ This sample data helps you understand what a configured state looks like.
 
 1. Click the **"Add Input"** button in the Inputs section
 2. Fill in the required fields:
-   - **Cell Name**: The named cell reference from your Excel file (e.g., `PrincipalAmount`)
+   - **Sheet Name**: The name of the Excel sheet (e.g., `Loan Calculator`, `Sheet1`)
+   - **Cell ID**: The cell reference in Excel format (e.g., `A2`, `B10`, `AA5`)
    - **Label**: A human-readable name (e.g., `Principal Amount`)
 3. Select a **Data Type** from the dropdown:
    - Number
@@ -83,7 +84,8 @@ This sample data helps you understand what a configured state looks like.
 
 1. Click the **"Add Output"** button in the Outputs section
 2. Fill in the required fields:
-   - **Cell Name**: The named cell reference (e.g., `TotalCost`)
+   - **Sheet Name**: The name of the Excel sheet (e.g., `Loan Calculator`, `Sheet1`)
+   - **Cell ID**: The cell reference in Excel format (e.g., `B6`, `C15`)
    - **Label**: A human-readable name (e.g., `Total Cost`)
 
 Note: Outputs do not have data types or constraints.
@@ -135,7 +137,8 @@ The exported JSON follows this structure:
   "version": "1.0",
   "inputs": [
     {
-      "cellName": "LoanAmount",
+      "sheetName": "Loan Calculator",
+      "cellId": "B2",
       "label": "Loan Amount",
       "type": "input",
       "dataType": "currency",
@@ -148,7 +151,8 @@ The exported JSON follows this structure:
   ],
   "outputs": [
     {
-      "cellName": "MonthlyPayment",
+      "sheetName": "Loan Calculator",
+      "cellId": "B6",
       "label": "Monthly Payment",
       "type": "output",
       "dataType": null,
@@ -166,10 +170,15 @@ The exported JSON follows this structure:
 
 ### Naming Conventions
 
-- **Cell Names**: Use Excel naming conventions (start with letter, no spaces, underscores OK)
+- **Sheet Names**: Use the exact name as it appears in your Excel workbook
 
-  - Good: `LoanAmount`, `Interest_Rate`, `totalCost`
-  - Bad: `Loan Amount`, `123Amount`, `total-cost`
+  - Good: `Loan Calculator`, `Sheet1`, `Summary`
+  - Keep in mind that sheet names are case-sensitive
+
+- **Cell IDs**: Use standard Excel cell reference format
+
+  - Good: `A1`, `B2`, `AA100`, `Z999`
+  - Bad: `a1` (lowercase), `1A` (reversed), `A` (missing row number)
 
 - **Labels**: Use clear, descriptive labels that end users will understand
   - Good: `"Annual Interest Rate"`, `"Monthly Payment"`
@@ -207,6 +216,9 @@ Choose data types based on how the Calculation Engine will process the values:
 
 - Ensure you have at least one input AND one output
 - Check that all inputs have a data type selected
+- Verify sheet names and cell IDs are not empty
+- Ensure cell IDs follow Excel format (e.g., "A1", "B2", not "a1" or "1A")
+- Check for duplicate cell locations (same sheet name and cell ID)
 - If using range constraints, verify min ≤ max
 - If using discrete constraints, ensure at least one value is entered
 
@@ -265,9 +277,9 @@ This is a **proof-of-concept prototype** for UX validation. It has intentional l
 1. **No Backend**: All data is stored locally in the browser
 2. **No User Authentication**: Anyone with access to the browser can edit
 3. **No Multi-User Support**: No collaboration or concurrent editing
-4. **No Excel Integration**: Cell names must be manually entered
+4. **No Excel Integration**: Sheet names and cell IDs must be manually entered
 5. **No Import**: Cannot import existing configurations (besides sample data)
-6. **No Validation Against Actual Spreadsheet**: Cell names are not checked against real Excel files
+6. **No Validation Against Actual Spreadsheet**: Cell locations are not checked against real Excel files
 7. **Basic Error Handling**: Production version would have more sophisticated error recovery
 
 ## Next Steps

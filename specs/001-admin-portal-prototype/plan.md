@@ -7,7 +7,7 @@
 
 ## Summary
 
-Create a proof-of-concept front-end prototype for the Admin Portal that allows administrators to configure spreadsheet inputs and outputs by mapping named cells, defining data types, and setting constraints. The prototype validates the UX approach using vanilla HTML/CSS/JavaScript with hardcoded/mocked data, following enterprise design system patterns in a single-page layout with compact, expandable views. All code will be placed under `src/prototype/admin-portal/v0`.
+Create a proof-of-concept front-end prototype for the Admin Portal that allows administrators to configure spreadsheet inputs and outputs by mapping cell locations (sheet name and cell ID), defining data types, and setting constraints. The prototype validates the UX approach using vanilla HTML/CSS/JavaScript with hardcoded/mocked data, following enterprise design system patterns in a single-page layout with compact, expandable views. All code will be placed under `src/prototype/admin-portal/v0`.
 
 ## Technical Context
 

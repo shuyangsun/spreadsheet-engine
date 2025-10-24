@@ -35,13 +35,18 @@
     "inputMapping": {
       "type": "object",
       "description": "Mapping for an input cell",
-      "required": ["cellName", "label", "type", "dataType"],
+      "required": ["sheetName", "cellId", "label", "type", "dataType"],
       "properties": {
-        "cellName": {
+        "sheetName": {
           "type": "string",
-          "description": "Named cell reference from Excel",
+          "description": "Name of the Excel sheet",
+          "minLength": 1
+        },
+        "cellId": {
+          "type": "string",
+          "description": "Cell ID in Excel format (e.g., 'A1', 'B2', 'AA100')",
           "minLength": 1,
-          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          "pattern": "^[A-Z]+[0-9]+$"
         },
         "label": {
           "type": "string",
@@ -76,13 +81,18 @@
     "outputMapping": {
       "type": "object",
       "description": "Mapping for an output cell",
-      "required": ["cellName", "label", "type"],
+      "required": ["sheetName", "cellId", "label", "type"],
       "properties": {
-        "cellName": {
+        "sheetName": {
           "type": "string",
-          "description": "Named cell reference from Excel",
+          "description": "Name of the Excel sheet",
+          "minLength": 1
+        },
+        "cellId": {
+          "type": "string",
+          "description": "Cell ID in Excel format (e.g., 'A1', 'B2', 'AA100')",
           "minLength": 1,
-          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          "pattern": "^[A-Z]+[0-9]+$"
         },
         "label": {
           "type": "string",

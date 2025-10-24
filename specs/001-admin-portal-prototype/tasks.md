@@ -81,35 +81,38 @@ This task list breaks down the implementation of the Admin Portal prototype into
 
 ### Task 1.3: Implement Material Design CSS Foundations
 
-**Status**: [ ] Not Started
+**Status**: [X] Completed (Enhanced with modern design)
 **Priority**: P1 (Blocking)
 **Files**: `src/prototype/admin-portal/v0/index.html` (style block)
 **Dependencies**: Task 1.2
-**Description**: Add base CSS with Material Design 3 principles, including color palette, typography, spacing grid, and elevation
+**Description**: Add base CSS with Material Design 3 principles, including color palette, typography, spacing grid, and elevation. **Enhanced with modern Tailwind-inspired colors and consistent border-radius for all buttons.**
 
 **Acceptance**:
 
-- CSS variables defined for Material Design colors
-- Roboto font loaded (with fallback)
+- CSS variables defined for Material Design colors (enhanced with modern blue palette)
+- System font stack with font smoothing
 - 8px baseline grid established
 - Reset/normalize styles applied
-- Box-shadow utilities for elevation
+- Box-shadow utilities for elevation with softer shadows
+- Gradient backgrounds for header and badges
+- Consistent border-radius (8px for buttons, 12px for large elements)
 
-**CSS Variables to Define**:
+**CSS Variables Defined**:
 
 ```css
 :root {
-  --md-primary: #1976d2;
-  --md-primary-dark: #1565c0;
+  --md-primary: #2563eb; /* Modern blue */
+  --md-primary-dark: #1e40af;
+  --md-primary-hover: #1d4ed8;
   --md-surface: #ffffff;
-  --md-background: #fafafa;
-  --md-error: #d32f2f;
-  --md-on-surface: #000000de;
-  --md-on-surface-variant: #00000099;
-  --md-outline: #0000001f;
+  --md-background: #f8fafc;
+  --md-error: #ef4444;
+  --md-on-surface: #0f172a;
+  --md-on-surface-variant: #64748b;
+  --md-outline: #e2e8f0;
   --spacing-unit: 8px;
-  --border-radius: 4px;
-  --border-radius-large: 20px;
+  --border-radius: 8px; /* Consistent across all buttons */
+  --border-radius-large: 12px;
 }
 ```
 
@@ -119,19 +122,20 @@ This task list breaks down the implementation of the Admin Portal prototype into
 
 ### Task 2.1: Build Sticky Header with Actions
 
-**Status**: [ ] Not Started
+**Status**: [X] Completed (Enhanced with gradient background)
 **Priority**: P1 (Blocking)
 **Files**: `src/prototype/admin-portal/v0/index.html`
 **Dependencies**: Task 1.3
-**Description**: Create sticky header with title, save draft, and clear draft buttons
+**Description**: Create sticky header with title, save draft, and clear draft buttons. **Enhanced with gradient background and glass-morphism effect on buttons.**
 
 **Acceptance**:
 
 - Header stays at top on scroll (position: sticky)
-- "Admin Portal" title displayed
-- "Save Draft" button (actually auto-saves, button for UX)
-- "Clear Draft" button with confirmation dialog
-- Proper Material Design button styling
+- "Admin Portal" title displayed with gradient background
+- "Save Draft" button with semi-transparent glass effect and proper hover state
+- "Clear Draft" button with semi-transparent glass effect and proper hover state
+- All buttons consistently rounded with 8px border-radius
+- Hover states with visible color change (not same as background)
 
 **HTML Structure**:
 
@@ -160,7 +164,7 @@ This task list breaks down the implementation of the Admin Portal prototype into
 - Section heading "Input Mappings"
 - Empty state with instructional text (shown when no inputs)
 - "Add Input" button with Material Design styling
-- Container for input mapping items
+- Container for input mapping items (each with sheet name, cell ID, and label)
 
 **HTML Structure**:
 
@@ -237,7 +241,7 @@ This task list breaks down the implementation of the Admin Portal prototype into
 
 - Function: `createMappingElement(mapping, type)` returns DOM element
 - Uses `<details>` and `<summary>` for native expand/collapse
-- Summary shows: cell name, label, type badge, remove button
+- Summary shows: sheet name, cell ID, label, type badge, remove button
 - Expanded view shows: data type dropdown (inputs only), constraints inputs
 - Proper Material Design card styling with elevation
 
@@ -344,7 +348,8 @@ This task list breaks down the implementation of the Admin Portal prototype into
 - Validates: all inputs have data type selected
 - Validates: range constraints have min <= max
 - Validates: discrete constraints have at least 1 value
-- Validates: no duplicate cell names
+- Validates: no duplicate cell locations (same sheet name and cell ID combination)
+- Validates: cell IDs match Excel format (e.g., "A1", "B2", "AA100")
 
 **Return Format**:
 
@@ -420,21 +425,24 @@ const sampleData = {
   version: "1.0",
   inputs: [
     {
-      cellName: "LoanAmount",
+      sheetName: "Loan Calculator",
+      cellId: "B2",
       label: "Loan Amount",
       type: "input",
       dataType: "currency",
       constraints: { type: "range", min: 1000, max: 1000000 },
     },
     {
-      cellName: "InterestRate",
+      sheetName: "Loan Calculator",
+      cellId: "B3",
       label: "Annual Interest Rate",
       type: "input",
       dataType: "percentage",
       constraints: { type: "range", min: 0, max: 20 },
     },
     {
-      cellName: "LoanTerm",
+      sheetName: "Loan Calculator",
+      cellId: "B4",
       label: "Loan Term (years)",
       type: "input",
       dataType: "number",
@@ -443,12 +451,14 @@ const sampleData = {
   ],
   outputs: [
     {
-      cellName: "MonthlyPayment",
+      sheetName: "Loan Calculator",
+      cellId: "B6",
       label: "Monthly Payment",
       type: "output",
     },
     {
-      cellName: "TotalInterest",
+      sheetName: "Loan Calculator",
+      cellId: "B7",
       label: "Total Interest Paid",
       type: "output",
     },
@@ -536,7 +546,8 @@ const sampleData = {
 function addInput() {
   const newMapping = {
     id: generateUniqueId(),
-    cellName: "",
+    sheetName: "",
+    cellId: "",
     label: "",
     type: "input",
     dataType: null,

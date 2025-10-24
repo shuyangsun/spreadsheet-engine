@@ -17,9 +17,9 @@
 
 ## User Scenarios & Testing _(mandatory)_
 
-### User Story 1 - Map Named Cells to Inputs and Outputs (Priority: P1)
+### User Story 1 - Map Cell Locations to Inputs and Outputs (Priority: P1)
 
-An administrator opens the Admin Portal to configure a spreadsheet for use in the Calculation Engine. They need to identify which named cells on specific sheets will serve as inputs (where users provide values) and which will serve as outputs (calculated results to display). The administrator maps each named cell, assigns it a descriptive label, and specifies whether it's an input or output.
+An administrator opens the Admin Portal to configure a spreadsheet for use in the Calculation Engine. They need to identify which cell locations (sheet name and cell ID like "A2") will serve as inputs (where users provide values) and which will serve as outputs (calculated results to display). The administrator maps each cell location, assigns it a descriptive label, and specifies whether it's an input or output.
 
 **Why this priority**: This is the core functionality of the Admin Portal. Without the ability to map and label cells, no configuration can be created. This represents the minimum viable product.
 
@@ -27,8 +27,8 @@ An administrator opens the Admin Portal to configure a spreadsheet for use in th
 
 **Acceptance Scenarios**:
 
-1. **Given** the administrator has opened the Admin Portal, **When** they add a new named cell and specify it as an input with label "Loan Amount", **Then** the system displays the input mapping with the label in the configuration list
-2. **Given** the administrator has created input mappings, **When** they add a new named cell and specify it as an output with label "Monthly Payment", **Then** the system displays the output mapping with the label separately from inputs
+1. **Given** the administrator has opened the Admin Portal, **When** they add a new cell location (sheet name and cell ID) and specify it as an input with label "Loan Amount", **Then** the system displays the input mapping with the label in the configuration list
+2. **Given** the administrator has created input mappings, **When** they add a new cell location and specify it as an output with label "Monthly Payment", **Then** the system displays the output mapping with the label separately from inputs
 3. **Given** the administrator has multiple cell mappings, **When** they remove a mapping, **Then** the system removes it from the configuration list immediately
 4. **Given** the administrator has no cell mappings, **When** they view the configuration, **Then** the system displays an empty state with instructions to add mappings
 
@@ -103,19 +103,19 @@ Administrators working on complex spreadsheet configurations may need multiple s
 
 ### Edge Cases
 
-- What happens when an administrator enters a named cell reference that contains special characters or spaces?
-- How does the system handle when an administrator tries to create duplicate mappings for the same named cell?
+- What happens when an administrator enters an invalid cell ID (e.g., contains special characters or invalid format)?
+- How does the system handle when an administrator tries to create duplicate mappings for the same cell location (same sheet and cell ID)?
 - What happens if the administrator defines a minimum value greater than the maximum value in a continuous range?
 - How does the system behave if local storage is full or unavailable when attempting to save a draft?
 - What happens when an administrator provides an empty string for a discrete value in the value set?
-- How does the system handle very long labels or cell names that might affect the layout?
+- How does the system handle very long labels, sheet names, or cell IDs that might affect the layout?
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow administrators to add named cell mappings specifying the cell name and a descriptive label
-- **FR-002**: System MUST allow administrators to designate each named cell mapping as either an input or an output
+- **FR-001**: System MUST allow administrators to add cell location mappings specifying the sheet name, cell ID (e.g., "A2"), and a descriptive label
+- **FR-002**: System MUST allow administrators to designate each cell location mapping as either an input or an output
 - **FR-003**: System MUST display input mappings and output mappings in separate, clearly labeled sections
 - **FR-004**: System MUST allow administrators to remove any cell mapping from the configuration
 - **FR-005**: System MUST provide data type options including: number, text, percentage, currency, and date
@@ -132,7 +132,7 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **FR-016**: System MUST automatically save configuration drafts to browser local storage
 - **FR-017**: System MUST automatically load the most recent draft when the Admin Portal opens
 - **FR-018**: System MUST provide a clear draft function with confirmation prompt
-- **FR-019**: System MUST prevent duplicate cell name mappings and display an error if attempted
+- **FR-019**: System MUST prevent duplicate cell location mappings (same sheet and cell ID) and display an error if attempted
 - **FR-020**: System MUST display an empty state with helpful instructions when no mappings exist
 - **FR-021**: System MUST use a clean, modern, minimal design following established enterprise design system patterns (e.g., Material Design, Fluent UI, Carbon Design System)
 - **FR-022**: System MUST provide intuitive navigation and clear visual hierarchy for all configuration elements
@@ -146,7 +146,7 @@ Administrators working on complex spreadsheet configurations may need multiple s
 
 ### Key Entities
 
-- **Cell Mapping**: Represents the connection between a named cell in the spreadsheet and a labeled parameter in the API. Contains: cell name (string), label (string), type (input/output), data type (optional), constraints (optional)
+- **Cell Mapping**: Represents the connection between a cell location (sheet name and cell ID) in the spreadsheet and a labeled parameter in the API. Contains: sheet name (string), cell ID (string, e.g., "A2"), label (string), type (input/output), data type (optional), constraints (optional)
 - **Data Type**: Defines the expected format of data for an input. Supported types: number, text, percentage, currency, date
 - **Value Constraint**: Restricts the possible values for an input. Either a discrete set (list of strings) or a continuous range (min/max numeric values)
 - **Configuration**: The complete set of all cell mappings and their associated metadata. Serializes to JSON format for export
@@ -166,15 +166,15 @@ Administrators working on complex spreadsheet configurations may need multiple s
 
 ## Assumptions
 
-- **A-001**: Administrators are familiar with their Excel spreadsheets and know which cells are named and what they represent
+- **A-001**: Administrators are familiar with their Excel spreadsheets and know which cell locations (sheet name and cell ID) they want to map
 - **A-002**: The Admin Portal is a proof-of-concept prototype focused on validating the UX approach rather than production deployment
 - **A-003**: Administrators will use modern browsers with local storage capabilities (Chrome, Firefox, Safari, Edge)
-- **A-004**: Named cell references in Excel follow standard Excel naming conventions
+- **A-004**: Cell IDs follow standard Excel cell reference format (e.g., "A1", "B2", "AA100")
 - **A-005**: The JSON configuration format will have a defined schema that matches what the Calculation Engine expects
 - **A-006**: Administrators have basic computer literacy and are comfortable with web applications
 - **A-007**: The interface will be used on desktop or laptop computers, not mobile devices
 - **A-008**: Data types are limited to the five basic types (number, text, percentage, currency, date) for this prototype
-- **A-009**: Administrators will manually enter cell names rather than importing them from an Excel file
+- **A-009**: Administrators will manually enter sheet names and cell IDs rather than importing them from an Excel file
 - **A-010**: The prototype does not require user authentication or multi-user collaboration features
 - **A-011**: Prototype may use simplified/mocked data storage mechanisms to demonstrate functionality without backend infrastructure
 
@@ -191,4 +191,4 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **OS-009**: Mobile or tablet device support
 - **OS-010**: Internationalization or multiple language support
 - **OS-011**: Integration with the Calculation Engine (that's a separate system)
-- **OS-012**: Real-time validation of cell names against an actual Excel workbook
+- **OS-012**: Real-time validation of cell locations against an actual Excel workbook
