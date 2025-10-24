@@ -1616,7 +1616,7 @@
               flagField(mapping.id, "cellId");
             } else if (!/^[A-Z]+[0-9]+$/.test(mapping.cellId)) {
               errors.push(
-                `Cell ID "${mapping.cellId}" is not a valid Excel reference.`
+                `Cell "${mapping.cellId}" is not a valid Excel reference.`
               );
               flagField(mapping.id, "cellId");
             }

@@ -1,4 +1,4 @@
-# Implementation Tasks: Admin Portal Prototype v0-shadcn
+# Implementation Tasks: Admin Portal Prototype v1-gpt-5-codex
 
 **Branch**: `001-admin-portal-prototype`
 **Date**: October 23, 2025
@@ -10,7 +10,7 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 **Total Tasks**: 12
 **Estimated LOC**: 400-600 lines
-**Implementation Path**: `src/prototype/admin-portal/v0-shadcn/`
+**Implementation Path**: `src/prototype/admin-portal/v1-gpt-5-codex/`
 
 ## Execution Guidelines
 
@@ -23,23 +23,23 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 1.1: Initialize Vite React Project
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/prototype/admin-portal/v0-shadcn/`
+**Files**: `src/prototype/admin-portal/v1-gpt-5-codex/`
 **Description**: Create a new Vite React project with TypeScript support
 **Acceptance**: Vite project initialized with React 19 and basic structure in place
 
 **Steps**:
 
 1. Navigate to `src/prototype/admin-portal/`
-2. Run `npm create vite@latest v0-shadcn -- --template react-ts`
+2. Run `npm create vite@latest v1-gpt-5-codex -- --template react-ts`
 3. Install dependencies with `npm install`
 
 ---
 
 ### Task 1.2: Install and Configure Tailwind CSS
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
 **Files**: `tailwind.config.js`, `src/index.css`
 **Dependencies**: Task 1.1
@@ -55,7 +55,7 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 1.3: Initialize shadcn/ui
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
 **Files**: `components.json`, `src/components/ui/`
 **Dependencies**: Task 1.2
@@ -73,7 +73,7 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 2.1: Install Required shadcn/ui Components
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
 **Files**: `src/components/ui/`
 **Dependencies**: Task 1.3
@@ -96,9 +96,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 3.1: Create Main Layout and Header
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/App.jsx`, `src/components/Header.jsx`
+**Files**: `src/App.tsx`, `src/components/Header.tsx`
 **Dependencies**: Task 2.1
 **Description**: Build the main application layout with header containing save/clear actions
 
@@ -112,9 +112,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 3.2: Create Configuration State Management
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/App.jsx`, `src/lib/storage.js`
+**Files**: `src/App.tsx`, `src/lib/storage.ts`
 **Dependencies**: Task 3.1
 **Description**: Set up React state for configuration data and LocalStorage utilities
 
@@ -131,9 +131,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 4.1: Create MappingCard Component
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/components/MappingCard.jsx`
+**Files**: `src/components/MappingCard.tsx`
 **Dependencies**: Task 3.2
 **Description**: Build reusable component for displaying cell mappings with shadcn Card and Accordion
 
@@ -148,9 +148,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 4.2: Create MappingForm Component
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/components/MappingForm.jsx`
+**Files**: `src/components/MappingForm.tsx`
 **Dependencies**: Task 4.1
 **Description**: Build form for adding/editing cell mappings
 
@@ -167,9 +167,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 5.1: Create ConstraintsInput Component
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P2
-**Files**: `src/components/ConstraintsInput.jsx`
+**Files**: `src/components/ConstraintsInput.tsx`
 **Dependencies**: Task 4.2
 **Description**: Build UI for defining constraints (discrete values or ranges)
 
@@ -184,9 +184,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 5.2: Implement Configuration Validation
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/lib/validation.js`
+**Files**: `src/lib/validation.ts`
 **Dependencies**: Task 5.1
 **Description**: Create validation logic for configuration export
 
@@ -203,9 +203,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 6.1: Create Export Dialog Component
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/components/ExportDialog.jsx`
+**Files**: `src/components/ExportDialog.tsx`
 **Dependencies**: Task 5.2
 **Description**: Build dialog for displaying and exporting JSON using shadcn Dialog
 
@@ -223,9 +223,9 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Task 7.1: Integrate All Components and Add Empty States
 
-**Status**: [ ] Not Started
+**Status**: [X] Complete
 **Priority**: P1 (Blocking)
-**Files**: `src/App.jsx`
+**Files**: `src/App.tsx`
 **Dependencies**: Task 6.1
 **Description**: Wire all components together and add empty states
 
@@ -243,33 +243,33 @@ This task list breaks down the implementation of the Admin Portal prototype usin
 
 ### Phase 1: Setup & Project Initialization
 
-- [ ] Task 1.1: Initialize Vite React Project
-- [ ] Task 1.2: Install and Configure Tailwind CSS
-- [ ] Task 1.3: Initialize shadcn/ui
+- [x] Task 1.1: Initialize Vite React Project
+- [x] Task 1.2: Install and Configure Tailwind CSS
+- [x] Task 1.3: Initialize shadcn/ui
 
 ### Phase 2: Install shadcn Components
 
-- [ ] Task 2.1: Install Required shadcn/ui Components
+- [x] Task 2.1: Install Required shadcn/ui Components
 
 ### Phase 3: Core Application Structure
 
-- [ ] Task 3.1: Create Main Layout and Header
-- [ ] Task 3.2: Create Configuration State Management
+- [x] Task 3.1: Create Main Layout and Header
+- [x] Task 3.2: Create Configuration State Management
 
 ### Phase 4: Cell Mapping Components
 
-- [ ] Task 4.1: Create MappingCard Component
-- [ ] Task 4.2: Create MappingForm Component
+- [x] Task 4.1: Create MappingCard Component
+- [x] Task 4.2: Create MappingForm Component
 
 ### Phase 5: Constraints & Validation
 
-- [ ] Task 5.1: Create ConstraintsInput Component
-- [ ] Task 5.2: Implement Configuration Validation
+- [x] Task 5.1: Create ConstraintsInput Component
+- [x] Task 5.2: Implement Configuration Validation
 
 ### Phase 6: Export Functionality
 
-- [ ] Task 6.1: Create Export Dialog Component
+- [x] Task 6.1: Create Export Dialog Component
 
 ### Phase 7: Polish & Integration
 
-- [ ] Task 7.1: Integrate All Components and Add Empty States
+- [x] Task 7.1: Integrate All Components and Add Empty States

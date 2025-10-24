@@ -12,6 +12,10 @@
 - Q: What differentiates this prototype from a production-ready version? → A: Proof-of-concept with simplified/mocked functionality to validate UX approach only
 - Q: What UI technology should be used for the prototype? → A: shadcn/ui component library with React and Tailwind CSS
 
+### Session 2025-10-24
+
+- Q: On initial page load, how should expandable cards and example configurations be initialized? → A: Collapse all cards and show exactly one input and one output example, each clearly labeled as an example
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Map Cell Locations to Inputs and Outputs (Priority: P1)
@@ -28,6 +32,7 @@ An administrator opens the Admin Portal to configure a spreadsheet for use in th
 2. **Given** the administrator has created input mappings, **When** they add a new cell location and specify it as an output with label "Monthly Payment", **Then** the system displays the output mapping with the label separately from inputs
 3. **Given** the administrator has multiple cell mappings, **When** they remove a mapping, **Then** the system removes it from the configuration list immediately
 4. **Given** the administrator has no cell mappings, **When** they view the configuration, **Then** the system displays an empty state with instructions to add mappings
+5. **Given** the administrator loads the Admin Portal, **When** the initial configuration UI renders, **Then** all mapping cards are collapsed and only one example input and one example output mapping are visible with labels indicating they are examples
 
 ---
 
@@ -133,6 +138,8 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **FR-020**: System MUST display an empty state with helpful instructions when no mappings exist
 - **FR-021**: System MUST use shadcn/ui component library with React and Tailwind CSS for the user interface
 - **FR-022**: System MUST provide immediate visual feedback for all user actions (save, delete, copy, etc.)
+- **FR-023**: On initial page load, all expandable mapping cards MUST be collapsed by default
+- **FR-024**: On initial page load, the system MUST display exactly one example input mapping and one example output mapping, each clearly labeled as an example
 
 ### Key Entities
 

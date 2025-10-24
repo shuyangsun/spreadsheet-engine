@@ -609,7 +609,7 @@
               />
             </div>
             <div class="form-group">
-              <label class="required">Cell ID</label>
+              <label class="required">Cell</label>
               <input type="text" id="inputCellId" placeholder="e.g., B2" />
             </div>
             <div class="form-group">
@@ -675,7 +675,7 @@
               />
             </div>
             <div class="form-group">
-              <label class="required">Cell ID</label>
+              <label class="required">Cell</label>
               <input type="text" id="outputCellId" placeholder="e.g., B6" />
             </div>
             <div class="form-group">
@@ -926,7 +926,7 @@
           (mapping) => {
             if (!cellIdPattern.test(mapping.cellId)) {
               errors.push(
-                `Cell ID "${mapping.cellId}" is not a valid Excel cell reference (e.g., 'A1', 'B2', 'AA100')`
+                `Cell "${mapping.cellId}" is not a valid Excel cell reference (e.g., 'A1', 'B2', 'AA100')`
               );
             }
           }
