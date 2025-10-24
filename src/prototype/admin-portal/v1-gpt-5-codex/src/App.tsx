@@ -10,7 +10,6 @@ import {
 import { MappingCard } from "@/components/MappingCard";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/toaster";
@@ -87,6 +86,68 @@ function App() {
     () => validateConfiguration(configuration),
     [configuration]
   );
+
+  const mappingErrors = useMemo(() => {
+    const errorsByMapping: Record<string, string[]> = {};
+    const allMappings = [...configuration.inputs, ...configuration.outputs];
+
+    const descriptors = allMappings.map((mapping) => {
+      const trimmedLabel = mapping.label.trim();
+      const trimmedSheet = mapping.sheetName.trim();
+      const normalizedCell = mapping.cellId.trim().toUpperCase();
+      const locationDescriptor = `${trimmedSheet} ${normalizedCell}`;
+      const descriptor = trimmedLabel || locationDescriptor;
+      const constraintKey = `${trimmedLabel} constraint`;
+
+      const keys = new Set<string>();
+      keys.add(mapping.id.toLowerCase());
+
+      if (trimmedLabel) {
+        keys.add(trimmedLabel.toLowerCase());
+      }
+
+      if (descriptor) {
+        keys.add(descriptor.toLowerCase());
+      }
+
+      if (locationDescriptor) {
+        keys.add(locationDescriptor.toLowerCase());
+      }
+
+      if (trimmedLabel || constraintKey.trim()) {
+        keys.add(constraintKey.toLowerCase());
+      }
+
+      return {
+        id: mapping.id,
+        keys,
+      };
+    });
+
+    for (const error of liveValidation.errors) {
+      if (!error.field) {
+        continue;
+      }
+
+      const normalizedField = error.field.toLowerCase();
+
+      for (const descriptor of descriptors) {
+        if (!descriptor.keys.has(normalizedField)) {
+          continue;
+        }
+
+        if (!errorsByMapping[descriptor.id]) {
+          errorsByMapping[descriptor.id] = [];
+        }
+
+        if (!errorsByMapping[descriptor.id].includes(error.message)) {
+          errorsByMapping[descriptor.id].push(error.message);
+        }
+      }
+    }
+
+    return errorsByMapping;
+  }, [configuration.inputs, configuration.outputs, liveValidation.errors]);
 
   const previewJson = useMemo(
     () => JSON.stringify(toExportConfiguration(configuration), null, 2),
@@ -312,23 +373,6 @@ function App() {
         isSaving={isSaving}
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-8">
-        {!liveValidation.isValid && (
-          <Alert variant="destructive" className="border-destructive/60">
-            <AlertTitle className="text-base font-semibold">
-              Please resolve validation errors
-            </AlertTitle>
-            <AlertDescription>
-              <ul className="mt-2 space-y-1 text-sm">
-                {liveValidation.errors.map((error, index) => (
-                  <li key={`${error.field ?? "error"}-${index}`}>
-                    {error.message}
-                  </li>
-                ))}
-              </ul>
-            </AlertDescription>
-          </Alert>
-        )}
-
         <section className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
           <div className="space-y-8">
             <div className="space-y-4">
@@ -379,6 +423,7 @@ function App() {
                       onUpdate={handleUpdateMapping}
                       onConstraintChange={handleConstraintChange}
                       onRemove={handleRemoveMapping}
+                      errors={mappingErrors[mapping.id] ?? []}
                     />
                   ))}
                 </div>
@@ -433,6 +478,7 @@ function App() {
                       onUpdate={handleUpdateMapping}
                       onConstraintChange={handleConstraintChange}
                       onRemove={handleRemoveMapping}
+                      errors={mappingErrors[mapping.id] ?? []}
                     />
                   ))}
                 </div>
@@ -487,11 +533,6 @@ function App() {
               >
                 <Download className="mr-2 h-4 w-4" /> Download JSON
               </Button>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {liveValidation.isValid
-                  ? "Preview stays in sync as you edit. Download whenever you are ready to export."
-                  : "Preview updates live. Fix the issues listed above to enable downloads."}
-              </p>
             </div>
           </aside>
         </section>
