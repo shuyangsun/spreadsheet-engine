@@ -2,61 +2,51 @@
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
+### 1. Speed over quality when prototyping
 
-<!-- Example: I. Library-First -->
+When prototyping, produce only the minimal artifacts — prompts, specs, and code — required to validate ideas. Avoid over-engineering: iterate quickly, gather feedback, and refine based on real learning. Keep prototypes simple and reproducible with a minimal tech stack.
 
-[PRINCIPLE_1_DESCRIPTION]
+For front-end code, always prefer vanilla HTML, CSS, and JavaScript over libraries or frameworks. Prefer embedding CSS and JavaScript directly inside the HTML file.
 
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### 2. Hardcode data when prototyping
 
-### [PRINCIPLE_2_NAME]
+When prototyping, always hardcode data whenever possible instead of calling real APIs. If explicitly asked, create a mock service that has the interface of the real API, so it is easier to swap to the real implementation or API calls.
 
-<!-- Example: II. CLI Interface -->
+### 3. Simulate latency when prototyping
 
-[PRINCIPLE_2_DESCRIPTION]
+When prototyping, make a judgment call about whether it is necessary to add a sleep timer to simulate network latencies and provide a more realistic user experience. Some network calls are almost instant and do not require latency simulation (e.g., fetching a username); while other network calls may have latency as long as several seconds (e.g., a call to a batch spreadsheet calculation endpoint).
 
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### 4. Optimize for LLM agents
 
-### [PRINCIPLE_3_NAME]
+Design artifacts primarily for consumption by LLMs rather than humans. Structure content to maximize clarity and machine readability, following current best practices for LLM optimization. When uncertain about optimal formats or conventions, research and apply the latest recommendations.
 
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
+Example: As of late 2025, LLMs typically interpret XML and YAML more effectively than JSON.
 
-[PRINCIPLE_3_DESCRIPTION]
+### 5. No testing unless explicitly asked
 
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Do not implement tests or use TDD unless explicitly asked. Testing is definitely not needed during prototyping.
 
-### [PRINCIPLE_4_NAME]
+### 6. File organization and dependency boundaries
 
-<!-- Example: IV. Integration Testing -->
+Source code should be placed under the `src/` directory. The source directory has three subdirectories: `prototype`, `shared`, and `production`. The `prototype` directory contains only prototype code, usually different iterations of the front-end; the `shared` directory contains common elements used by both prototypes and production code, such as interfaces for real and mock services; the `production` directory contains production code only. Direct dependencies across `prototype` and `production` directories are strictly forbidden. If anything needs to be accessed by both, put it in the `shared` directory.
 
-[PRINCIPLE_4_DESCRIPTION]
+If there are multiple versions of a code component, place each version under the subdirectory `v...`, with `...` being the version number. Note that version directories should be nested under code directories, not the other way around.
 
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### 7. Prototype version control
 
-### [PRINCIPLE_5_NAME]
+We would like to preserve all versions of prototypes (especially front-end work), so we can go back and review our progression.
 
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
+### 8. Use .env file for secrets in production code
 
-[PRINCIPLE_5_DESCRIPTION]
+Do not hardcode secrets or sensitive information in the code; put them in the `.env` file.
 
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### 9. Use React 19 and React compiler
 
-## [SECTION_2_NAME]
+If React is the library of choice (usually for production code only), use React 19 and the React compiler, which eliminates the need to use `useMemo`, `useCallback`, and `React.memo`. If you are unsure about how to use it since this is relatively new, search the internet.
 
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### 10. Production environment
 
-[SECTION_2_CONTENT]
-
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+We will deploy prototypes and production code with GitHub Pages and/or Cloudflare Workers. Make sure both deployment environments are set up properly.
 
 ## Governance
 
@@ -66,6 +56,4 @@
 
 <!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-10-23 | **Last Amended**: 2025-10-23
