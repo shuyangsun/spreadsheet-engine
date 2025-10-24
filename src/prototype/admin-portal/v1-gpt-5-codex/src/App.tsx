@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Download, Plus, X } from "lucide-react";
 
 import { Header } from "@/components/Header";
 import {
@@ -8,10 +8,11 @@ import {
   type OutputFormValues,
 } from "@/components/MappingForm";
 import { MappingCard } from "@/components/MappingCard";
-import { ExportDialog } from "@/components/ExportDialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,7 +28,6 @@ import type {
   DraftConfiguration,
   InputMapping,
   OutputMapping,
-  ValidationError,
 } from "@/lib/types";
 
 const makeLocationKey = (sheetName: string, cellId: string) =>
@@ -78,21 +78,20 @@ function App() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const [exportOpen, setExportOpen] = useState(false);
-  const [exportJson, setExportJson] = useState("");
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
-    []
-  );
   const [showInputForm, setShowInputForm] = useState(false);
   const [showOutputForm, setShowOutputForm] = useState(false);
 
   const { toast } = useToast();
 
-  const clearValidationErrors = () => {
-    if (validationErrors.length > 0) {
-      setValidationErrors([]);
-    }
-  };
+  const liveValidation = useMemo(
+    () => validateConfiguration(configuration),
+    [configuration]
+  );
+
+  const previewJson = useMemo(
+    () => JSON.stringify(toExportConfiguration(configuration), null, 2),
+    [configuration]
+  );
 
   useEffect(() => {
     const stored = loadConfiguration();
@@ -135,8 +134,6 @@ function App() {
   const totalOutputs = configuration.outputs.length;
 
   const handleAddInput = (values: InputFormValues) => {
-    clearValidationErrors();
-
     const key = makeLocationKey(values.sheetName, values.cellId);
     const exists = [...configuration.inputs, ...configuration.outputs].some(
       (mapping) => makeLocationKey(mapping.sheetName, mapping.cellId) === key
@@ -175,8 +172,6 @@ function App() {
   };
 
   const handleAddOutput = (values: OutputFormValues) => {
-    clearValidationErrors();
-
     const key = makeLocationKey(values.sheetName, values.cellId);
     const exists = [...configuration.inputs, ...configuration.outputs].some(
       (mapping) => makeLocationKey(mapping.sheetName, mapping.cellId) === key
@@ -218,8 +213,6 @@ function App() {
     id: string,
     updates: Partial<InputMapping> | Partial<OutputMapping>
   ) => {
-    clearValidationErrors();
-
     setConfiguration((current) => ({
       ...current,
       inputs: current.inputs.map((mapping) =>
@@ -239,8 +232,6 @@ function App() {
     id: string,
     constraint: Constraint | null
   ) => {
-    clearValidationErrors();
-
     setConfiguration((current) => ({
       ...current,
       inputs: current.inputs.map((mapping) =>
@@ -255,8 +246,6 @@ function App() {
   };
 
   const handleRemoveMapping = (id: string) => {
-    clearValidationErrors();
-
     const mapping = [...configuration.inputs, ...configuration.outputs].find(
       (item) => item.id === id
     );
@@ -275,25 +264,11 @@ function App() {
     }
   };
 
-  const handleManualSave = () => {
-    saveConfiguration(configuration);
-    setLastSavedAt(new Date());
-    setIsSaving(false);
-
-    toast({
-      title: "Draft saved",
-      description: "Your configuration has been persisted to this browser.",
-    });
-  };
-
   const handleClearDraft = () => {
-    clearValidationErrors();
-
     clearConfiguration();
     const reset = createExampleConfiguration();
     setConfiguration(reset);
     setLastSavedAt(null);
-    setValidationErrors([]);
 
     toast({
       title: "Draft reset",
@@ -301,51 +276,24 @@ function App() {
     });
   };
 
-  const handleGenerateJson = () => {
-    const result = validateConfiguration(configuration);
-
-    if (!result.isValid) {
-      setValidationErrors(result.errors);
+  const handleDownloadJson = (
+    json: string,
+    filenamePrefix = "configuration"
+  ) => {
+    if (!liveValidation.isValid) {
       toast({
         variant: "destructive",
-        title: "Validation failed",
-        description: `${result.errors.length} issue${
-          result.errors.length === 1 ? "" : "s"
-        } require attention before export.`,
+        title: "Download blocked",
+        description: "Resolve configuration issues before exporting.",
       });
       return;
     }
 
-    const exportPayload = toExportConfiguration(configuration);
-    const json = JSON.stringify(exportPayload, null, 2);
-    setExportJson(json);
-    setExportOpen(true);
-  };
-
-  const handleCopyJson = async () => {
-    try {
-      await navigator.clipboard.writeText(exportJson);
-      toast({
-        title: "JSON copied",
-        description: "Configuration has been copied to your clipboard.",
-      });
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Copy failed",
-        description:
-          "Your browser blocked clipboard access. Please download the file instead.",
-      });
-    }
-  };
-
-  const handleDownloadJson = () => {
-    const blob = new Blob([exportJson], { type: "application/json" });
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `configuration-${new Date().toISOString()}.json`;
+    anchor.download = `${filenamePrefix}-${new Date().toISOString()}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
 
@@ -360,21 +308,18 @@ function App() {
     <div className="min-h-screen bg-background text-foreground">
       <Header
         onClear={handleClearDraft}
-        onSave={handleManualSave}
         lastSavedAt={lastSavedAt}
         isSaving={isSaving}
-        totalInputs={totalInputs}
-        totalOutputs={totalOutputs}
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-8">
-        {validationErrors.length > 0 && (
+        {!liveValidation.isValid && (
           <Alert variant="destructive" className="border-destructive/60">
             <AlertTitle className="text-base font-semibold">
               Please resolve validation errors
             </AlertTitle>
             <AlertDescription>
               <ul className="mt-2 space-y-1 text-sm">
-                {validationErrors.map((error, index) => (
+                {liveValidation.errors.map((error, index) => (
                   <li key={`${error.field ?? "error"}-${index}`}>
                     {error.message}
                   </li>
@@ -402,7 +347,7 @@ function App() {
                     }}
                   >
                     <Plus className="h-4 w-4" />
-                    Add Input
+                    New
                   </Button>
                   {showInputForm && (
                     <Button
@@ -456,7 +401,7 @@ function App() {
                     }}
                   >
                     <Plus className="h-4 w-4" />
-                    Add Output
+                    New
                   </Button>
                   {showOutputForm && (
                     <Button
@@ -496,47 +441,61 @@ function App() {
           </div>
 
           <aside className="space-y-6">
-            <div className="rounded-lg border border-border/60 bg-card/50 p-4 text-sm leading-relaxed text-muted-foreground">
-              <p className="font-medium text-foreground">Prototype notes</p>
+            <div className="rounded-lg border border-border/60 bg-card/50 p-4 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-medium text-foreground">
+                  Configuration JSON
+                </p>
+                <Badge
+                  variant={liveValidation.isValid ? "secondary" : "destructive"}
+                  className="whitespace-nowrap"
+                >
+                  {liveValidation.isValid ? "Ready" : "Needs fixes"}
+                </Badge>
+              </div>
               <Separator className="my-3" />
-              <ul className="space-y-2">
-                <li>All changes auto-save locally after a short pause.</li>
-                <li>
-                  Constraints can be toggled per input from each mapping card.
-                </li>
-                <li>
-                  Use Generate JSON to validate before sharing the
-                  configuration.
-                </li>
-              </ul>
+              {!liveValidation.isValid && (
+                <div className="mb-3 space-y-2 rounded-md border border-destructive/60 bg-destructive/10 p-3 text-xs text-destructive-foreground">
+                  <p className="font-semibold text-destructive-foreground">
+                    Resolve validation issues
+                  </p>
+                  <ul className="space-y-1">
+                    {liveValidation.errors.slice(0, 3).map((error, index) => (
+                      <li key={`${error.field ?? "error"}-${index}`}>
+                        {error.message}
+                      </li>
+                    ))}
+                  </ul>
+                  {liveValidation.errors.length > 3 && (
+                    <p className="text-[11px] text-destructive-foreground/80">
+                      +{liveValidation.errors.length - 3} more issue
+                      {liveValidation.errors.length - 3 === 1 ? "" : "s"}
+                    </p>
+                  )}
+                </div>
+              )}
+              <ScrollArea className="max-h-[420px] rounded-md border border-border/60 bg-muted/10 p-3">
+                <pre className="text-xs leading-relaxed text-muted-foreground">
+                  <code>{previewJson}</code>
+                </pre>
+              </ScrollArea>
+              <Button
+                size="sm"
+                className="mt-4 w-full"
+                onClick={() => handleDownloadJson(previewJson)}
+                disabled={!liveValidation.isValid}
+              >
+                <Download className="mr-2 h-4 w-4" /> Download JSON
+              </Button>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {liveValidation.isValid
+                  ? "Preview stays in sync as you edit. Download whenever you are ready to export."
+                  : "Preview updates live. Fix the issues listed above to enable downloads."}
+              </p>
             </div>
           </aside>
         </section>
-
-        <Separator className="border-border/60" />
-
-        <div className="flex flex-col items-end gap-3">
-          <p className="text-sm text-muted-foreground">
-            Valid JSON exports include metadata and enforce the specification
-            contract.
-          </p>
-          <Button
-            size="lg"
-            className="bg-primary px-8 text-primary-foreground shadow-lg shadow-primary/20"
-            onClick={handleGenerateJson}
-          >
-            Generate JSON
-          </Button>
-        </div>
       </main>
-
-      <ExportDialog
-        open={exportOpen}
-        onOpenChange={setExportOpen}
-        json={exportJson}
-        onCopy={handleCopyJson}
-        onDownload={handleDownloadJson}
-      />
 
       <Toaster />
     </div>
