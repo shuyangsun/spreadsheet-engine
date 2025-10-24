@@ -30,7 +30,7 @@ Do not implement tests or use TDD unless explicitly asked. Testing is definitely
 
 Source code should be placed under the `src/` directory. The source directory has three subdirectories: `prototype`, `shared`, and `production`. The `prototype` directory contains only prototype code, usually different iterations of the front-end; the `shared` directory contains common elements used by both prototypes and production code, such as interfaces for real and mock services; the `production` directory contains production code only. Direct dependencies across `prototype` and `production` directories are strictly forbidden. If anything needs to be accessed by both, put it in the `shared` directory.
 
-If there are multiple versions of a code component, place each version under the subdirectory `v...`, with `...` being the version number. Note that version directories should be nested under code directories, not the other way around.
+If there are multiple versions of a code component, place each version under the subdirectory `v...`, with `...` being the version number plus LLM model name. Note that version directories should be nested under code directories, not the other way around.
 
 ### 7. Prototype version control
 
