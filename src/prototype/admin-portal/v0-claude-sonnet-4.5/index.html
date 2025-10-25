@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal - Spreadsheet Configuration</title>
+    <style>
+      /* Modern Material Design 3 CSS Foundations */
+      :root {
+        --md-primary: #2563eb;
+        --md-primary-dark: #1e40af;
+        --md-primary-light: #3b82f6;
+        --md-primary-hover: #1d4ed8;
+        --md-surface: #ffffff;
+        --md-background: #f8fafc;
+        --md-error: #ef4444;
+        --md-error-dark: #dc2626;
+        --md-success: #10b981;
+        --md-on-surface: #0f172a;
+        --md-on-surface-variant: #64748b;
+        --md-outline: #e2e8f0;
+        --spacing-unit: 8px;
+        --border-radius: 8px;
+        --border-radius-large: 12px;
+        --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.08),
+          0 1px 2px rgba(0, 0, 0, 0.06);
+        --elevation-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --elevation-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Helvetica Neue", "Arial", sans-serif;
+        background-color: var(--md-background);
+        color: var(--md-on-surface);
+        line-height: 1.6;
+        min-width: 1024px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Header Styles */
+      .app-header {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(
+          135deg,
+          var(--md-primary) 0%,
+          var(--md-primary-dark) 100%
+        );
+        color: white;
+        padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--elevation-2);
+        z-index: 100;
+      }
+
+      .app-header h1 {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: calc(var(--spacing-unit) * 1.5);
+      }
+
+      /* Button Styles */
+      .button-primary {
+        background-color: var(--md-primary);
+        color: white;
+        border: none;
+        padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: none;
+        letter-spacing: 0.2px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      .button-primary:hover {
+        background-color: var(--md-primary-hover);
+        box-shadow: var(--elevation-2);
+        transform: translateY(-1px);
+      }
+
+      .button-primary:active {
+        transform: translateY(0);
+        box-shadow: var(--elevation-1);
+      }
+
+      .button-secondary {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        padding: calc(var(--spacing-unit) * 1.25)
+          calc(var(--spacing-unit) * 2.5);
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: none;
+        letter-spacing: 0.2px;
+        backdrop-filter: blur(8px);
+      }
+
+      .button-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .button-secondary:active {
+        transform: translateY(0);
+      }
+
+      .button-large {
+        padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 4);
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .button-small {
+        padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .button-danger {
+        background-color: var(--md-error);
+      }
+
+      .button-danger:hover {
+        background-color: var(--md-error-dark);
+      }
+
+      /* Main Content */
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: calc(var(--spacing-unit) * 4);
+        padding-bottom: calc(var(--spacing-unit) * 12);
+      }
+
+      .mappings-section {
+        margin-bottom: calc(var(--spacing-unit) * 4);
+        background-color: var(--md-surface);
+        border-radius: var(--border-radius-large);
+        padding: calc(var(--spacing-unit) * 4);
+        box-shadow: var(--elevation-1);
+        border: 1px solid var(--md-outline);
+      }
+
+      .mappings-section h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: calc(var(--spacing-unit) * 3);
+        color: var(--md-on-surface);
+        letter-spacing: -0.3px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: calc(var(--spacing-unit) * 5);
+        color: var(--md-on-surface-variant);
+        font-size: 14px;
+        background-color: #f8fafc;
+        border-radius: var(--border-radius);
+        border: 1.5px dashed var(--md-outline);
+      }
+
+      .mappings-container {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing-unit) * 2);
+        margin-bottom: calc(var(--spacing-unit) * 2);
+      }
+
+      /* Mapping Card Styles */
+      .mapping-card {
+        border: 1px solid var(--md-outline);
+        border-radius: var(--border-radius);
+        background-color: var(--md-surface);
+        transition: all 0.2s ease;
+      }
+
+      .mapping-card:hover {
+        box-shadow: var(--elevation-1);
+        border-color: #cbd5e1;
+      }
+
+      .mapping-card summary {
+        padding: calc(var(--spacing-unit) * 2.5);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        list-style: none;
+        user-select: none;
+        transition: background-color 0.2s;
+        border-radius: var(--border-radius);
+      }
+
+      .mapping-card summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .mapping-card summary:hover {
+        background-color: #f8fafc;
+      }
+
+      .mapping-summary-content {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing-unit) * 2);
+        flex: 1;
+      }
+
+      .mapping-summary-info {
+        flex: 1;
+      }
+
+      .mapping-cell-name {
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--md-on-surface);
+      }
+
+      .mapping-label {
+        font-size: 13px;
+        color: var(--md-on-surface-variant);
+      }
+
+      .type-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .type-badge.input {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+      }
+
+      .type-badge.output {
+        background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
+        color: #7e22ce;
+        border: 1px solid #d8b4fe;
+      }
+
+      .mapping-details {
+        padding: 0 calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 2);
+        border-top: 1px solid var(--md-outline);
+        margin-top: calc(var(--spacing-unit) * 2);
+        animation: expandDown 0.2s ease-out;
+      }
+
+      @keyframes expandDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .form-group {
+        margin-bottom: calc(var(--spacing-unit) * 2);
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--md-on-surface);
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+        text-transform: none;
+        letter-spacing: 0.1px;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: calc(var(--spacing-unit) * 1.5);
+        border: 1.5px solid var(--md-outline);
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s ease;
+        background-color: var(--md-surface);
+      }
+
+      .form-group input:hover,
+      .form-group select:hover {
+        border-color: #cbd5e1;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--md-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .form-group input.error {
+        border-color: var(--md-error);
+      }
+
+      .required::after {
+        content: " *";
+        color: var(--md-error);
+      }
+
+      /* Constraints Section */
+      .constraints-section {
+        margin-top: calc(var(--spacing-unit) * 2);
+        padding-top: calc(var(--spacing-unit) * 2);
+        border-top: 1px solid var(--md-outline);
+      }
+
+      .constraints-section h4 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: calc(var(--spacing-unit) * 2);
+        color: var(--md-on-surface);
+      }
+
+      .constraint-type-selector {
+        display: flex;
+        gap: calc(var(--spacing-unit) * 2);
+        margin-bottom: calc(var(--spacing-unit) * 2);
+      }
+
+      .constraint-type-selector label {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-unit);
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .constraint-input {
+        display: none;
+      }
+
+      .constraint-input.active {
+        display: block;
+      }
+
+      .range-inputs {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--spacing-unit) * 2);
+      }
+
+      .range-inputs input {
+        flex: 1;
+      }
+
+      /* Action Bar */
+      .action-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(
+          to top,
+          rgba(248, 250, 252, 0.98) 0%,
+          rgba(248, 250, 252, 0.95) 100%
+        );
+        padding: calc(var(--spacing-unit) * 2.5);
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: center;
+        z-index: 99;
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--md-outline);
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background-color: var(--md-surface);
+        border-radius: var(--border-radius-large);
+        padding: calc(var(--spacing-unit) * 4);
+        max-width: 800px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid var(--md-outline);
+      }
+
+      .modal-content h3 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: calc(var(--spacing-unit) * 3);
+        color: var(--md-on-surface);
+        letter-spacing: -0.3px;
+      }
+
+      .modal-content pre {
+        background-color: #f8fafc;
+        border: 1.5px solid var(--md-outline);
+        border-radius: var(--border-radius);
+        padding: calc(var(--spacing-unit) * 2.5);
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.6;
+        max-height: 400px;
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+          "Courier New", monospace;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: calc(var(--spacing-unit) * 2);
+        margin-top: calc(var(--spacing-unit) * 3);
+        justify-content: flex-end;
+      }
+
+      /* Error Banner */
+      .error-banner {
+        display: none;
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        border: 1.5px solid var(--md-error);
+        border-radius: var(--border-radius-large);
+        padding: calc(var(--spacing-unit) * 3);
+        margin-bottom: calc(var(--spacing-unit) * 3);
+        box-shadow: var(--elevation-1);
+      }
+
+      .error-banner.active {
+        display: block;
+      }
+
+      .error-banner h3 {
+        color: var(--md-error-dark);
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: calc(var(--spacing-unit) * 1.5);
+      }
+
+      .error-banner ul {
+        margin-left: calc(var(--spacing-unit) * 3);
+        color: var(--md-error-dark);
+        line-height: 1.6;
+      }
+
+      .error-banner button {
+        margin-top: calc(var(--spacing-unit) * 2);
+      }
+
+      /* Success Toast */
+      .toast {
+        position: fixed;
+        bottom: calc(var(--spacing-unit) * 12);
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--md-success) 0%, #059669 100%);
+        color: white;
+        padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
+        border-radius: var(--border-radius-large);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2),
+          0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        z-index: 1001;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .toast.active {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-8px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="app-header">
+      <h1>Admin Portal</h1>
+      <div class="header-actions">
+        <button id="save-draft-btn" class="button-secondary">Save Draft</button>
+        <button id="clear-draft-btn" class="button-secondary">
+          Clear Draft
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Error Banner -->
+      <div id="error-banner" class="error-banner">
+        <h3>Validation Errors</h3>
+        <ul id="error-list"></ul>
+        <button
+          class="button-small button-secondary"
+          onclick="document.getElementById('error-banner').classList.remove('active')"
+        >
+          Dismiss
+        </button>
+      </div>
+
+      <!-- Input Mappings Section -->
+      <section id="inputs-section" class="mappings-section">
+        <h2>Input Mappings</h2>
+        <div id="inputs-empty-state" class="empty-state">
+          No input mappings yet. Click "Add Input" to get started.
+        </div>
+        <div id="inputs-container" class="mappings-container"></div>
+        <button id="add-input-btn" class="button-primary">Add Input</button>
+      </section>
+
+      <!-- Output Mappings Section -->
+      <section id="outputs-section" class="mappings-section">
+        <h2>Output Mappings</h2>
+        <div id="outputs-empty-state" class="empty-state">
+          No output mappings yet. Click "Add Output" to get started.
+        </div>
+        <div id="outputs-container" class="mappings-container"></div>
+        <button id="add-output-btn" class="button-primary">Add Output</button>
+      </section>
+    </main>
+
+    <!-- Fixed Action Bar -->
+    <footer class="action-bar">
+      <button id="generate-json-btn" class="button-primary button-large">
+        Generate JSON
+      </button>
+    </footer>
+
+    <!-- JSON Export Modal -->
+    <div id="json-modal" class="modal">
+      <div class="modal-content">
+        <h3>Configuration JSON</h3>
+        <pre id="json-output"></pre>
+        <div class="modal-actions">
+          <button id="copy-json-btn" class="button-primary">
+            Copy to Clipboard
+          </button>
+          <button id="download-json-btn" class="button-primary">
+            Download
+          </button>
+          <button id="close-modal-btn" class="button-secondary">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+      // Global State
+      let configuration = {
+        version: "1.0",
+        inputs: [],
+        outputs: [],
+      };
+
+      let nextId = 1;
+
+      // Sample Data
+      const sampleData = {
+        version: "1.0",
+        inputs: [
+          {
+            id: nextId++,
+            sheetName: "Loan Calculator",
+            cellId: "B2",
+            label: "Loan Amount",
+            type: "input",
+            dataType: "currency",
+            constraints: { type: "range", min: 1000, max: 1000000 },
+          },
+          {
+            id: nextId++,
+            sheetName: "Loan Calculator",
+            cellId: "B3",
+            label: "Annual Interest Rate",
+            type: "input",
+            dataType: "percentage",
+            constraints: { type: "range", min: 0, max: 20 },
+          },
+          {
+            id: nextId++,
+            sheetName: "Loan Calculator",
+            cellId: "B4",
+            label: "Loan Term (years)",
+            type: "input",
+            dataType: "number",
+            constraints: { type: "discrete", values: ["15", "20", "30"] },
+          },
+        ],
+        outputs: [
+          {
+            id: nextId++,
+            sheetName: "Loan Calculator",
+            cellId: "B6",
+            label: "Monthly Payment",
+            type: "output",
+          },
+          {
+            id: nextId++,
+            sheetName: "Loan Calculator",
+            cellId: "B7",
+            label: "Total Interest Paid",
+            type: "output",
+          },
+        ],
+      };
+
+      // Utility Functions
+      function generateUniqueId() {
+        return nextId++;
+      }
+
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("active");
+        setTimeout(() => {
+          toast.classList.remove("active");
+        }, 3000);
+      }
+
+      // LocalStorage Functions
+      function saveToLocalStorage(config) {
+        try {
+          const configToSave = {
+            version: config.version,
+            inputs: config.inputs.map(({ id, ...rest }) => rest),
+            outputs: config.outputs.map(({ id, ...rest }) => rest),
+          };
+          localStorage.setItem(
+            "adminPortalDraft",
+            JSON.stringify(configToSave)
+          );
+        } catch (e) {
+          if (e.name === "QuotaExceededError") {
+            alert("Storage quota exceeded. Please export your configuration.");
+          }
+        }
+      }
+
+      const debouncedSave = debounce(saveToLocalStorage, 300);
+
+      function loadFromLocalStorage() {
+        try {
+          const saved = localStorage.getItem("adminPortalDraft");
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            parsed.inputs = parsed.inputs.map((input) => ({
+              ...input,
+              id: generateUniqueId(),
+            }));
+            parsed.outputs = parsed.outputs.map((output) => ({
+              ...output,
+              id: generateUniqueId(),
+            }));
+            return parsed;
+          }
+        } catch (e) {
+          console.error("Failed to load from localStorage:", e);
+        }
+        return null;
+      }
+
+      // Mapping Card Creation
+      function createMappingElement(mapping) {
+        const card = document.createElement("details");
+        card.className = "mapping-card";
+        card.setAttribute("data-mapping-id", mapping.id);
+
+        const summary = document.createElement("summary");
+        const cellLocation =
+          mapping.sheetName && mapping.cellId
+            ? `${mapping.sheetName} - ${mapping.cellId}`
+            : "(no cell location)";
+        summary.innerHTML = `
+                <div class="mapping-summary-content">
+                    <div class="mapping-summary-info">
+                        <div class="mapping-cell-name">${cellLocation}</div>
+                        <div class="mapping-label">${
+                          mapping.label || "(no label)"
+                        }</div>
+                    </div>
+                    <span class="type-badge ${mapping.type}">${
+          mapping.type
+        }</span>
+                </div>
+                <button class="button-small button-danger" onclick="event.preventDefault(); event.stopPropagation(); removeMapping(${
+                  mapping.id
+                }, '${mapping.type}')">Remove</button>
+            `;
+
+        const details = document.createElement("div");
+        details.className = "mapping-details";
+
+        // Sheet Name Input
+        details.innerHTML += `
+                <div class="form-group">
+                    <label class="required">Sheet Name</label>
+                    <input type="text" class="sheet-name-input" value="${
+                      mapping.sheetName || ""
+                    }" placeholder="e.g., Loan Calculator, Sheet1" required>
+                </div>
+            `;
+
+        // Cell ID Input
+        details.innerHTML += `
+                <div class="form-group">
+                    <label class="required">Cell ID</label>
+                    <input type="text" class="cell-id-input" value="${
+                      mapping.cellId || ""
+                    }" placeholder="e.g., A2, B10, AA5" required>
+                </div>
+            `;
+
+        // Label Input
+        details.innerHTML += `
+                <div class="form-group">
+                    <label class="required">Label</label>
+                    <input type="text" class="label-input" value="${
+                      mapping.label || ""
+                    }" placeholder="e.g., Loan Amount" required>
+                </div>
+            `;
+
+        // Data Type (Input only)
+        if (mapping.type === "input") {
+          details.innerHTML += `
+                    <div class="form-group">
+                        <label class="required">Data Type</label>
+                        <select class="data-type-select" required>
+                            <option value="">Select data type...</option>
+                            <option value="number" ${
+                              mapping.dataType === "number" ? "selected" : ""
+                            }>Number</option>
+                            <option value="text" ${
+                              mapping.dataType === "text" ? "selected" : ""
+                            }>Text</option>
+                            <option value="percentage" ${
+                              mapping.dataType === "percentage"
+                                ? "selected"
+                                : ""
+                            }>Percentage</option>
+                            <option value="currency" ${
+                              mapping.dataType === "currency" ? "selected" : ""
+                            }>Currency</option>
+                            <option value="date" ${
+                              mapping.dataType === "date" ? "selected" : ""
+                            }>Date</option>
+                        </select>
+                    </div>
+                `;
+
+          // Constraints
+          const constraintType = mapping.constraints?.type || "none";
+          details.innerHTML += `
+                    <div class="constraints-section">
+                        <h4>Constraints (Optional)</h4>
+                        <div class="constraint-type-selector">
+                            <label>
+                                <input type="radio" name="constraint-type-${
+                                  mapping.id
+                                }" value="none" ${
+            constraintType === "none" ? "checked" : ""
+          }>
+                                None
+                            </label>
+                            <label>
+                                <input type="radio" name="constraint-type-${
+                                  mapping.id
+                                }" value="discrete" ${
+            constraintType === "discrete" ? "checked" : ""
+          }>
+                                Discrete Values
+                            </label>
+                            <label>
+                                <input type="radio" name="constraint-type-${
+                                  mapping.id
+                                }" value="range" ${
+            constraintType === "range" ? "checked" : ""
+          }>
+                                Range
+                            </label>
+                        </div>
+                        <div class="constraint-input discrete-constraint ${
+                          constraintType === "discrete" ? "active" : ""
+                        }">
+                            <div class="form-group">
+                                <label>Allowed Values (comma-separated)</label>
+                                <input type="text" class="discrete-values-input" value="${
+                                  mapping.constraints?.type === "discrete"
+                                    ? mapping.constraints.values.join(", ")
+                                    : ""
+                                }" placeholder="e.g., Low, Medium, High">
+                            </div>
+                        </div>
+                        <div class="constraint-input range-constraint ${
+                          constraintType === "range" ? "active" : ""
+                        }">
+                            <div class="form-group">
+                                <label>Range</label>
+                                <div class="range-inputs">
+                                    <input type="number" class="range-min-input" value="${
+                                      mapping.constraints?.type === "range"
+                                        ? mapping.constraints.min
+                                        : ""
+                                    }" placeholder="Min">
+                                    <span>to</span>
+                                    <input type="number" class="range-max-input" value="${
+                                      mapping.constraints?.type === "range"
+                                        ? mapping.constraints.max
+                                        : ""
+                                    }" placeholder="Max">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        }
+
+        card.appendChild(summary);
+        card.appendChild(details);
+
+        // Event Listeners
+        const sheetNameInput = card.querySelector(".sheet-name-input");
+        const cellIdInput = card.querySelector(".cell-id-input");
+        const labelInput = card.querySelector(".label-input");
+
+        function updateCellLocation() {
+          const cellLocation =
+            mapping.sheetName && mapping.cellId
+              ? `${mapping.sheetName} - ${mapping.cellId}`
+              : "(no cell location)";
+          card.querySelector(".mapping-cell-name").textContent = cellLocation;
+        }
+
+        sheetNameInput.addEventListener("input", (e) => {
+          mapping.sheetName = e.target.value;
+          updateCellLocation();
+          debouncedSave(configuration);
+        });
+
+        cellIdInput.addEventListener("input", (e) => {
+          mapping.cellId = e.target.value.toUpperCase();
+          e.target.value = mapping.cellId;
+          updateCellLocation();
+          debouncedSave(configuration);
+        });
+
+        labelInput.addEventListener("input", (e) => {
+          mapping.label = e.target.value;
+          card.querySelector(".mapping-label").textContent =
+            e.target.value || "(no label)";
+          debouncedSave(configuration);
+        });
+
+        if (mapping.type === "input") {
+          const dataTypeSelect = card.querySelector(".data-type-select");
+          dataTypeSelect.addEventListener("change", (e) => {
+            mapping.dataType = e.target.value || null;
+            debouncedSave(configuration);
+          });
+
+          // Constraint type radios
+          const constraintRadios = card.querySelectorAll(
+            `input[name="constraint-type-${mapping.id}"]`
+          );
+          constraintRadios.forEach((radio) => {
+            radio.addEventListener("change", (e) => {
+              const discreteSection = card.querySelector(
+                ".discrete-constraint"
+              );
+              const rangeSection = card.querySelector(".range-constraint");
+
+              discreteSection.classList.remove("active");
+              rangeSection.classList.remove("active");
+
+              if (e.target.value === "discrete") {
+                discreteSection.classList.add("active");
+                mapping.constraints = { type: "discrete", values: [] };
+              } else if (e.target.value === "range") {
+                rangeSection.classList.add("active");
+                mapping.constraints = { type: "range", min: null, max: null };
+              } else {
+                mapping.constraints = null;
+              }
+              debouncedSave(configuration);
+            });
+          });
+
+          // Discrete values input
+          const discreteInput = card.querySelector(".discrete-values-input");
+          if (discreteInput) {
+            discreteInput.addEventListener("input", (e) => {
+              if (mapping.constraints?.type === "discrete") {
+                mapping.constraints.values = e.target.value
+                  .split(",")
+                  .map((v) => v.trim())
+                  .filter((v) => v);
+                debouncedSave(configuration);
+              }
+            });
+          }
+
+          // Range inputs
+          const rangeMinInput = card.querySelector(".range-min-input");
+          const rangeMaxInput = card.querySelector(".range-max-input");
+          if (rangeMinInput && rangeMaxInput) {
+            rangeMinInput.addEventListener("input", (e) => {
+              if (mapping.constraints?.type === "range") {
+                mapping.constraints.min = e.target.value
+                  ? parseFloat(e.target.value)
+                  : null;
+                debouncedSave(configuration);
+              }
+            });
+            rangeMaxInput.addEventListener("input", (e) => {
+              if (mapping.constraints?.type === "range") {
+                mapping.constraints.max = e.target.value
+                  ? parseFloat(e.target.value)
+                  : null;
+                debouncedSave(configuration);
+              }
+            });
+          }
+        }
+
+        return card;
+      }
+
+      // Add/Remove Mappings
+      function addInput() {
+        const newMapping = {
+          id: generateUniqueId(),
+          sheetName: "",
+          cellId: "",
+          label: "",
+          type: "input",
+          dataType: null,
+          constraints: null,
+        };
+        configuration.inputs.push(newMapping);
+        renderMapping(newMapping);
+        updateEmptyStates();
+        debouncedSave(configuration);
+      }
+
+      function addOutput() {
+        const newMapping = {
+          id: generateUniqueId(),
+          sheetName: "",
+          cellId: "",
+          label: "",
+          type: "output",
+        };
+        configuration.outputs.push(newMapping);
+        renderMapping(newMapping);
+        updateEmptyStates();
+        debouncedSave(configuration);
+      }
+
+      function removeMapping(id, type) {
+        if (!confirm("Are you sure you want to remove this mapping?")) {
+          return;
+        }
+
+        const array =
+          type === "input" ? configuration.inputs : configuration.outputs;
+        const index = array.findIndex((m) => m.id === id);
+
+        if (index !== -1) {
+          array.splice(index, 1);
+          const card = document.querySelector(`[data-mapping-id="${id}"]`);
+          if (card) {
+            card.remove();
+          }
+          updateEmptyStates();
+          debouncedSave(configuration);
+        }
+      }
+
+      function renderMapping(mapping) {
+        const container =
+          mapping.type === "input"
+            ? document.getElementById("inputs-container")
+            : document.getElementById("outputs-container");
+        const card = createMappingElement(mapping);
+        container.appendChild(card);
+      }
+
+      function updateEmptyStates() {
+        const inputsEmpty = document.getElementById("inputs-empty-state");
+        const outputsEmpty = document.getElementById("outputs-empty-state");
+        const inputsContainer = document.getElementById("inputs-container");
+        const outputsContainer = document.getElementById("outputs-container");
+
+        inputsEmpty.style.display =
+          configuration.inputs.length === 0 ? "block" : "none";
+        outputsEmpty.style.display =
+          configuration.outputs.length === 0 ? "block" : "none";
+      }
+
+      // Validation
+      function validateConfiguration() {
+        const errors = [];
+
+        if (configuration.inputs.length === 0) {
+          errors.push("Configuration must have at least one input mapping");
+        }
+
+        if (configuration.outputs.length === 0) {
+          errors.push("Configuration must have at least one output mapping");
+        }
+
+        // Check for duplicate cell locations
+        const allCellLocations = [
+          ...configuration.inputs.map((i) => `${i.sheetName}:${i.cellId}`),
+          ...configuration.outputs.map((o) => `${o.sheetName}:${o.cellId}`),
+        ];
+        const duplicates = allCellLocations.filter(
+          (loc, index) => allCellLocations.indexOf(loc) !== index && loc !== ":"
+        );
+        if (duplicates.length > 0) {
+          const uniqueDuplicates = [...new Set(duplicates)].map((loc) => {
+            const [sheet, cell] = loc.split(":");
+            return `${sheet} - ${cell}`;
+          });
+          errors.push(
+            `Duplicate cell locations found: ${uniqueDuplicates.join(", ")}`
+          );
+        }
+
+        // Cell ID validation regex
+        const cellIdPattern = /^[A-Z]+[0-9]+$/;
+
+        // Validate inputs
+        configuration.inputs.forEach((input, index) => {
+          const inputLabel =
+            input.label || (input.sheetName && input.cellId)
+              ? `${input.sheetName} - ${input.cellId}`
+              : `#${index + 1}`;
+
+          if (!input.sheetName) {
+            errors.push(`Input ${inputLabel}: Sheet name is required`);
+          }
+          if (!input.cellId) {
+            errors.push(`Input ${inputLabel}: Cell ID is required`);
+          } else if (!cellIdPattern.test(input.cellId)) {
+            errors.push(
+              `Input ${inputLabel}: Cell ID "${input.cellId}" is not valid (must be like A1, B2, AA100)`
+            );
+          }
+          if (!input.label) {
+            errors.push(`Input ${inputLabel}: Label is required`);
+          }
+          if (!input.dataType) {
+            errors.push(`Input ${inputLabel}: Data type is required`);
+          }
+
+          if (input.constraints) {
+            if (
+              input.constraints.type === "discrete" &&
+              (!input.constraints.values ||
+                input.constraints.values.length === 0)
+            ) {
+              errors.push(
+                `Input "${input.label}": Discrete constraint must have at least one value`
+              );
+            }
+            if (input.constraints.type === "range") {
+              if (
+                input.constraints.min === null ||
+                input.constraints.max === null
+              ) {
+                errors.push(
+                  `Input "${input.label}": Range constraint must have both min and max values`
+                );
+              } else if (input.constraints.min > input.constraints.max) {
+                errors.push(
+                  `Input "${input.label}": Range min (${input.constraints.min}) must be ≤ max (${input.constraints.max})`
+                );
+              }
+            }
+          }
+        });
+
+        // Validate outputs
+        configuration.outputs.forEach((output, index) => {
+          const outputLabel =
+            output.label || (output.sheetName && output.cellId)
+              ? `${output.sheetName} - ${output.cellId}`
+              : `#${index + 1}`;
+
+          if (!output.sheetName) {
+            errors.push(`Output ${outputLabel}: Sheet name is required`);
+          }
+          if (!output.cellId) {
+            errors.push(`Output ${outputLabel}: Cell ID is required`);
+          } else if (!cellIdPattern.test(output.cellId)) {
+            errors.push(
+              `Output ${outputLabel}: Cell ID "${output.cellId}" is not valid (must be like A1, B2, AA100)`
+            );
+          }
+          if (!output.label) {
+            errors.push(`Output ${outputLabel}: Label is required`);
+          }
+        });
+
+        return {
+          valid: errors.length === 0,
+          errors: errors,
+        };
+      }
+
+      // JSON Generation
+      function generateJSON() {
+        const validation = validateConfiguration();
+
+        if (!validation.valid) {
+          const errorBanner = document.getElementById("error-banner");
+          const errorList = document.getElementById("error-list");
+          errorList.innerHTML = validation.errors
+            .map((err) => `<li>${err}</li>`)
+            .join("");
+          errorBanner.classList.add("active");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        // Hide error banner if it was showing
+        document.getElementById("error-banner").classList.remove("active");
+
+        const exportConfig = {
+          version: configuration.version,
+          inputs: configuration.inputs.map(({ id, ...rest }) => ({
+            ...rest,
+            dataType: rest.dataType || null,
+            constraints: rest.constraints || null,
+          })),
+          outputs: configuration.outputs.map(({ id, ...rest }) => ({
+            ...rest,
+            dataType: null,
+            constraints: null,
+          })),
+          metadata: {
+            createdAt: new Date().toISOString(),
+            version: "v0",
+          },
+        };
+
+        const jsonOutput = document.getElementById("json-output");
+        jsonOutput.textContent = JSON.stringify(exportConfig, null, 2);
+
+        const modal = document.getElementById("json-modal");
+        modal.classList.add("active");
+      }
+
+      // Modal Actions
+      function copyToClipboard() {
+        const jsonOutput = document.getElementById("json-output");
+        navigator.clipboard
+          .writeText(jsonOutput.textContent)
+          .then(() => {
+            showToast("JSON copied to clipboard!");
+          })
+          .catch((err) => {
+            alert("Failed to copy to clipboard");
+            console.error(err);
+          });
+      }
+
+      function downloadJSON() {
+        const jsonOutput = document.getElementById("json-output");
+        const blob = new Blob([jsonOutput.textContent], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `spreadsheet-config-${
+          new Date().toISOString().split("T")[0]
+        }.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("JSON downloaded!");
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("json-modal");
+        modal.classList.remove("active");
+      }
+
+      // Clear Draft
+      function clearDraft() {
+        if (
+          !confirm(
+            "Are you sure you want to clear the current draft? This will reset to the sample data."
+          )
+        ) {
+          return;
+        }
+
+        localStorage.removeItem("adminPortalDraft");
+        location.reload();
+      }
+
+      function saveDraft() {
+        saveToLocalStorage(configuration);
+        showToast("Draft saved!");
+      }
+
+      // Initialize
+      function init() {
+        // Load configuration
+        const savedConfig = loadFromLocalStorage();
+        if (savedConfig) {
+          configuration = savedConfig;
+        } else {
+          configuration = JSON.parse(JSON.stringify(sampleData));
+        }
+
+        // Render all mappings
+        configuration.inputs.forEach(renderMapping);
+        configuration.outputs.forEach(renderMapping);
+        updateEmptyStates();
+
+        // Event Listeners
+        document
+          .getElementById("add-input-btn")
+          .addEventListener("click", addInput);
+        document
+          .getElementById("add-output-btn")
+          .addEventListener("click", addOutput);
+        document
+          .getElementById("generate-json-btn")
+          .addEventListener("click", generateJSON);
+        document
+          .getElementById("copy-json-btn")
+          .addEventListener("click", copyToClipboard);
+        document
+          .getElementById("download-json-btn")
+          .addEventListener("click", downloadJSON);
+        document
+          .getElementById("close-modal-btn")
+          .addEventListener("click", closeModal);
+        document
+          .getElementById("clear-draft-btn")
+          .addEventListener("click", clearDraft);
+        document
+          .getElementById("save-draft-btn")
+          .addEventListener("click", saveDraft);
+
+        // Close modal on outside click
+        document.getElementById("json-modal").addEventListener("click", (e) => {
+          if (e.target.id === "json-modal") {
+            closeModal();
+          }
+        });
+      }
+
+      // Start the app
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>

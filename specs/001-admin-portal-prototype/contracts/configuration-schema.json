@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spreadsheet-engine.example.com/schemas/configuration-v1.json",
+  "title": "Spreadsheet Configuration",
+  "description": "Configuration schema for mapping Excel spreadsheet cells to API inputs and outputs",
+  "type": "object",
+  "required": ["version", "inputs", "outputs", "metadata"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "const": "1.0"
+    },
+    "inputs": {
+      "type": "array",
+      "description": "Array of input cell mappings",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/inputMapping"
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "description": "Array of output cell mappings",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/outputMapping"
+      }
+    },
+    "metadata": {
+      "$ref": "#/definitions/metadata"
+    }
+  },
+  "definitions": {
+    "inputMapping": {
+      "type": "object",
+      "description": "Mapping for an input cell",
+      "required": ["sheetName", "cellId", "label", "type", "dataType"],
+      "properties": {
+        "sheetName": {
+          "type": "string",
+          "description": "Name of the Excel sheet",
+          "minLength": 1
+        },
+        "cellId": {
+          "type": "string",
+          "description": "Cell ID in Excel format (e.g., 'A1', 'B2', 'AA100')",
+          "minLength": 1,
+          "pattern": "^[A-Z]+[0-9]+$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "description": "Mapping type",
+          "const": "input"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Expected data type for this input",
+          "enum": ["number", "text", "percentage", "currency", "date"]
+        },
+        "constraints": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/discreteConstraint"
+            },
+            {
+              "$ref": "#/definitions/rangeConstraint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "outputMapping": {
+      "type": "object",
+      "description": "Mapping for an output cell",
+      "required": ["sheetName", "cellId", "label", "type"],
+      "properties": {
+        "sheetName": {
+          "type": "string",
+          "description": "Name of the Excel sheet",
+          "minLength": 1
+        },
+        "cellId": {
+          "type": "string",
+          "description": "Cell ID in Excel format (e.g., 'A1', 'B2', 'AA100')",
+          "minLength": 1,
+          "pattern": "^[A-Z]+[0-9]+$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "description": "Mapping type",
+          "const": "output"
+        },
+        "dataType": {
+          "type": "null",
+          "description": "Outputs do not have data types"
+        },
+        "constraints": {
+          "type": "null",
+          "description": "Outputs do not have constraints"
+        }
+      }
+    },
+    "discreteConstraint": {
+      "type": "object",
+      "description": "Discrete set of allowed values",
+      "required": ["type", "values"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "discrete"
+        },
+        "values": {
+          "type": "array",
+          "description": "Array of allowed values",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "rangeConstraint": {
+      "type": "object",
+      "description": "Numeric range constraint",
+      "required": ["type", "min", "max"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "range"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum allowed value"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum allowed value"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Configuration metadata",
+      "required": ["createdAt", "version"],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "ISO-8601 formatted creation timestamp",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "string",
+          "description": "Application version",
+          "pattern": "^v[0-9]+$"
+        }
+      }
+    }
+  }
+}

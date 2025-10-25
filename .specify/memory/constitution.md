@@ -6,7 +6,7 @@
 
 When prototyping, produce only the minimal artifacts — prompts, specs, and code — required to validate ideas. Avoid over-engineering: iterate quickly, gather feedback, and refine based on real learning. Keep prototypes simple and reproducible with a minimal tech stack.
 
-For front-end code, always prefer vanilla HTML, CSS, and JavaScript over libraries or frameworks. Prefer embedding CSS and JavaScript directly inside the HTML file.
+For front-end code, always prefer vanilla HTML, CSS, and JavaScript over libraries or frameworks. Prefer embedding CSS and JavaScript directly inside the HTML file. When a component library would significantly accelerate prototyping, shadcn/ui is allowed and should be used with React and Tailwind CSS.
 
 ### 2. Hardcode data when prototyping
 
@@ -18,9 +18,9 @@ When prototyping, make a judgment call about whether it is necessary to add a sl
 
 ### 4. Optimize for LLM agents
 
-Design artifacts primarily for consumption by LLMs rather than humans. Structure content to maximize clarity and machine readability, following current best practices for LLM optimization. When uncertain about optimal formats or conventions, research and apply the latest recommendations.
+Design artifacts primarily for consumption by LLMs rather than humans. Structure content to maximize clarity and machine readability, following current best practices for LLM optimization. When uncertain about optimal formats or conventions, research and apply the latest recommendations. For example, as of late 2025, LLMs typically interpret XML and YAML more effectively than JSON.
 
-Example: As of late 2025, LLMs typically interpret XML and YAML more effectively than JSON.
+Do not generate too many tokens when creating specs, I'm poor, I can't pay for them. Keep things clear but concise.
 
 ### 5. No testing unless explicitly asked
 
@@ -30,7 +30,7 @@ Do not implement tests or use TDD unless explicitly asked. Testing is definitely
 
 Source code should be placed under the `src/` directory. The source directory has three subdirectories: `prototype`, `shared`, and `production`. The `prototype` directory contains only prototype code, usually different iterations of the front-end; the `shared` directory contains common elements used by both prototypes and production code, such as interfaces for real and mock services; the `production` directory contains production code only. Direct dependencies across `prototype` and `production` directories are strictly forbidden. If anything needs to be accessed by both, put it in the `shared` directory.
 
-If there are multiple versions of a code component, place each version under the subdirectory `v...`, with `...` being the version number. Note that version directories should be nested under code directories, not the other way around.
+If there are multiple versions of a code component, place each version under the subdirectory `v...`, with `...` being the version number plus LLM model name. Note that version directories should be nested under code directories, not the other way around.
 
 ### 7. Prototype version control
 
@@ -47,6 +47,10 @@ If React is the library of choice (usually for production code only), use React 
 ### 10. Production environment
 
 We will deploy prototypes and production code with GitHub Pages and/or Cloudflare Workers. Make sure both deployment environments are set up properly.
+
+### 11. CSS and branding
+
+When prototyping, keep colors in CSS variables, so it is easier to rebrand later.
 
 ## Governance
 

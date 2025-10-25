@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal Prototype</title>
+    <style>
+      /* Material Design 3 CSS Foundations */
+      :root {
+        --md-sys-color-primary: #1976d2;
+        --md-sys-color-on-primary: #ffffff;
+        --md-sys-color-primary-container: #d1e4ff;
+        --md-sys-color-on-primary-container: #001d36;
+        --md-sys-color-secondary: #535f70;
+        --md-sys-color-on-secondary: #ffffff;
+        --md-sys-color-secondary-container: #d7e3f8;
+        --md-sys-color-on-secondary-container: #101c2b;
+        --md-sys-color-tertiary: #6b5778;
+        --md-sys-color-on-tertiary: #ffffff;
+        --md-sys-color-tertiary-container: #f2daff;
+        --md-sys-color-on-tertiary-container: #251431;
+        --md-sys-color-error: #ba1a1a;
+        --md-sys-color-on-error: #ffffff;
+        --md-sys-color-error-container: #ffdad6;
+        --md-sys-color-on-error-container: #410002;
+        --md-sys-color-background: #fefcff;
+        --md-sys-color-on-background: #1a1c1e;
+        --md-sys-color-surface: #fefcff;
+        --md-sys-color-on-surface: #1a1c1e;
+        --md-sys-color-surface-variant: #dfe3eb;
+        --md-sys-color-on-surface-variant: #42474e;
+        --md-sys-color-outline: #73777f;
+        --md-sys-color-shadow: #000000;
+        --md-sys-elevation-level-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15),
+          0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+        --md-sys-elevation-level-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+          0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+        --md-sys-elevation-level-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15),
+          0px 1px 3px 0px rgba(0, 0, 0, 0.3);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        background-color: var(--md-sys-color-background);
+        color: var(--md-sys-color-on-background);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 80px 16px 100px;
+      }
+
+      /* Header */
+      .header {
+        position: sticky;
+        top: 0;
+        background-color: var(--md-sys-color-surface);
+        padding: 16px;
+        border-bottom: 1px solid var(--md-sys-color-surface-variant);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+        box-shadow: var(--md-sys-elevation-level-1);
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+        margin: 0;
+        color: var(--md-sys-color-on-surface);
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .btn-primary {
+        background-color: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+      }
+      .btn-primary:hover {
+        background-color: #1565c0;
+      }
+
+      .btn-secondary {
+        background-color: var(--md-sys-color-secondary-container);
+        color: var(--md-sys-color-on-secondary-container);
+      }
+      .btn-secondary:hover {
+        background-color: #cce5ff;
+      }
+
+      .btn-danger {
+        background-color: var(--md-sys-color-error-container);
+        color: var(--md-sys-color-on-error-container);
+      }
+
+      /* Mapping Sections */
+      .mappings-section {
+        margin-bottom: 32px;
+      }
+
+      .mappings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .mappings-header h2 {
+        font-size: 1.25rem;
+        margin: 0;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 32px;
+        border: 2px dashed var(--md-sys-color-surface-variant);
+        border-radius: 8px;
+        color: var(--md-sys-color-on-surface-variant);
+      }
+
+      /* Mapping Card */
+      details.mapping-card {
+        background-color: var(--md-sys-color-surface);
+        border: 1px solid var(--md-sys-color-surface-variant);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        box-shadow: var(--md-sys-elevation-level-1);
+        transition: box-shadow 0.2s;
+      }
+      details.mapping-card[open] {
+        box-shadow: var(--md-sys-elevation-level-2);
+      }
+
+      summary.mapping-summary {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        list-style: none;
+      }
+      summary.mapping-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .mapping-summary-content {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .mapping-summary-label {
+        font-weight: 500;
+      }
+
+      .mapping-summary-location {
+        color: var(--md-sys-color-on-surface-variant);
+        font-size: 0.875rem;
+      }
+
+      .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      .badge-input {
+        background-color: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+      }
+      .badge-output {
+        background-color: var(--md-sys-color-secondary-container);
+        color: var(--md-sys-color-on-secondary-container);
+      }
+
+      .mapping-details {
+        padding: 16px;
+        border-top: 1px solid var(--md-sys-color-surface-variant);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group label {
+        font-size: 0.75rem;
+        color: var(--md-sys-color-on-surface-variant);
+        margin-bottom: 4px;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 8px 12px;
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: 2px solid var(--md-sys-color-primary);
+        border-color: var(--md-sys-color-primary);
+      }
+
+      .constraints-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px dashed var(--md-sys-color-surface-variant);
+      }
+
+      .constraint-toggle {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      /* Bottom Action Bar */
+      .bottom-action-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--md-sys-color-surface);
+        padding: 16px;
+        display: flex;
+        justify-content: center;
+        box-shadow: var(--md-sys-elevation-level-3);
+        z-index: 10;
+      }
+      .bottom-action-bar .btn-primary {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      .modal-content {
+        background-color: var(--md-sys-color-surface);
+        margin: 10% auto;
+        padding: 24px;
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: 8px;
+        width: 80%;
+        max-width: 700px;
+        box-shadow: var(--md-sys-elevation-level-3);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .modal-header h2 {
+        margin: 0;
+      }
+      .close-btn {
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .modal-body pre {
+        background-color: var(--md-sys-color-surface-variant);
+        padding: 16px;
+        border-radius: 4px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .modal-footer {
+        margin-top: 16px;
+        text-align: right;
+      }
+
+      /* Error Banner */
+      .error-banner {
+        background-color: var(--md-sys-color-error-container);
+        color: var(--md-sys-color-on-error-container);
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .error-banner ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <h1>Admin Portal</h1>
+      <div>
+        <button id="save-draft-btn" class="btn btn-secondary">
+          Save Draft
+        </button>
+        <button id="clear-draft-btn" class="btn btn-danger">Clear Draft</button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div id="error-banner" class="error-banner">
+        <h4>Validation Errors</h4>
+        <ul id="error-list"></ul>
+      </div>
+
+      <section class="mappings-section">
+        <div class="mappings-header">
+          <h2>Input Mappings</h2>
+          <button id="add-input-btn" class="btn btn-primary">Add Input</button>
+        </div>
+        <div id="inputs-container"></div>
+        <div id="inputs-empty-state" class="empty-state">
+          No input mappings defined. Click "Add Input" to start.
+        </div>
+      </section>
+
+      <section class="mappings-section">
+        <div class="mappings-header">
+          <h2>Output Mappings</h2>
+          <button id="add-output-btn" class="btn btn-primary">
+            Add Output
+          </button>
+        </div>
+        <div id="outputs-container"></div>
+        <div id="outputs-empty-state" class="empty-state">
+          No output mappings defined. Click "Add Output" to start.
+        </div>
+      </section>
+    </div>
+
+    <div class="bottom-action-bar">
+      <button id="generate-json-btn" class="btn btn-primary">
+        Generate JSON
+      </button>
+    </div>
+
+    <div id="json-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Generated JSON Configuration</h2>
+          <span id="close-modal-btn" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+          <pre><code id="json-output"></code></pre>
+        </div>
+        <div class="modal-footer">
+          <button id="copy-json-btn" class="btn btn-secondary">
+            Copy to Clipboard
+          </button>
+          <button id="download-json-btn" class="btn btn-primary">
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- STATE MANAGEMENT ---
+        let configuration = {
+          version: "1.0",
+          inputs: [],
+          outputs: [],
+          metadata: {},
+        };
+
+        const sampleConfiguration = {
+          inputs: [
+            {
+              id: Date.now() + 1,
+              sheetName: "Loan Calculator",
+              cellId: "B2",
+              label: "Loan Amount",
+              type: "input",
+              dataType: "currency",
+              constraints: { type: "range", min: 1000, max: 1000000 },
+            },
+            {
+              id: Date.now() + 2,
+              sheetName: "Loan Calculator",
+              cellId: "B3",
+              label: "Loan Term (years)",
+              type: "input",
+              dataType: "number",
+              constraints: { type: "discrete", values: ["15", "20", "30"] },
+            },
+            {
+              id: Date.now() + 3,
+              sheetName: "Loan Calculator",
+              cellId: "B4",
+              label: "Annual Interest Rate",
+              type: "input",
+              dataType: "percentage",
+              constraints: null,
+            },
+          ],
+          outputs: [
+            {
+              id: Date.now() + 4,
+              sheetName: "Loan Calculator",
+              cellId: "B6",
+              label: "Monthly Payment",
+              type: "output",
+              dataType: null,
+              constraints: null,
+            },
+            {
+              id: Date.now() + 5,
+              sheetName: "Loan Calculator",
+              cellId: "B7",
+              label: "Total Interest Paid",
+              type: "output",
+              dataType: null,
+              constraints: null,
+            },
+          ],
+        };
+
+        // --- UI ELEMENT REFERENCES ---
+        const inputsContainer = document.getElementById("inputs-container");
+        const outputsContainer = document.getElementById("outputs-container");
+        const inputsEmptyState = document.getElementById("inputs-empty-state");
+        const outputsEmptyState = document.getElementById(
+          "outputs-empty-state"
+        );
+        const addInputBtn = document.getElementById("add-input-btn");
+        const addOutputBtn = document.getElementById("add-output-btn");
+        const generateJsonBtn = document.getElementById("generate-json-btn");
+        const saveDraftBtn = document.getElementById("save-draft-btn");
+        const clearDraftBtn = document.getElementById("clear-draft-btn");
+        const jsonModal = document.getElementById("json-modal");
+        const closeModalBtn = document.getElementById("close-modal-btn");
+        const jsonOutput = document.getElementById("json-output");
+        const copyJsonBtn = document.getElementById("copy-json-btn");
+        const downloadJsonBtn = document.getElementById("download-json-btn");
+        const errorBanner = document.getElementById("error-banner");
+        const errorList = document.getElementById("error-list");
+
+        // --- DATA PERSISTENCE ---
+        let debounceTimer;
+        const debounceSave = () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(saveConfiguration, 300);
+        };
+
+        const saveConfiguration = () => {
+          localStorage.setItem(
+            "adminPortalDraft",
+            JSON.stringify(configuration)
+          );
+          console.log("Configuration saved to LocalStorage.");
+        };
+
+        const loadConfiguration = () => {
+          const savedDraft = localStorage.getItem("adminPortalDraft");
+          if (savedDraft) {
+            try {
+              configuration = JSON.parse(savedDraft);
+            } catch (e) {
+              console.error(
+                "Error parsing saved draft, loading sample data.",
+                e
+              );
+              configuration = JSON.parse(JSON.stringify(sampleConfiguration));
+            }
+          } else {
+            configuration = JSON.parse(JSON.stringify(sampleConfiguration));
+          }
+          renderAllMappings();
+        };
+
+        const clearConfiguration = () => {
+          if (
+            confirm(
+              "Are you sure you want to clear the current draft and load sample data?"
+            )
+          ) {
+            localStorage.removeItem("adminPortalDraft");
+            loadConfiguration();
+          }
+        };
+
+        // --- RENDERING ---
+        const renderAllMappings = () => {
+          inputsContainer.innerHTML = "";
+          outputsContainer.innerHTML = "";
+          configuration.inputs.forEach((mapping) =>
+            inputsContainer.appendChild(createMappingElement(mapping))
+          );
+          configuration.outputs.forEach((mapping) =>
+            outputsContainer.appendChild(createMappingElement(mapping))
+          );
+          updateEmptyStates();
+        };
+
+        const createMappingElement = (mapping) => {
+          const details = document.createElement("details");
+          details.className = "mapping-card";
+          details.dataset.id = mapping.id;
+
+          const summary = document.createElement("summary");
+          summary.className = "mapping-summary";
+
+          const badgeClass =
+            mapping.type === "input" ? "badge-input" : "badge-output";
+
+          summary.innerHTML = `
+                <div class="mapping-summary-content">
+                    <span class="mapping-summary-label">${
+                      mapping.label || "New Mapping"
+                    }</span>
+                    <span class="mapping-summary-location">${
+                      mapping.sheetName || ""
+                    }:${mapping.cellId || ""}</span>
+                    <span class="badge ${badgeClass}">${mapping.type}</span>
+                </div>
+                <button class="btn btn-danger remove-mapping-btn" data-id="${
+                  mapping.id
+                }">Remove</button>
+            `;
+
+          const detailsContent = document.createElement("div");
+          detailsContent.className = "mapping-details";
+
+          const formGrid = document.createElement("div");
+          formGrid.className = "form-grid";
+
+          formGrid.innerHTML = `
+                <div class="form-group">
+                    <label>Sheet Name*</label>
+                    <input type="text" class="mapping-input" data-field="sheetName" value="${
+                      mapping.sheetName || ""
+                    }" required>
+                </div>
+                <div class="form-group">
+                    <label>Cell ID*</label>
+                    <input type="text" class="mapping-input" data-field="cellId" value="${
+                      mapping.cellId || ""
+                    }" required pattern="^[A-Z]+[0-9]+$">
+                </div>
+                <div class="form-group">
+                    <label>Label*</label>
+                    <input type="text" class="mapping-input" data-field="label" value="${
+                      mapping.label || ""
+                    }" required>
+                </div>
+            `;
+
+          if (mapping.type === "input") {
+            const dataTypeGroup = document.createElement("div");
+            dataTypeGroup.className = "form-group";
+            dataTypeGroup.innerHTML = `
+                    <label>Data Type*</label>
+                    <select class="mapping-input" data-field="dataType" required>
+                        <option value="">Select data type...</option>
+                        <option value="number" ${
+                          mapping.dataType === "number" ? "selected" : ""
+                        }>Number</option>
+                        <option value="text" ${
+                          mapping.dataType === "text" ? "selected" : ""
+                        }>Text</option>
+                        <option value="percentage" ${
+                          mapping.dataType === "percentage" ? "selected" : ""
+                        }>Percentage</option>
+                        <option value="currency" ${
+                          mapping.dataType === "currency" ? "selected" : ""
+                        }>Currency</option>
+                        <option value="date" ${
+                          mapping.dataType === "date" ? "selected" : ""
+                        }>Date</option>
+                    </select>
+                `;
+            formGrid.appendChild(dataTypeGroup);
+
+            const constraintsSection = createConstraintsElement(mapping);
+            detailsContent.appendChild(formGrid);
+            detailsContent.appendChild(constraintsSection);
+          } else {
+            detailsContent.appendChild(formGrid);
+          }
+
+          details.appendChild(summary);
+          details.appendChild(detailsContent);
+          return details;
+        };
+
+        const createConstraintsElement = (mapping) => {
+          const section = document.createElement("div");
+          section.className = "constraints-section";
+
+          const constraintType = mapping.constraints
+            ? mapping.constraints.type
+            : "none";
+
+          section.innerHTML = `
+                <div class="form-group">
+                    <label>Constraints</label>
+                    <div class="constraint-toggle">
+                        <label><input type="radio" name="constraint-type-${
+                          mapping.id
+                        }" value="none" ${
+            constraintType === "none" ? "checked" : ""
+          }> None</label>
+                        <label><input type="radio" name="constraint-type-${
+                          mapping.id
+                        }" value="discrete" ${
+            constraintType === "discrete" ? "checked" : ""
+          }> Discrete Values</label>
+                        <label><input type="radio" name="constraint-type-${
+                          mapping.id
+                        }" value="range" ${
+            constraintType === "range" ? "checked" : ""
+          }> Range</label>
+                    </div>
+                </div>
+                <div class="constraint-inputs"></div>
+            `;
+
+          const inputsContainer = section.querySelector(".constraint-inputs");
+
+          const renderConstraintInputs = (type) => {
+            inputsContainer.innerHTML = "";
+            if (type === "discrete") {
+              const values =
+                mapping.constraints && mapping.constraints.values
+                  ? mapping.constraints.values.join(", ")
+                  : "";
+              inputsContainer.innerHTML = `
+                        <div class="form-group">
+                            <label>Comma-separated values</label>
+                            <input type="text" class="mapping-input" data-constraint-field="values" value="${values}">
+                        </div>
+                    `;
+            } else if (type === "range") {
+              const min =
+                mapping.constraints && mapping.constraints.min !== undefined
+                  ? mapping.constraints.min
+                  : "";
+              const max =
+                mapping.constraints && mapping.constraints.max !== undefined
+                  ? mapping.constraints.max
+                  : "";
+              inputsContainer.innerHTML = `
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Min</label>
+                                <input type="number" class="mapping-input" data-constraint-field="min" value="${min}">
+                            </div>
+                            <div class="form-group">
+                                <label>Max</label>
+                                <input type="number" class="mapping-input" data-constraint-field="max" value="${max}">
+                            </div>
+                        </div>
+                    `;
+            }
+          };
+
+          section
+            .querySelector(".constraint-toggle")
+            .addEventListener("change", (e) => {
+              const newType = e.target.value;
+              if (newType === "none") {
+                mapping.constraints = null;
+              } else {
+                if (
+                  !mapping.constraints ||
+                  mapping.constraints.type !== newType
+                ) {
+                  mapping.constraints = { type: newType };
+                }
+              }
+              renderConstraintInputs(newType);
+              debounceSave();
+            });
+
+          renderConstraintInputs(constraintType);
+          return section;
+        };
+
+        const updateEmptyStates = () => {
+          inputsEmptyState.style.display =
+            configuration.inputs.length === 0 ? "block" : "none";
+          outputsEmptyState.style.display =
+            configuration.outputs.length === 0 ? "block" : "none";
+        };
+
+        // --- EVENT HANDLERS ---
+        const handleAddMapping = (type) => {
+          const newMapping = {
+            id: Date.now(),
+            type: type,
+            sheetName: "",
+            cellId: "",
+            label: "",
+            dataType: type === "input" ? "" : null,
+            constraints: null,
+          };
+          if (type === "input") {
+            configuration.inputs.push(newMapping);
+          } else {
+            configuration.outputs.push(newMapping);
+          }
+          renderAllMappings();
+          debounceSave();
+        };
+
+        const handleRemoveMapping = (id) => {
+          if (confirm("Are you sure you want to remove this mapping?")) {
+            configuration.inputs = configuration.inputs.filter(
+              (m) => m.id !== id
+            );
+            configuration.outputs = configuration.outputs.filter(
+              (m) => m.id !== id
+            );
+            renderAllMappings();
+            debounceSave();
+          }
+        };
+
+        const handleInputChange = (e) => {
+          const target = e.target;
+          const card = target.closest(".mapping-card");
+          if (!card) return;
+
+          const id = parseInt(card.dataset.id, 10);
+          const mapping = findMappingById(id);
+          if (!mapping) return;
+
+          if (target.dataset.field) {
+            mapping[target.dataset.field] = target.value;
+          } else if (target.dataset.constraintField) {
+            if (!mapping.constraints)
+              mapping.constraints = { type: "discrete" }; // default
+            const field = target.dataset.constraintField;
+            if (field === "values") {
+              mapping.constraints.values = target.value
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean);
+            } else {
+              mapping.constraints[field] =
+                target.value === "" ? null : parseFloat(target.value);
+            }
+          }
+
+          // Update summary
+          const summaryLabel = card.querySelector(".mapping-summary-label");
+          const summaryLocation = card.querySelector(
+            ".mapping-summary-location"
+          );
+          if (summaryLabel)
+            summaryLabel.textContent = mapping.label || "New Mapping";
+          if (summaryLocation)
+            summaryLocation.textContent = `${mapping.sheetName || ""}:${
+              mapping.cellId || ""
+            }`;
+
+          debounceSave();
+        };
+
+        const findMappingById = (id) => {
+          return (
+            configuration.inputs.find((m) => m.id === id) ||
+            configuration.outputs.find((m) => m.id === id)
+          );
+        };
+
+        const handleGenerateJson = () => {
+          const errors = validateConfiguration();
+          if (errors.length > 0) {
+            showErrors(errors);
+            return;
+          }
+          hideErrors();
+
+          const exportConfig = {
+            version: "1.0",
+            inputs: configuration.inputs.map(({ id, ...rest }) => rest),
+            outputs: configuration.outputs.map(({ id, ...rest }) => rest),
+            metadata: {
+              createdAt: new Date().toISOString(),
+              version: "v0",
+            },
+          };
+
+          jsonOutput.textContent = JSON.stringify(exportConfig, null, 2);
+          jsonModal.style.display = "block";
+        };
+
+        // --- VALIDATION ---
+        const validateConfiguration = () => {
+          const errors = [];
+          if (configuration.inputs.length === 0) {
+            errors.push("Configuration must have at least one input mapping.");
+          }
+          if (configuration.outputs.length === 0) {
+            errors.push("Configuration must have at least one output mapping.");
+          }
+
+          const locations = new Set();
+          const allMappings = [
+            ...configuration.inputs,
+            ...configuration.outputs,
+          ];
+          allMappings.forEach((m) => {
+            const location = `${m.sheetName}:${m.cellId}`;
+            if (!m.sheetName || !m.cellId) {
+              errors.push(
+                `Mapping "${
+                  m.label || "New Mapping"
+                }" has an incomplete location.`
+              );
+            } else if (locations.has(location)) {
+              errors.push(`Duplicate cell location: ${location}.`);
+            }
+            locations.add(location);
+
+            if (!m.label) {
+              errors.push(`A mapping is missing a label.`);
+            }
+
+            if (m.type === "input" && !m.dataType) {
+              errors.push(`Input "${m.label}" is missing a data type.`);
+            }
+
+            if (m.constraints) {
+              if (m.constraints.type === "range") {
+                if (
+                  m.constraints.min !== null &&
+                  m.constraints.max !== null &&
+                  m.constraints.min > m.constraints.max
+                ) {
+                  errors.push(
+                    `For "${m.label}", range min (${m.constraints.min}) cannot be greater than max (${m.constraints.max}).`
+                  );
+                }
+              }
+              if (
+                m.constraints.type === "discrete" &&
+                (!m.constraints.values || m.constraints.values.length === 0)
+              ) {
+                errors.push(
+                  `For "${m.label}", discrete constraint must have at least one value.`
+                );
+              }
+            }
+          });
+          return errors;
+        };
+
+        const showErrors = (errors) => {
+          errorList.innerHTML = errors.map((e) => `<li>${e}</li>`).join("");
+          errorBanner.style.display = "block";
+        };
+
+        const hideErrors = () => {
+          errorBanner.style.display = "none";
+        };
+
+        // --- MODAL & EXPORT ---
+        const closeModal = () => {
+          jsonModal.style.display = "none";
+        };
+
+        const copyJson = () => {
+          navigator.clipboard.writeText(jsonOutput.textContent).then(
+            () => {
+              alert("JSON copied to clipboard!");
+            },
+            () => {
+              alert("Failed to copy JSON.");
+            }
+          );
+        };
+
+        const downloadJson = () => {
+          const blob = new Blob([jsonOutput.textContent], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "configuration.json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        };
+
+        // --- EVENT LISTENERS ---
+        addInputBtn.addEventListener("click", () => handleAddMapping("input"));
+        addOutputBtn.addEventListener("click", () =>
+          handleAddMapping("output")
+        );
+        generateJsonBtn.addEventListener("click", handleGenerateJson);
+        saveDraftBtn.addEventListener("click", saveConfiguration);
+        clearDraftBtn.addEventListener("click", clearConfiguration);
+
+        inputsContainer.addEventListener("click", (e) => {
+          if (e.target.classList.contains("remove-mapping-btn")) {
+            handleRemoveMapping(parseInt(e.target.dataset.id, 10));
+          }
+        });
+        outputsContainer.addEventListener("click", (e) => {
+          if (e.target.classList.contains("remove-mapping-btn")) {
+            handleRemoveMapping(parseInt(e.target.dataset.id, 10));
+          }
+        });
+
+        inputsContainer.addEventListener("input", handleInputChange);
+        outputsContainer.addEventListener("input", handleInputChange);
+
+        closeModalBtn.addEventListener("click", closeModal);
+        copyJsonBtn.addEventListener("click", copyJson);
+        downloadJsonBtn.addEventListener("click", downloadJson);
+        window.addEventListener("click", (e) => {
+          if (e.target === jsonModal) {
+            closeModal();
+          }
+        });
+
+        // --- INITIALIZATION ---
+        loadConfiguration();
+      });
+    </script>
+  </body>
+</html>
