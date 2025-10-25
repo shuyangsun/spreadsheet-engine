@@ -11,6 +11,10 @@
 
 - Q: How should the system handle imports when unsaved edits exist in the current configuration? → A: Display a confirmation that lets the administrator cancel the import, download the current JSON configuration, or discard the in-progress edits before continuing.
 
+### Session 2025-10-25
+
+- Q: How should the importer validate `dataType` and `constraints` metadata for inputs and outputs? → A: Require `dataType` on inputs, treat input `constraints` as optional, and expect no `dataType` or `constraints` metadata on outputs.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Resume Configuration from Imported JSON (Priority: P1)
@@ -89,10 +93,12 @@ An administrator may attempt to import a malformed, outdated, or incompatible JS
 - **FR-011**: System MUST inform the administrator when an export keeps the same version versus when it increments, so they understand the change history.
 - **FR-012**: System MUST provide a way to cancel an import attempt before confirmation if the administrator selected the wrong file to avoid overwriting the current state.
 - **FR-013**: System MUST, when unsaved edits exist, present a confirmation that allows the administrator to cancel the import, download the current configuration as JSON, or discard the edits before continuing with the import.
+- **FR-014**: System MUST ensure each imported input mapping includes a `dataType`, treat input `constraints` as optional, and handle outputs without `dataType` or `constraints` metadata (ignoring any unexpected keys without surfacing them in the UI).
 
 ### Key Entities _(include if feature involves data)_
 
 - **Imported Configuration Baseline**: Serialized representation of the most recently imported configuration, including mappings, constraints, metadata, and version number, used for comparison against in-progress edits.
+- **Input Mapping Metadata Rules**: Inputs require a `dataType` value while `constraints` remain optional; outputs do not define either field and any unexpected metadata keys should be ignored.
 - **Version Metadata**: Numeric value stored within the configuration that signals revision level; persists across import/export cycles and increments only when exported content differs from the baseline.
 
 ## Success Criteria _(mandatory)_

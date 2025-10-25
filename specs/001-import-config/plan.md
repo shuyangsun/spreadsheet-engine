@@ -5,7 +5,7 @@
 
 ## Summary
 
-Extend the Admin Portal prototype (`v1-gpt-5-codex`) so administrators can import previously exported JSON configurations, review a confirmation dialog when unsaved edits exist, repopulate the UI from the imported data, and ensure subsequent exports increment the version automatically when edits diverge from the import baseline. Place the new import control next to the “Configuration” title in the JSON preview panel.
+Extend the Admin Portal prototype (`v1-gpt-5-codex`) so administrators can import previously exported JSON configurations, review a confirmation dialog when unsaved edits exist, repopulate the UI from the imported data, and ensure subsequent exports increment the version automatically when edits diverge from the import baseline. The importer must verify that each input mapping carries a `dataType`, treats input `constraints` as optional, and ignores any `dataType`/`constraints` fields on outputs. Place the new import control next to the “Configuration” title in the JSON preview panel.
 
 ## Technical Context
 
@@ -83,7 +83,7 @@ No constitution violations identified; tracking table not required.
 
 ### Validation & version control
 
-- Convert imported JSON to internal shape via existing utils; on failure show destructive toast and abort state changes.
+- Convert imported JSON to internal shape via existing utils; ensure input mappings include `dataType`, allow optional input `constraints`, and strip or reject unexpected metadata on outputs before committing state; on failure show destructive toast and abort state changes.
 - During export, compare `toExportConfiguration(currentDraft)` with baseline snapshot; increment version and refresh baseline only when they differ.
 
 ## Phase 2 – Implementation Outline
@@ -98,7 +98,7 @@ No constitution violations identified; tracking table not required.
    - Track `importBaseline` in React state; persist alongside draft configuration in localStorage.
    - Provide helpers to compute dirty state by comparing baseline snapshot to current export payload.
 4. **Import handling** (`src/lib/validation.ts` or new util)
-   - Parse file text, validate against schema, map into `DraftConfiguration` shape, and surface success/failure toasts.
+   - Parse file text, validate against schema (requiring `dataType` on inputs, tolerating optional input `constraints`, and disallowing `dataType`/`constraints` on outputs), map into `DraftConfiguration` shape, and surface success/failure toasts.
    - On success, update draft state, baseline snapshot, and reset unsaved flag.
 5. **Export adjustments** (`App.tsx`)
    - Before running download, evaluate equality with baseline; when different, increment numeric portion of `metadata.version`, update baseline after download, and persist.

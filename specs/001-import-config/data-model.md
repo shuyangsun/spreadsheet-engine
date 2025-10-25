@@ -38,7 +38,7 @@
   - `label` (string)
   - `dataType` (string | null)
   - `constraints` (Constraint | null)
-- **notes**: InputMapping and OutputMapping reuse this signature; only inputs use constraints
+  - **notes**: InputMapping and OutputMapping reuse this signature; inputs MUST provide a `dataType`, MAY include `constraints`, while outputs MUST leave both `dataType` and `constraints` null.
 
 ### Constraint
 

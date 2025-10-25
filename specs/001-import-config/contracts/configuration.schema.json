@@ -110,7 +110,80 @@
           ]
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "input" }
+            }
+          },
+          "then": {
+            "required": ["dataType"],
+            "properties": {
+              "dataType": {
+                "type": "string",
+                "enum": ["number", "text", "percentage", "currency", "date"]
+              },
+              "constraints": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": ["type", "values"],
+                    "properties": {
+                      "type": {
+                        "const": "discrete"
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": ["type"],
+                    "properties": {
+                      "type": {
+                        "const": "range"
+                      },
+                      "min": {
+                        "type": ["number", "null"]
+                      },
+                      "max": {
+                        "type": ["number", "null"]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "output" }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                { "required": ["dataType"] },
+                { "required": ["constraints"] }
+              ]
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -30,7 +30,7 @@ description: "Task list for Import JSON Configurations"
 
 **Purpose**: Establish baseline data structures and utilities required by all stories.
 
-- [ ] T003 Update configuration and baseline types to include import metadata in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/types.ts`
+- [ ] T003 Update configuration and baseline types to include import metadata and enforce input/output metadata rules (input `dataType` required, input `constraints` optional, outputs without either) in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/types.ts`
 - [ ] T004 Persist draft plus baseline bundles through local storage helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/storage.ts`
 - [ ] T005 Add normalized export comparison and version parsing utilities in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/utils.ts`
 
@@ -49,7 +49,7 @@ description: "Task list for Import JSON Configurations"
 - [ ] T006 [US1] Insert an "Import" button and hidden file input beside the configuration heading in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 - [ ] T007 [P] [US1] Create `ImportConfirmDialog` component using shadcn/ui alert dialog primitives in `src/prototype/admin-portal/v1-gpt-5-codex/src/components/ImportConfirmDialog.tsx`
 - [ ] T008 [US1] Detect unsaved edits and render the confirmation dialog before importing in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
-- [ ] T009 [US1] Implement FileReader-based JSON import and mapping helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx` and `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
+- [ ] T009 [US1] Implement FileReader-based JSON import and mapping helpers that validate metadata rules (require input `dataType`, optional input `constraints`, ignore output metadata) in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx` and `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
 - [ ] T010 [US1] Persist imported drafts and baseline snapshots through the updated storage helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 
 **Checkpoint**: Import workflow operational with confirmation safeguards.
@@ -80,7 +80,7 @@ description: "Task list for Import JSON Configurations"
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Validate imported JSON against the configuration schema with detailed errors in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
+- [ ] T014 [US3] Validate imported JSON against the configuration schema with detailed errors, including enforcement of input/output metadata rules, in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
 - [ ] T015 [US3] Surface validation failures via destructive toasts without mutating state in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 - [ ] T016 [P] [US3] Guard against schema version mismatches and guide remediation in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 
