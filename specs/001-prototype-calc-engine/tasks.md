@@ -30,9 +30,9 @@
 
 **Purpose**: Provide shared utilities, layout skeleton, and simulated data required by every user story.
 
-- [ ] T005 Implement React entry point in `src/prototype/calculation-engine/v0-gpt-5-codex/src/main.tsx` wiring Tailwind and ThemeProvider
-- [ ] T006 Create shell layout with loading states in `src/prototype/calculation-engine/v0-gpt-5-codex/src/App.tsx`
-- [ ] T007 Define global styles and Tailwind imports in `src/prototype/calculation-engine/v0-gpt-5-codex/src/index.css`
+- [x] T005 Implement React entry point in `src/prototype/calculation-engine/v0-gpt-5-codex/src/main.tsx` wiring Tailwind and ThemeProvider
+- [x] T006 Create shell layout with loading states in `src/prototype/calculation-engine/v0-gpt-5-codex/src/App.tsx`
+- [x] T007 Define global styles and Tailwind imports in `src/prototype/calculation-engine/v0-gpt-5-codex/src/index.css`
 - [x] T008 [P] Author domain types per data-model.md in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/types.ts`
 - [x] T009 [P] Bundle hardcoded configuration and sheet snapshot in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/sample-data.ts`
 - [x] T010 [P] Build latency and stub fetch helpers in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/simulation.ts`

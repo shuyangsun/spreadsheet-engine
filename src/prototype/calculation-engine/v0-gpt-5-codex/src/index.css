@@ -1,3 +1,4 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -70,5 +71,26 @@
 
     body {
         @apply bg-background text-foreground antialiased;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-semibold text-foreground;
+    }
+
+    a {
+        @apply text-primary underline-offset-4 hover:underline;
     }
 }
+
+::selection {
+    background-color: hsl(var(--primary) / 0.16);
+    color: hsl(var(--primary-foreground));
+}
+
+/* stylelint-enable at-rule-no-unknown */
