@@ -79,6 +79,7 @@ An analyst experiments with a single input variable by sweeping through its perm
 - **FR-009**: The prototype MUST provide a single-variable exploration mode that generates at least five evenly spaced sample values within the selected input’s constraints and derives corresponding outputs.
 - **FR-010**: The prototype MUST visualize the exploration dataset as a simple x-y plot and list the underlying numeric values so testers can validate the chart.
 - **FR-011**: All prototype assets MUST reside within `src/prototype/calculation-engine`, keeping the implementation isolated from production code paths.
+- **FR-012**: The prototype MUST build its interface with shadcn UI components and match the color theme used in `src/prototype/admin-portal/v1-gpt-5-codex`, while permitting layout differences appropriate to the calculation workflow.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -94,6 +95,13 @@ An analyst experiments with a single input variable by sweeping through its perm
 - No authentication or real network calls are required; all latency is front-end simulation to mimic asynchronous behavior.
 - Only one analyst works with the prototype at a time, so no state persistence or multi-user coordination is needed.
 - Single-variable exploration is sufficient for this iteration; multi-variable plotting is intentionally out of scope.
+- The prototype leverages the shadcn design system assets already established in the admin portal prototype to expedite styling alignment.
+
+## Clarifications
+
+### Session 2025-10-25
+
+- Q: Which design system and theme should the prototype adopt? → A: Use shadcn components with the same color theme as `src/prototype/admin-portal/v1-gpt-5-codex`, adapting layout as needed for the calculation engine page.
 
 ## Success Criteria _(mandatory)_
 
