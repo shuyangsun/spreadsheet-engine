@@ -25,12 +25,30 @@ interface StoredDraftBundle {
   importBaseline: ImportBaseline | null;
 }
 
+const normalizeImportBaseline = (
+  baseline: ImportBaseline | null
+): ImportBaseline | null => {
+  if (!baseline) {
+    return null;
+  }
+
+  return {
+    snapshot: baseline.snapshot,
+    importedAt: baseline.importedAt,
+    sourceFileName: baseline.sourceFileName ?? null,
+    schemaVersion: baseline.schemaVersion ?? null,
+  };
+};
+
 const normalizeMetadata = (
   metadata: DraftConfiguration["metadata"]
 ): DraftConfiguration["metadata"] => ({
   createdAt: metadata.createdAt,
   updatedAt: metadata.updatedAt ?? null,
   version: metadata.version,
+  ...(metadata.schemaVersion !== undefined
+    ? { schemaVersion: metadata.schemaVersion ?? null }
+    : {}),
   ...(metadata.source !== undefined ? { source: metadata.source } : {}),
 });
 
@@ -95,7 +113,7 @@ const parseStored = (raw: string): DraftBundle | null => {
     if (isStoredBundle(parsed)) {
       return {
         configuration: withIds(parsed.configuration),
-        importBaseline: parsed.importBaseline ?? null,
+        importBaseline: normalizeImportBaseline(parsed.importBaseline ?? null),
       };
     }
 
@@ -126,7 +144,7 @@ export const saveDraftBundle = (bundle: DraftBundle) => {
 
   const payload: StoredDraftBundle = {
     configuration: toStoredConfiguration(bundle.configuration),
-    importBaseline: bundle.importBaseline,
+    importBaseline: normalizeImportBaseline(bundle.importBaseline),
   };
 
   try {

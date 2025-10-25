@@ -15,6 +15,8 @@ import {
   parseVersionTag,
 } from "@/lib/utils";
 
+export const SUPPORTED_SCHEMA_VERSIONS = ["1.0"] as const;
+
 export interface ValidationResult {
   isValid: boolean;
   errors: ValidationError[];
@@ -207,32 +209,40 @@ export const toExportConfiguration = (
 
 export const draftFromExportConfiguration = (
   snapshot: ExportConfiguration
-): DraftConfiguration => ({
-  inputs: snapshot.inputs.map((mapping) => ({
-    id: createId("input"),
-    type: "input" as const,
-    sheetName: mapping.sheetName,
-    cellId: mapping.cellId,
-    label: mapping.label,
-    dataType: mapping.dataType,
-    constraints: mapping.constraints ?? null,
-  })),
-  outputs: snapshot.outputs.map((mapping) => ({
-    id: createId("output"),
-    type: "output" as const,
-    sheetName: mapping.sheetName,
-    cellId: mapping.cellId,
-    label: mapping.label,
-  })),
-  metadata: {
-    createdAt: snapshot.metadata.createdAt,
-    updatedAt: snapshot.metadata.updatedAt ?? null,
-    version: snapshot.metadata.version,
-    ...(snapshot.metadata.source !== undefined
-      ? { source: snapshot.metadata.source }
-      : {}),
-  },
-});
+): DraftConfiguration => {
+  const resolvedSchemaVersion =
+    snapshot.metadata.schemaVersion ?? snapshot.schemaVersion ?? null;
+
+  return {
+    inputs: snapshot.inputs.map((mapping) => ({
+      id: createId("input"),
+      type: "input" as const,
+      sheetName: mapping.sheetName,
+      cellId: mapping.cellId,
+      label: mapping.label,
+      dataType: mapping.dataType,
+      constraints: mapping.constraints ?? null,
+    })),
+    outputs: snapshot.outputs.map((mapping) => ({
+      id: createId("output"),
+      type: "output" as const,
+      sheetName: mapping.sheetName,
+      cellId: mapping.cellId,
+      label: mapping.label,
+    })),
+    metadata: {
+      createdAt: snapshot.metadata.createdAt,
+      updatedAt: snapshot.metadata.updatedAt ?? null,
+      version: snapshot.metadata.version,
+      ...(resolvedSchemaVersion !== null
+        ? { schemaVersion: resolvedSchemaVersion }
+        : {}),
+      ...(snapshot.metadata.source !== undefined
+        ? { source: snapshot.metadata.source }
+        : {}),
+    },
+  };
+};
 
 const allowedDataTypes: DataType[] = [
   "number",
@@ -247,6 +257,30 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const asString = (value: unknown): string | null =>
   typeof value === "string" ? value : null;
+
+const parseSchemaVersionField = (
+  value: unknown,
+  context: string,
+  errors: string[]
+): string | null => {
+  if (value === undefined) {
+    return null;
+  }
+
+  if (value === null || typeof value !== "string") {
+    errors.push(`${context} must be a non-empty string.`);
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    errors.push(`${context} cannot be empty.`);
+    return null;
+  }
+
+  return trimmed;
+};
 
 type ConstraintParseResult =
   | {
@@ -440,6 +474,18 @@ const parseExportOutputMapping = (
     errors.push(`${context}: label is required.`);
   }
 
+  if ("dataType" in value) {
+    errors.push(
+      `${context}: outputs must not include a dataType. Remove the metadata field.`
+    );
+  }
+
+  if ("constraints" in value) {
+    errors.push(
+      `${context}: outputs must not include constraints metadata. Remove the constraints field.`
+    );
+  }
+
   if (errors.length > startErrorCount) {
     return null;
   }
@@ -461,6 +507,7 @@ export type ImportValidationResult =
       success: true;
       draft: DraftConfiguration;
       snapshot: ExportConfiguration;
+      schemaVersion: string | null;
     }
   | {
       success: false;
@@ -511,6 +558,35 @@ export const validateImportedJson = (raw: string): ImportValidationResult => {
     errors.push("Configuration requires a 'metadata' object.");
   }
 
+  const rootSchemaVersion = parseSchemaVersionField(
+    (parsed as Record<string, unknown>).schemaVersion,
+    "schemaVersion",
+    errors
+  );
+
+  const metadataSchemaVersionRaw = metadataValue
+    ? (metadataValue as Record<string, unknown>).schemaVersion
+    : undefined;
+
+  const metadataSchemaVersion = parseSchemaVersionField(
+    metadataSchemaVersionRaw,
+    "metadata.schemaVersion",
+    errors
+  );
+
+  if (
+    rootSchemaVersion &&
+    metadataSchemaVersion &&
+    rootSchemaVersion !== metadataSchemaVersion
+  ) {
+    errors.push(
+      "schemaVersion must match metadata.schemaVersion when both are provided."
+    );
+  }
+
+  const resolvedSchemaVersion =
+    rootSchemaVersion ?? metadataSchemaVersion ?? null;
+
   let metadata: DraftConfiguration["metadata"] | null = null;
   if (metadataValue) {
     const createdAt = asString(metadataValue.createdAt);
@@ -556,6 +632,9 @@ export const validateImportedJson = (raw: string): ImportValidationResult => {
         createdAt,
         updatedAt: updatedAt ?? null,
         version: metadataVersion as DraftConfiguration["metadata"]["version"],
+        ...(resolvedSchemaVersion
+          ? { schemaVersion: resolvedSchemaVersion }
+          : {}),
         ...(source !== undefined ? { source } : {}),
       };
     }
@@ -598,6 +677,7 @@ export const validateImportedJson = (raw: string): ImportValidationResult => {
     inputs: parsedInputs,
     outputs: parsedOutputs,
     metadata: metadata!,
+    ...(resolvedSchemaVersion ? { schemaVersion: resolvedSchemaVersion } : {}),
   };
 
   const draft = draftFromExportConfiguration(exportConfiguration);
@@ -620,5 +700,6 @@ export const validateImportedJson = (raw: string): ImportValidationResult => {
     success: true,
     draft,
     snapshot: toExportConfiguration(draft),
+    schemaVersion: resolvedSchemaVersion,
   };
 };

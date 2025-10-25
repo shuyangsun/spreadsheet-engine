@@ -39,6 +39,7 @@ export interface ConfigurationMetadata {
   createdAt: string;
   updatedAt: string | null;
   version: VersionTag;
+  schemaVersion?: string | null;
   source?: string | null;
 }
 
@@ -69,12 +70,14 @@ export interface ExportConfiguration {
   inputs: ExportInputMapping[];
   outputs: ExportOutputMapping[];
   metadata: ConfigurationMetadata;
+  schemaVersion?: string | null;
 }
 
 export interface ImportBaseline {
   snapshot: ExportConfiguration;
   importedAt: string;
   sourceFileName: string | null;
+  schemaVersion: string | null;
 }
 
 export interface DraftBundle {

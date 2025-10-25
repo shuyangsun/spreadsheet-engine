@@ -116,6 +116,9 @@ export const normalizeExportConfiguration = (
     createdAt: configuration.metadata.createdAt,
     updatedAt: configuration.metadata.updatedAt ?? null,
     version: configuration.metadata.version,
+    ...(configuration.metadata.schemaVersion !== undefined
+      ? { schemaVersion: configuration.metadata.schemaVersion }
+      : {}),
     ...(configuration.metadata.source !== undefined
       ? { source: configuration.metadata.source }
       : {}),
@@ -126,6 +129,9 @@ export const normalizeExportConfiguration = (
     inputs,
     outputs,
     metadata,
+    ...(configuration.metadata.schemaVersion !== undefined
+      ? { schemaVersion: configuration.metadata.schemaVersion }
+      : {}),
   };
 };
 
@@ -145,10 +151,16 @@ const normalizeExportSnapshot = (
     createdAt: configuration.metadata.createdAt,
     updatedAt: configuration.metadata.updatedAt ?? null,
     version: configuration.metadata.version,
+    ...(configuration.metadata.schemaVersion !== undefined
+      ? { schemaVersion: configuration.metadata.schemaVersion }
+      : {}),
     ...(configuration.metadata.source !== undefined
       ? { source: configuration.metadata.source }
       : {}),
   },
+  ...(configuration.schemaVersion !== undefined
+    ? { schemaVersion: configuration.schemaVersion }
+    : {}),
 });
 
 export const areExportsEqual = (

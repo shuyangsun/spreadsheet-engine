@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# Admin Portal Import Prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Admin Portal prototype (`v1-gpt-5-codex`) now supports importing JSON configurations alongside the existing export flow. The feature set focuses on protecting in-progress edits, preserving version integrity, and blocking incompatible payloads.
 
-Currently, two official plugins are available:
+## Getting started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd src/prototype/admin-portal/v1-gpt-5-codex
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open <http://localhost:5173> in a desktop browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Import workflow
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Use the Import button beside the Configuration heading; the hidden file input accepts `application/json` exports from this prototype.
+- When unsaved edits exist, an alert dialog offers Cancel, Download current JSON, or Discard edits before the file picker opens.
+- Successful imports repopulate mappings, metadata, and baseline storage; the preview JSON and validation badge refresh instantly.
+- Validation failures surface a descriptive toast summarising the first few issues while leaving the current configuration untouched.
+- Schema compatibility is enforced before state changes so unsupported payloads never overwrite drafts.
+
+## Version and schema handling
+
+- Imported payloads establish a baseline snapshot; exports compare the normalized payload against that baseline to decide whether to increment the version tag.
+- The importer captures and persists the schema version supplied by the file. Files without a schema version default to `1.0` for future comparisons.
+- Only schema version `1.0` is supported. Files created by newer schemas are rejected with guidance to re-export from a compatible Admin Portal build.
+
+## Failure messaging
+
+- Toasts summarise up to three validation errors with a count of remaining issues so administrators know what requires attention.
+- Output mappings that include `dataType` or `constraints` metadata are rejected with explicit messages, ensuring metadata rules stay consistent.
+- File read failures and JSON parse errors are surfaced without mutating local state, enabling a retry without losing work.
+
+## Manual validation log
+
+| Scenario                                        | Status  | Notes                                                                  |
+| ----------------------------------------------- | ------- | ---------------------------------------------------------------------- |
+| Import valid JSON and repopulate UI             | Pending | Run through browser once sample export is available.                   |
+| Export immediately after import retains version | Pending | Verify version stays constant when no edits occur.                     |
+| Edit then export increments version once        | Pending | Confirm single increment relative to imported baseline.                |
+| Import malformed JSON                           | Pending | Expect destructive toast with parse guidance, no state changes.        |
+| Import with unsupported schema version          | Pending | Ensure the new guard blocks the import and provides remediation steps. |
+
+Follow-ups: execute the pending scenarios during QA and capture screenshots or recordings for documentation once confirmed.

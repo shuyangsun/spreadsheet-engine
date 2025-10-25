@@ -23,12 +23,14 @@ import {
   toExportConfiguration,
   validateImportedJson,
   validateConfiguration,
+  SUPPORTED_SCHEMA_VERSIONS,
 } from "@/lib/validation";
 import type {
   Constraint,
   DraftConfiguration,
   ImportBaseline,
   InputMapping,
+  ExportConfiguration,
   OutputMapping,
 } from "@/lib/types";
 
@@ -423,6 +425,11 @@ function App() {
     const now = new Date().toISOString();
     const baselineSnapshot = importBaseline?.snapshot ?? null;
     const baselineSourceFileName = importBaseline?.sourceFileName ?? null;
+    const baselineSchemaVersion =
+      importBaseline?.schemaVersion ??
+      configuration.metadata.schemaVersion ??
+      SUPPORTED_SCHEMA_VERSIONS[0] ??
+      null;
 
     let exportPayload = cloneExportConfiguration(exportSnapshot);
     let nextVersion = exportPayload.metadata.version;
@@ -441,10 +448,16 @@ function App() {
       exportPayload = {
         ...exportPayload,
         version: nextVersion,
+        ...(baselineSchemaVersion
+          ? { schemaVersion: baselineSchemaVersion }
+          : {}),
         metadata: {
           ...exportPayload.metadata,
           version: nextVersion,
           updatedAt: now,
+          ...(baselineSchemaVersion
+            ? { schemaVersion: baselineSchemaVersion }
+            : {}),
         },
       };
 
@@ -454,6 +467,9 @@ function App() {
           ...current.metadata,
           version: nextVersion,
           updatedAt: now,
+          ...(baselineSchemaVersion
+            ? { schemaVersion: baselineSchemaVersion }
+            : {}),
         },
       }));
 
@@ -461,6 +477,7 @@ function App() {
         snapshot: exportPayload,
         importedAt: now,
         sourceFileName: baselineSourceFileName,
+        schemaVersion: baselineSchemaVersion,
       });
 
       if (hasDifferences) {
@@ -473,9 +490,15 @@ function App() {
     } else {
       exportPayload = {
         ...exportPayload,
+        ...(baselineSchemaVersion
+          ? { schemaVersion: baselineSchemaVersion }
+          : {}),
         metadata: {
           ...exportPayload.metadata,
           updatedAt: now,
+          ...(baselineSchemaVersion
+            ? { schemaVersion: baselineSchemaVersion }
+            : {}),
         },
       };
 
@@ -484,6 +507,9 @@ function App() {
         metadata: {
           ...current.metadata,
           updatedAt: now,
+          ...(baselineSchemaVersion
+            ? { schemaVersion: baselineSchemaVersion }
+            : {}),
         },
       }));
 
@@ -491,6 +517,7 @@ function App() {
         snapshot: exportPayload,
         importedAt: now,
         sourceFileName: null,
+        schemaVersion: baselineSchemaVersion,
       });
 
       versionMessage = `Export ready (version ${nextVersion})`;
@@ -535,20 +562,81 @@ function App() {
 
       if (!result.success) {
         console.warn("Imported configuration failed validation", result.errors);
+        const visibleErrors = result.errors.slice(0, 3);
+        const remainingErrors = result.errors.length - visibleErrors.length;
+        const descriptionLines = visibleErrors.map((message) => `- ${message}`);
+
+        if (remainingErrors > 0) {
+          descriptionLines.push(
+            `- +${remainingErrors} more issue${
+              remainingErrors === 1 ? "" : "s"
+            }...`
+          );
+        }
+
         toast({
           variant: "destructive",
           title: "Import failed",
           description:
-            result.errors[0] ?? "Configuration did not pass validation.",
+            descriptionLines.join("\n") ||
+            "Configuration did not pass validation.",
         });
         return;
       }
 
-      setConfiguration(result.draft);
+      if (
+        result.schemaVersion &&
+        !SUPPORTED_SCHEMA_VERSIONS.some(
+          (version) => version === result.schemaVersion
+        )
+      ) {
+        console.warn(
+          `Unsupported schema version '${result.schemaVersion}' encountered during import.`
+        );
+        toast({
+          variant: "destructive",
+          title: "Unsupported schema version",
+          description: `This file targets schema version ${
+            result.schemaVersion
+          }, but the prototype currently supports ${SUPPORTED_SCHEMA_VERSIONS.join(
+            ", "
+          )}. Re-export the configuration using a compatible Admin Portal build.`,
+        });
+        return;
+      }
+
+      const resolvedSchemaVersion =
+        result.schemaVersion ?? SUPPORTED_SCHEMA_VERSIONS[0] ?? null;
+
+      const nextDraft: DraftConfiguration = {
+        ...result.draft,
+        metadata: {
+          ...result.draft.metadata,
+          ...(resolvedSchemaVersion
+            ? { schemaVersion: resolvedSchemaVersion }
+            : {}),
+        },
+      };
+
+      const normalizedSnapshot: ExportConfiguration = resolvedSchemaVersion
+        ? {
+            ...result.snapshot,
+            schemaVersion: resolvedSchemaVersion,
+            metadata: {
+              ...result.snapshot.metadata,
+              schemaVersion: resolvedSchemaVersion,
+            },
+          }
+        : result.snapshot;
+
+      const importedAt = new Date().toISOString();
+
+      setConfiguration(nextDraft);
       setImportBaseline({
-        snapshot: result.snapshot,
-        importedAt: new Date().toISOString(),
+        snapshot: normalizedSnapshot,
+        importedAt,
         sourceFileName: file.name,
+        schemaVersion: resolvedSchemaVersion,
       });
       setShowInputForm(false);
       setShowOutputForm(false);

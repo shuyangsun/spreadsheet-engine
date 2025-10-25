@@ -80,9 +80,9 @@ description: "Task list for Import JSON Configurations"
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Validate imported JSON against the configuration schema with detailed errors, including enforcement of input/output metadata rules, in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
-- [ ] T015 [US3] Surface validation failures via destructive toasts without mutating state in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
-- [ ] T016 [P] [US3] Guard against schema version mismatches and guide remediation in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T014 [US3] Validate imported JSON against the configuration schema with detailed errors, including enforcement of input/output metadata rules, in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
+- [x] T015 [US3] Surface validation failures via destructive toasts without mutating state in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T016 [P] [US3] Guard against schema version mismatches and guide remediation in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 
 **Checkpoint**: Imports reject invalid inputs gracefully while preserving current work.
 
@@ -92,8 +92,8 @@ description: "Task list for Import JSON Configurations"
 
 **Purpose**: Finalize documentation and manual validation across stories.
 
-- [ ] T017 Update prototype documentation with the import workflow in `src/prototype/admin-portal/v1-gpt-5-codex/README.md`
-- [ ] T018 [P] Execute manual validation steps outlined in `specs/001-import-config/quickstart.md` and record any follow-ups
+- [x] T017 Update prototype documentation with the import workflow in `src/prototype/admin-portal/v1-gpt-5-codex/README.md`
+- [x] T018 [P] Execute manual validation steps outlined in `specs/001-import-config/quickstart.md` and record any follow-ups
 
 ---
 
