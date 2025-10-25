@@ -52,7 +52,7 @@ specs/001-prototype-calc-engine/
 src/
 └── prototype/
     └── calculation-engine/
-        └── v1-gpt-5-codex/
+        └── v0-gpt-5-codex/
             ├── index.html
             ├── public/
             │   └── theme-tokens.json
@@ -68,7 +68,7 @@ shared/
     └── configuration.schema.json  # referenced read-only
 ```
 
-**Structure Decision**: Extend the existing prototype tree with a new `v1-gpt-5-codex` variant dedicated to the calculation engine. Components/hooks/libs mirror the admin portal prototype organization to maximize theme reuse while keeping prototype code isolated from production.
+**Structure Decision**: Extend the existing prototype tree with a new `v0-gpt-5-codex` variant dedicated to the calculation engine. Components/hooks/libs mirror the admin portal prototype organization to maximize theme reuse while keeping prototype code isolated from production.
 
 ## Complexity Tracking
 
