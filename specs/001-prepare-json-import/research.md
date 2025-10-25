@@ -20,3 +20,9 @@
 - **Alternatives considered**:
   - Relative imports (`../../../shared/...`) (rejected: brittle and hurts readability).
   - Publish as compiled JS bundle (rejected: unnecessary for repo-internal reuse).
+
+## Baseline Snapshot (2025-10-25)
+
+- **Shared module inventory**: `src/shared/configuration/` currently exposes `types.ts`, `identifiers.ts`, `transforms.ts`, and `validation.ts` via `index.ts`; each file is browser/Node compatible and free of framework dependencies.
+- **Admin portal dependencies**: `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/utils.ts`, `validation.ts`, and `types.ts` already import helpers from `@shared/configuration`, while `sample-data.ts` and `storage.ts` depend on those re-exports.
+- **Gap**: Canonical JSON schema and CLI-style validation example are not yet present in the shared module, requiring additions in upcoming tasks.

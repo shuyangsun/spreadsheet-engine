@@ -17,8 +17,8 @@
 
 **Purpose**: Capture current state so subsequent refactor tasks avoid redo
 
-- [ ] T001 Document existing shared components in `src/shared/configuration` to confirm baseline scope before changes.
-- [ ] T002 Review admin portal shared imports under `src/prototype/admin-portal/v1-gpt-5-codex/src/lib` to map current dependencies on legacy helpers.
+- [x] T001 Document existing shared components in `src/shared/configuration` to confirm baseline scope before changes.
+- [x] T002 Review admin portal shared imports under `src/prototype/admin-portal/v1-gpt-5-codex/src/lib` to map current dependencies on legacy helpers.
 
 ---
 
@@ -26,8 +26,8 @@
 
 **Purpose**: Ensure shared-module import plumbing is ready for cross-project reuse
 
-- [ ] T003 Validate that TypeScript path alias `@shared/*` is defined in both `src/prototype/admin-portal/v1-gpt-5-codex/tsconfig.json` and `src/prototype/admin-portal/v1-gpt-5-codex/tsconfig.app.json`.
-- [ ] T004 Confirm Vite alias configuration for `@shared` in `src/prototype/admin-portal/v1-gpt-5-codex/vite.config.ts` supports shared module consumption.
+- [x] T003 Validate that TypeScript path alias `@shared/*` is defined in both `src/prototype/admin-portal/v1-gpt-5-codex/tsconfig.json` and `src/prototype/admin-portal/v1-gpt-5-codex/tsconfig.app.json`.
+- [x] T004 Confirm Vite alias configuration for `@shared` in `src/prototype/admin-portal/v1-gpt-5-codex/vite.config.ts` supports shared module consumption.
 
 **Checkpoint**: Aliases verified—user story work can proceed.
 
@@ -41,9 +41,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Create canonical schema file at `src/shared/configuration/configuration.schema.json` based on `specs/001-prepare-json-import/contracts/configuration.schema.json`.
-- [ ] T006 [P] [US1] Update `src/shared/configuration/index.ts` to export validation helpers, transforms, types, and the canonical schema entry point for downstream consumers.
-- [ ] T007 [US1] Add example validation script `src/shared/configuration/examples/validate-config.ts` demonstrating reuse of `validateImportedJson` with the shared schema.
+- [x] T005 [US1] Create canonical schema file at `src/shared/configuration/configuration.schema.json` based on `specs/001-prepare-json-import/contracts/configuration.schema.json`.
+- [x] T006 [P] [US1] Update `src/shared/configuration/index.ts` to export validation helpers, transforms, types, and the canonical schema entry point for downstream consumers.
+- [x] T007 [US1] Add example validation script `src/shared/configuration/examples/validate-config.ts` demonstrating reuse of `validateImportedJson` with the shared schema.
 
 **Checkpoint**: Shared module exposes schema and validation APIs independently of the admin portal.
 
@@ -57,8 +57,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [P] [US2] Ensure `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/utils.ts` re-exports shared ID and transform helpers instead of duplicating logic.
-- [ ] T009 [P] [US2] Ensure `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts` fully delegates to shared validation exports without retaining stale code paths.
+- [x] T008 [P] [US2] Ensure `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/utils.ts` re-exports shared ID and transform helpers instead of duplicating logic.
+- [x] T009 [P] [US2] Ensure `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts` fully delegates to shared validation exports without retaining stale code paths.
 - [ ] T010 [US2] Perform manual smoke test of import flow using `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/sample-data.ts` to confirm draft persistence and error messages remain unchanged.
 
 **Checkpoint**: Admin portal operates identically while depending on shared logic.
@@ -73,8 +73,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [P] [US3] Update `src/shared/README.md` with module inventory, schema location, and usage notes for both admin portal and calculation engine teams.
-- [ ] T012 [US3] Align `specs/001-prepare-json-import/quickstart.md` with the final example script and schema workflow instructions.
+- [x] T011 [P] [US3] Update `src/shared/README.md` with module inventory, schema location, and usage notes for both admin portal and calculation engine teams.
+- [x] T012 [US3] Align `specs/001-prepare-json-import/quickstart.md` with the final example script and schema workflow instructions.
 
 **Checkpoint**: Documentation clearly delineates shared boundaries and consumption steps.
 
