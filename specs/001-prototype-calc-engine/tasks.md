@@ -50,10 +50,10 @@
 
 ### Implementation Tasks (US1)
 
-- [ ] T012 [US1] Build `ConfigUploadForm` with file + link controls in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/ConfigUploadForm.tsx`
-- [ ] T013 [P] [US1] Implement `useConfigLoader` hook coordinating file parsing and simulated sheet fetch in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useConfigLoader.ts`
-- [ ] T014 [US1] Render input overview list in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/InputOverviewPanel.tsx`
-- [ ] T015 [US1] Integrate loader flow and state gating inside `src/prototype/calculation-engine/v0-gpt-5-codex/src/App.tsx`
+- [x] T012 [US1] Build `ConfigUploadForm` with file + link controls in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/ConfigUploadForm.tsx`
+- [x] T013 [P] [US1] Implement `useConfigLoader` hook coordinating file parsing and simulated sheet fetch in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useConfigLoader.ts`
+- [x] T014 [US1] Render input overview list in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/InputOverviewPanel.tsx`
+- [x] T015 [US1] Integrate loader flow and state gating inside `src/prototype/calculation-engine/v0-gpt-5-codex/src/App.tsx`
 
 **Checkpoint**: User Story 1 delivers a functioning loading experience and exposes input mappings for review.
 

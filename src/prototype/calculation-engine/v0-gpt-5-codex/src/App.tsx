@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { ConfigUploadForm } from "@/components/ConfigUploadForm";
+import { InputOverviewPanel } from "@/components/InputOverviewPanel";
 import { useThemeStatus } from "@/components/theme-provider";
 import {
   Card,
@@ -10,6 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useConfigLoader } from "@/hooks/useConfigLoader";
+import type { ConfigLoadResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 function SkeletonBlock({ className }: { className?: string }) {
@@ -18,6 +22,16 @@ function SkeletonBlock({ className }: { className?: string }) {
 
 const App = () => {
   const { isReady: isThemeReady } = useThemeStatus();
+  const {
+    status: loaderStatus,
+    data: loaderData,
+    error: loaderError,
+    meta: loaderMeta,
+    statusLabel,
+    loadFromUpload,
+    loadSample,
+    reset: resetLoader,
+  } = useConfigLoader();
   const [phase, setPhase] = useState<"boot" | "ready">(
     isThemeReady ? "ready" : "boot"
   );
@@ -32,7 +46,8 @@ const App = () => {
     return () => window.cancelAnimationFrame(frame);
   }, [isThemeReady]);
 
-  const isLoading = phase === "boot";
+  const isBooting = phase === "boot";
+  const busy = isBooting || loaderStatus === "loading";
 
   const milestones = useMemo(
     () => [
@@ -55,6 +70,60 @@ const App = () => {
     []
   );
 
+  const headerStatus = useMemo(() => {
+    if (isBooting) {
+      return { label: "Bootstrapping theme", tone: "default" as const };
+    }
+
+    switch (loaderStatus) {
+      case "loading":
+        return { label: "Loading configuration…", tone: "pending" as const };
+      case "success":
+        return { label: "Configuration ready", tone: "success" as const };
+      case "error":
+        return { label: "Needs attention", tone: "error" as const };
+      default:
+        return { label: "Awaiting resources", tone: "default" as const };
+    }
+  }, [isBooting, loaderStatus]);
+
+  const statusItems = useMemo(
+    () => [
+      {
+        label: "Theme & layout",
+        detail: isBooting ? "Initializing" : "Ready",
+        tone: isBooting ? "pending" : "success",
+      },
+      {
+        label: "Configuration",
+        detail: statusLabel,
+        tone:
+          loaderStatus === "success"
+            ? "success"
+            : loaderStatus === "error"
+            ? "error"
+            : loaderStatus === "loading"
+            ? "pending"
+            : "default",
+      },
+    ],
+    [isBooting, loaderStatus, statusLabel]
+  );
+
+  const handleUpload = (payload: { file: File; sheetLink: string }) => {
+    loadFromUpload(payload);
+  };
+
+  const handleSample = (sheetLink?: string) => {
+    loadSample({ sheetLink });
+  };
+
+  const handleReset = () => {
+    resetLoader();
+  };
+
+  const currentData: ConfigLoadResponse | undefined = loaderData;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b bg-card/70">
@@ -68,8 +137,20 @@ const App = () => {
             </h1>
           </div>
           <div className="flex flex-col items-start gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center">
-            <span className="rounded-full bg-muted px-3 py-1 font-medium text-muted-foreground">
-              {isLoading ? "Bootstrapping..." : "Foundational ready"}
+            <span
+              className={cn(
+                "rounded-full px-3 py-1 font-medium",
+                headerStatus.tone === "success" &&
+                  "bg-emerald-100 text-emerald-900",
+                headerStatus.tone === "error" &&
+                  "bg-destructive/10 text-destructive-foreground",
+                headerStatus.tone === "pending" &&
+                  "bg-amber-100 text-amber-900",
+                headerStatus.tone === "default" &&
+                  "bg-muted text-muted-foreground"
+              )}
+            >
+              {headerStatus.label}
             </span>
             <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
               v0 - draft
@@ -89,7 +170,7 @@ const App = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isLoading ? (
+              {isBooting ? (
                 <div className="space-y-4 animate-pulse">
                   <SkeletonBlock className="h-4 w-1/3" />
                   <SkeletonBlock className="h-10 w-full" />
@@ -97,16 +178,55 @@ const App = () => {
                   <SkeletonBlock className="h-4 w-2/5" />
                 </div>
               ) : (
-                <div className="space-y-3 text-sm text-muted-foreground">
-                  <p>
-                    Config upload and sheet selection land here. Upcoming tasks
-                    wire the form, simulated latency indicator, and validation
-                    messaging.
-                  </p>
-                  <p>
-                    Once connected, this card surfaces parsed metadata so
-                    analysts can confirm staged resources before continuing.
-                  </p>
+                <div className="space-y-6">
+                  {loaderStatus === "success" && loaderMeta && currentData && (
+                    <div className="rounded-md border border-emerald-200 bg-emerald-50/80 p-4 text-xs text-emerald-900">
+                      <p className="font-medium">Configuration staged</p>
+                      <div className="mt-2 space-y-1">
+                        <p>File: {loaderMeta.fileName}</p>
+                        <p>
+                          Sheet link: {loaderMeta.sheetLink ?? "Sample sheet"}
+                        </p>
+                        {loaderMeta.completedAt && loaderMeta.startedAt && (
+                          <p>
+                            Load time:{" "}
+                            {formatDuration(
+                              loaderMeta.completedAt - loaderMeta.startedAt
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {loaderStatus === "error" && loaderError && (
+                    <div className="rounded-md border border-destructive/60 bg-destructive/10 p-4 text-sm text-destructive-foreground">
+                      <p className="font-semibold">{loaderError.title}</p>
+                      {loaderError.details &&
+                        loaderError.details.length > 0 && (
+                          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs">
+                            {loaderError.details.map((detail) => (
+                              <li key={detail}>{detail}</li>
+                            ))}
+                          </ul>
+                        )}
+                      <button
+                        type="button"
+                        className="mt-3 text-xs font-medium text-destructive underline-offset-4 hover:underline"
+                        onClick={handleReset}
+                      >
+                        Reset loader
+                      </button>
+                    </div>
+                  )}
+
+                  <ConfigUploadForm
+                    status={loaderStatus}
+                    defaultSheetLink={loaderMeta?.sheetLink}
+                    onSubmit={handleUpload}
+                    onUseSample={handleSample}
+                    disabled={loaderStatus === "loading"}
+                  />
                 </div>
               )}
             </CardContent>
@@ -127,28 +247,16 @@ const App = () => {
                   <TabsTrigger value="exploration">Exploration</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="pt-4">
-                  {isLoading ? (
-                    <div className="space-y-4 animate-pulse">
-                      <SkeletonBlock className="h-4 w-1/4" />
-                      <SkeletonBlock className="h-3 w-full" />
-                      <SkeletonBlock className="h-3 w-11/12" />
-                      <SkeletonBlock className="h-3 w-2/3" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3 text-sm text-muted-foreground">
-                      <p>
-                        Overview will present staged inputs, defaults, and
-                        validation feedback once the loader flow resolves.
-                      </p>
-                      <p>
-                        Subsequent tasks replace this placeholder with
-                        interactive controls and output summaries.
-                      </p>
-                    </div>
-                  )}
+                  <InputOverviewPanel
+                    configuration={currentData?.configuration}
+                    inputs={currentData?.inputs}
+                    sheetSnapshot={currentData?.sheetSnapshot}
+                    sheetLink={loaderMeta?.sheetLink}
+                    isLoading={busy}
+                  />
                 </TabsContent>
                 <TabsContent value="exploration" className="pt-4">
-                  {isLoading ? (
+                  {busy ? (
                     <div className="space-y-4 animate-pulse">
                       <SkeletonBlock className="h-4 w-1/5" />
                       <SkeletonBlock className="h-3 w-full" />
@@ -182,7 +290,7 @@ const App = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {isBooting ? (
                 <div className="space-y-4 animate-pulse">
                   <SkeletonBlock className="h-4 w-32" />
                   <SkeletonBlock className="h-3 w-full" />
@@ -192,25 +300,64 @@ const App = () => {
               ) : (
                 <div className="space-y-4 text-sm text-muted-foreground">
                   <p>
-                    Theme, Tailwind, and shared utilities are in place. User
-                    Story 1 is the next milestone.
+                    Theme, Tailwind, and shared utilities are in place. Config
+                    loader brings the first user story online.
                   </p>
+                  <Separator />
+                  <ul className="space-y-3">
+                    {statusItems.map((item) => (
+                      <li
+                        key={item.label}
+                        className="flex items-start justify-between gap-3"
+                      >
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {item.label}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.detail}
+                          </p>
+                        </div>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-xs font-medium uppercase tracking-wide",
+                            item.tone === "success" &&
+                              "bg-emerald-100 text-emerald-900",
+                            item.tone === "error" &&
+                              "bg-destructive/10 text-destructive-foreground",
+                            item.tone === "pending" &&
+                              "bg-amber-100 text-amber-900",
+                            item.tone === "default" &&
+                              "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          {item.tone === "success"
+                            ? "Ready"
+                            : item.tone === "error"
+                            ? "Issue"
+                            : item.tone === "pending"
+                            ? "Pending"
+                            : "TBD"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                   <Separator />
                   <ul className="space-y-3">
                     {milestones.map((milestone) => (
                       <li
                         key={milestone.tag}
-                        className="flex items-start justify-between gap-3"
+                        className="flex items-start justify-between gap-3 text-xs"
                       >
                         <div>
                           <p className="font-medium text-foreground">
                             {milestone.label}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-muted-foreground">
                             {milestone.detail}
                           </p>
                         </div>
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        <span className="rounded-full bg-muted px-2 py-0.5 font-medium uppercase tracking-wide text-muted-foreground">
                           {milestone.tag}
                         </span>
                       </li>
@@ -225,5 +372,18 @@ const App = () => {
     </div>
   );
 };
+
+function formatDuration(durationMs: number): string {
+  if (!Number.isFinite(durationMs) || durationMs <= 0) {
+    return "< 1 ms";
+  }
+
+  if (durationMs < 1000) {
+    return `${Math.round(durationMs)} ms`;
+  }
+
+  const seconds = durationMs / 1000;
+  return `${seconds.toFixed(1)} s`;
+}
 
 export default App;
