@@ -66,6 +66,7 @@ A backend engineer reviews lightweight documentation that explains which configu
 - **FR-003**: The admin portal MUST consume the shared helpers without regressing current import, normalization, or error reporting behavior.
 - **FR-004**: The refactor MUST keep the configuration schema contract intact, including supported constraint types, version tags, and metadata requirements.
 - **FR-005**: The repository MUST include brief usage notes outlining which shared modules support JSON import and which UI utilities remain frontend-only.
+- **FR-006**: A canonical `configuration.schema.json` file MUST live under `src/shared/configuration/` and both the admin portal and the spreadsheet calculation engine MUST reference this single schema when validating configuration payloads.
 
 ### Key Entities _(include if feature involves data)_
 
@@ -87,3 +88,9 @@ A backend engineer reviews lightweight documentation that explains which configu
 - **SC-002**: Validation error messages remain identical (string match) for at least 95% of previously captured admin portal error scenarios after the refactor.
 - **SC-003**: Documentation updates enable a new backend engineer to locate shared configuration modules and run a validation example in under 5 minutes.
 - **SC-004**: Admin portal regression tests covering JSON import pass on the first run after the refactor, demonstrating no functional drift.
+
+## Clarifications
+
+### Session 2025-10-25
+
+- Q: Where should the shared JSON schema live so both the admin portal and calculation engine stay aligned? → A: Store a canonical `configuration.schema.json` under `src/shared/configuration/` and have both projects reference it.
