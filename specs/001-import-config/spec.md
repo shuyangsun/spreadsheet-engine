@@ -5,6 +5,12 @@
 **Status**: Draft
 **Input**: User description: "Now that the prototype for exporting spreadsheet mapping to JSON files GUI is done, I want to be able to add the functionality to import a previously exported JSON file and populate fields on GUI based on the config. This way, the user can configure on top of a previously configured file. Note that when a JSON file is imported, if the new configuration changed anything to make the content not identical, the version of the new exported JSON should automatically increase. No need to specify where the import button will be on the GUI yet, that is implementation detail we can worry about later. Keep requirements clear and concise. Remember, I'm poor, I can't afford too many tokens."
 
+## Clarifications
+
+### Session 2025-10-24
+
+- Q: How should the system handle imports when unsaved edits exist in the current configuration? → A: Display a confirmation that lets the administrator cancel the import, download the current JSON configuration, or discard the in-progress edits before continuing.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Resume Configuration from Imported JSON (Priority: P1)
@@ -21,6 +27,7 @@ An administrator who previously exported a configuration opens the Admin Portal 
 2. **Given** the administrator imports a configuration containing both inputs and outputs, **When** the UI renders the data, **Then** inputs and outputs appear in their respective sections with their previous collapsed/expanded state defaulting to the product standard for first load.
 3. **Given** the administrator imports a configuration that included draft data in local storage, **When** the system loads the file, **Then** previously stored local drafts are replaced by the imported configuration baseline and the user is informed.
 4. **Given** the administrator imports a configuration, **When** they navigate through the UI, **Then** all editing controls remain available so the configuration can be updated immediately.
+5. **Given** the administrator has unsaved edits in the current session, **When** they attempt to import a JSON file, **Then** the system displays a confirmation that offers options to cancel the import, download the current configuration, or discard the unsaved edits before proceeding.
 
 ---
 
@@ -60,7 +67,7 @@ An administrator may attempt to import a malformed, outdated, or incompatible JS
 ### Edge Cases
 
 - What happens when the imported file omits a version number or uses a non-numeric value?
-- How does the system handle an import while unsaved edits are present in the UI?
+- When unsaved edits exist, the system prompts the administrator to confirm the import with options to cancel, download the current JSON, or discard ongoing edits.
 - What happens if the imported configuration exceeds current UI limits (e.g., more mappings than supported)?
 - How does the system respond when local storage quota prevents saving the new baseline?
 - What happens if the imported file references constraint types the prototype does not support?
@@ -81,6 +88,7 @@ An administrator may attempt to import a malformed, outdated, or incompatible JS
 - **FR-010**: System MUST prevent multiple version increments for the same set of edits by updating the baseline snapshot only after a successful export.
 - **FR-011**: System MUST inform the administrator when an export keeps the same version versus when it increments, so they understand the change history.
 - **FR-012**: System MUST provide a way to cancel an import attempt before confirmation if the administrator selected the wrong file to avoid overwriting the current state.
+- **FR-013**: System MUST, when unsaved edits exist, present a confirmation that allows the administrator to cancel the import, download the current configuration as JSON, or discard the edits before continuing with the import.
 
 ### Key Entities _(include if feature involves data)_
 
