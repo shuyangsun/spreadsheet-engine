@@ -19,10 +19,10 @@
 
 **Purpose**: Establish the calculation engine prototype workspace and align tooling with the admin portal theme.
 
-- [ ] T001 Scaffold Vite React project in `src/prototype/calculation-engine/v0-gpt-5-codex` mirroring admin portal prototype tooling
-- [ ] T002 Populate `src/prototype/calculation-engine/v0-gpt-5-codex/package.json` with React 19, shadcn/ui, Tailwind, react-hook-form, and lucide-react dependencies
-- [ ] T003 Copy and adapt `tailwind.config.js`, `postcss.config.js`, `tsconfig*.json`, and `vite.config.ts` into `src/prototype/calculation-engine/v0-gpt-5-codex`
-- [ ] T004 [P] Seed `src/prototype/calculation-engine/v0-gpt-5-codex/public/theme-tokens.json` with the admin portal color palette for reuse
+- [x] T001 Scaffold Vite React project in `src/prototype/calculation-engine/v0-gpt-5-codex` mirroring admin portal prototype tooling
+- [x] T002 Populate `src/prototype/calculation-engine/v0-gpt-5-codex/package.json` with React 19, shadcn/ui, Tailwind, react-hook-form, and lucide-react dependencies
+- [x] T003 Copy and adapt `tailwind.config.js`, `postcss.config.js`, `tsconfig*.json`, and `vite.config.ts` into `src/prototype/calculation-engine/v0-gpt-5-codex`
+- [x] T004 [P] Seed `src/prototype/calculation-engine/v0-gpt-5-codex/public/theme-tokens.json` with the admin portal color palette for reuse
 
 ---
 
@@ -33,10 +33,10 @@
 - [ ] T005 Implement React entry point in `src/prototype/calculation-engine/v0-gpt-5-codex/src/main.tsx` wiring Tailwind and ThemeProvider
 - [ ] T006 Create shell layout with loading states in `src/prototype/calculation-engine/v0-gpt-5-codex/src/App.tsx`
 - [ ] T007 Define global styles and Tailwind imports in `src/prototype/calculation-engine/v0-gpt-5-codex/src/index.css`
-- [ ] T008 [P] Author domain types per data-model.md in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/types.ts`
-- [ ] T009 [P] Bundle hardcoded configuration and sheet snapshot in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/sample-data.ts`
-- [ ] T010 [P] Build latency and stub fetch helpers in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/simulation.ts`
-- [ ] T011 Create JSON validation and normalization utilities in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/config-parser.ts`
+- [x] T008 [P] Author domain types per data-model.md in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/types.ts`
+- [x] T009 [P] Bundle hardcoded configuration and sheet snapshot in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/sample-data.ts`
+- [x] T010 [P] Build latency and stub fetch helpers in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/simulation.ts`
+- [x] T011 Create JSON validation and normalization utilities in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/config-parser.ts`
 
 **Checkpoint**: Base project compiled with stub data access ready for user story work.
 
