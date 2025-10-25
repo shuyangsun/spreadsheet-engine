@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Admin Portal Configuration",
+  "type": "object",
+  "required": ["version", "inputs", "outputs", "metadata"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$"
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/mapping" }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/mapping" }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["createdAt"],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^v[0-9]+$"
+        },
+        "source": {
+          "type": ["string", "null"],
+          "description": "Optional identifier of the originating system"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "mapping": {
+      "type": "object",
+      "required": ["type", "sheetName", "cellId", "label"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["input", "output"]
+        },
+        "sheetName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cellId": {
+          "type": "string",
+          "pattern": "^[A-Za-z]+[0-9]+$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataType": {
+          "type": ["string", "null"],
+          "enum": [null, "number", "text", "percentage", "currency", "date"]
+        },
+        "constraints": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["type", "values"],
+              "properties": {
+                "type": {
+                  "const": "discrete"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "const": "range"
+                },
+                "min": {
+                  "type": ["number", "null"]
+                },
+                "max": {
+                  "type": ["number", "null"]
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "input" }
+            }
+          },
+          "then": {
+            "required": ["dataType"],
+            "properties": {
+              "dataType": {
+                "type": "string",
+                "enum": ["number", "text", "percentage", "currency", "date"]
+              },
+              "constraints": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": ["type", "values"],
+                    "properties": {
+                      "type": {
+                        "const": "discrete"
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": ["type"],
+                    "properties": {
+                      "type": {
+                        "const": "range"
+                      },
+                      "min": {
+                        "type": ["number", "null"]
+                      },
+                      "max": {
+                        "type": ["number", "null"]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "output" }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                { "required": ["dataType"] },
+                { "required": ["constraints"] }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
