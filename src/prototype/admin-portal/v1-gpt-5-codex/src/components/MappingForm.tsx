@@ -1,5 +1,5 @@
 import type { ChangeEvent, FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -32,15 +32,19 @@ interface InputFormValues extends OutputFormValues {
   dataType: DataType;
 }
 
+interface BaseMappingFormProps {
+  defaultSheetName?: string;
+}
+
 type MappingFormProps =
-  | {
+  | (BaseMappingFormProps & {
       type: "input";
       onSubmit: (values: InputFormValues) => void;
-    }
-  | {
+    })
+  | (BaseMappingFormProps & {
       type: "output";
       onSubmit: (values: OutputFormValues) => void;
-    };
+    });
 
 const initialState: OutputFormValues = {
   sheetName: "",
@@ -57,10 +61,30 @@ const dataTypes: DataType[] = [
 ];
 
 export function MappingForm(props: MappingFormProps) {
-  const { type } = props;
-  const [formValues, setFormValues] = useState<OutputFormValues>(initialState);
+  const { type, defaultSheetName } = props;
+  const [formValues, setFormValues] = useState<OutputFormValues>(() => ({
+    ...initialState,
+    sheetName: defaultSheetName?.trim() ?? "",
+  }));
   const [dataType, setDataType] = useState<DataType>("number");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!defaultSheetName) {
+      return;
+    }
+
+    setFormValues((current) => {
+      if (current.sheetName.trim().length > 0) {
+        return current;
+      }
+
+      return {
+        ...current,
+        sheetName: defaultSheetName.trim(),
+      };
+    });
+  }, [defaultSheetName]);
 
   const handleChange =
     (field: keyof OutputFormValues) =>
@@ -98,7 +122,10 @@ export function MappingForm(props: MappingFormProps) {
       props.onSubmit(trimmed);
     }
 
-    setFormValues(initialState);
+    setFormValues(() => ({
+      ...initialState,
+      sheetName: defaultSheetName?.trim() ?? "",
+    }));
     setDataType("number");
     setError(null);
   };

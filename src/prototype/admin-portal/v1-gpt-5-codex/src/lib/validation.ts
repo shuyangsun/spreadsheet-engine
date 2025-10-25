@@ -13,6 +13,13 @@ export interface ValidationResult {
 
 const excelCellPattern = /^[A-Z]+[0-9]+$/;
 
+const rangeCapableDataTypes: Array<InputMapping["dataType"]> = [
+  "number",
+  "percentage",
+  "currency",
+  "date",
+];
+
 const sanitizeCommonFields = (mapping: InputMapping | OutputMapping) => {
   const sheetName = mapping.sheetName.trim();
   const cellId = mapping.cellId.trim().toUpperCase();
@@ -54,6 +61,15 @@ const ensureConstraintIntegrity = (
   }
 
   if (mapping.constraints.type === "range") {
+    if (!rangeCapableDataTypes.includes(mapping.dataType)) {
+      errors.push({
+        field: `${mapping.label} constraint`,
+        message:
+          "Range constraints are only allowed for numeric or date inputs",
+      });
+      return;
+    }
+
     const { min, max } = mapping.constraints;
 
     if (typeof min !== "number" || typeof max !== "number") {

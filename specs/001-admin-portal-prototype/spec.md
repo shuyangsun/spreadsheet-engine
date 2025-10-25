@@ -138,8 +138,12 @@ Administrators working on complex spreadsheet configurations may need multiple s
 - **FR-020**: System MUST display an empty state with helpful instructions when no mappings exist
 - **FR-021**: System MUST use shadcn/ui component library with React and Tailwind CSS for the user interface
 - **FR-022**: System MUST provide immediate visual feedback for all user actions (save, delete, copy, etc.)
-- **FR-023**: On initial page load, all expandable mapping cards MUST be collapsed by default
-- **FR-024**: On initial page load, the system MUST display exactly one example input mapping and one example output mapping, each clearly labeled as an example
+- **FR-023**: On initial page load, the system MUST render all expandable mapping cards in a collapsed state.
+- **FR-024**: On initial page load, the system MUST display exactly one example input mapping and one example output mapping, each clearly labeled as an example.
+- **FR-025**: When an administrator creates a new input mapping after previously adding an input, the system MUST prepopulate the sheet name with the most recently used input sheet name.
+- **FR-026**: When an administrator creates a new output mapping after previously adding an output, the system MUST prepopulate the sheet name with the most recently used output sheet name.
+- **FR-027**: System MUST provide both range and discrete constraints for numerical or date input types.
+- **FR-028**: System MUST provide both only discrete constraints for text input types.
 
 ### Key Entities
 

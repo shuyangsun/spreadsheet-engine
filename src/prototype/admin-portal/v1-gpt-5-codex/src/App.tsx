@@ -15,11 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 
-import {
-  clearConfiguration,
-  loadConfiguration,
-  saveConfiguration,
-} from "@/lib/storage";
+import { loadConfiguration, saveConfiguration } from "@/lib/storage";
 import { createId } from "@/lib/utils";
 import { toExportConfiguration, validateConfiguration } from "@/lib/validation";
 import type {
@@ -153,6 +149,22 @@ function App() {
     () => JSON.stringify(toExportConfiguration(configuration), null, 2),
     [configuration]
   );
+
+  const mostRecentInputSheet = useMemo(() => {
+    if (configuration.inputs.length === 0) {
+      return "";
+    }
+
+    return configuration.inputs[0].sheetName.trim();
+  }, [configuration.inputs]);
+
+  const mostRecentOutputSheet = useMemo(() => {
+    if (configuration.outputs.length === 0) {
+      return "";
+    }
+
+    return configuration.outputs[0].sheetName.trim();
+  }, [configuration.outputs]);
 
   useEffect(() => {
     const stored = loadConfiguration();
@@ -325,18 +337,6 @@ function App() {
     }
   };
 
-  const handleClearDraft = () => {
-    clearConfiguration();
-    const reset = createExampleConfiguration();
-    setConfiguration(reset);
-    setLastSavedAt(null);
-
-    toast({
-      title: "Draft reset",
-      description: "Sample configuration restored.",
-    });
-  };
-
   const handleDownloadJson = (
     json: string,
     filenamePrefix = "configuration"
@@ -366,176 +366,177 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header
-        onClear={handleClearDraft}
-        lastSavedAt={lastSavedAt}
-        isSaving={isSaving}
-      />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-8">
-        <section className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Input mappings
-                  </h2>
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <Header lastSavedAt={lastSavedAt} isSaving={isSaving} />
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8 lg:flex-1 lg:min-h-0 lg:flex-row lg:items-stretch lg:gap-10 lg:px-10">
+        <section className="flex flex-1 flex-col gap-8 lg:min-h-0 lg:overflow-y-auto lg:pr-6">
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Inputs
+                </h2>
+                <Button
+                  variant={showInputForm ? "secondary" : "outline"}
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    setShowInputForm(true);
+                    setShowOutputForm(false);
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+                {showInputForm && (
                   <Button
-                    variant={showInputForm ? "secondary" : "outline"}
+                    variant="destructive"
                     size="sm"
                     className="flex items-center gap-2"
-                    onClick={() => {
-                      setShowInputForm(true);
-                      setShowOutputForm(false);
-                    }}
+                    onClick={() => setShowInputForm(false)}
                   >
-                    <Plus className="h-4 w-4" />
-                    New
+                    <X className="h-4 w-4" />
+                    Cancel
                   </Button>
-                  {showInputForm && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="flex items-center gap-2"
-                      onClick={() => setShowInputForm(false)}
-                    >
-                      <X className="h-4 w-4" />
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {totalInputs} configured
-                </span>
+                )}
               </div>
-              {showInputForm && (
-                <MappingForm type="input" onSubmit={handleAddInput} />
-              )}
-              {sortedInputs.length === 0 ? (
-                <EmptyState message="No input mappings yet. Use Add Input to configure your first mapping." />
-              ) : (
-                <div className="grid gap-4">
-                  {sortedInputs.map((mapping) => (
-                    <MappingCard
-                      key={mapping.id}
-                      mapping={mapping}
-                      onUpdate={handleUpdateMapping}
-                      onConstraintChange={handleConstraintChange}
-                      onRemove={handleRemoveMapping}
-                      errors={mappingErrors[mapping.id] ?? []}
-                    />
-                  ))}
-                </div>
-              )}
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {totalInputs} configured
+              </span>
             </div>
-
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Output mappings
-                  </h2>
-                  <Button
-                    variant={showOutputForm ? "secondary" : "outline"}
-                    size="sm"
-                    className="flex items-center gap-2"
-                    onClick={() => {
-                      setShowOutputForm(true);
-                      setShowInputForm(false);
-                    }}
-                  >
-                    <Plus className="h-4 w-4" />
-                    New
-                  </Button>
-                  {showOutputForm && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="flex items-center gap-2"
-                      onClick={() => setShowOutputForm(false)}
-                    >
-                      <X className="h-4 w-4" />
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {totalOutputs} configured
-                </span>
+            {showInputForm && (
+              <MappingForm
+                type="input"
+                onSubmit={handleAddInput}
+                defaultSheetName={mostRecentInputSheet || undefined}
+              />
+            )}
+            {sortedInputs.length === 0 ? (
+              <EmptyState message="No input yet. Use Add Input to configure your first mapping." />
+            ) : (
+              <div className="grid gap-4">
+                {sortedInputs.map((mapping) => (
+                  <MappingCard
+                    key={mapping.id}
+                    mapping={mapping}
+                    onUpdate={handleUpdateMapping}
+                    onConstraintChange={handleConstraintChange}
+                    onRemove={handleRemoveMapping}
+                    errors={mappingErrors[mapping.id] ?? []}
+                  />
+                ))}
               </div>
-              {showOutputForm && (
-                <MappingForm type="output" onSubmit={handleAddOutput} />
-              )}
-              {sortedOutputs.length === 0 ? (
-                <EmptyState message="No outputs configured yet. Use Add Output to capture calculated cells." />
-              ) : (
-                <div className="grid gap-4">
-                  {sortedOutputs.map((mapping) => (
-                    <MappingCard
-                      key={mapping.id}
-                      mapping={mapping}
-                      onUpdate={handleUpdateMapping}
-                      onConstraintChange={handleConstraintChange}
-                      onRemove={handleRemoveMapping}
-                      errors={mappingErrors[mapping.id] ?? []}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
-          <aside className="space-y-6">
-            <div className="rounded-lg border border-border/60 bg-card/50 p-4 text-sm text-muted-foreground">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-medium text-foreground">
-                  Configuration JSON
-                </p>
-                <Badge
-                  variant={liveValidation.isValid ? "secondary" : "destructive"}
-                  className="whitespace-nowrap"
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Outputs
+                </h2>
+                <Button
+                  variant={showOutputForm ? "secondary" : "outline"}
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    setShowOutputForm(true);
+                    setShowInputForm(false);
+                  }}
                 >
-                  {liveValidation.isValid ? "Ready" : "Needs fixes"}
-                </Badge>
+                  <Plus className="h-4 w-4" />
+                </Button>
+                {showOutputForm && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => setShowOutputForm(false)}
+                  >
+                    <X className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                )}
               </div>
-              <Separator className="my-3" />
-              {!liveValidation.isValid && (
-                <div className="mb-3 space-y-2 rounded-md border border-destructive/60 bg-destructive/10 p-3 text-xs text-destructive-foreground">
-                  <p className="font-semibold text-destructive-foreground">
-                    Resolve validation issues
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {totalOutputs} configured
+              </span>
+            </div>
+            {showOutputForm && (
+              <MappingForm
+                type="output"
+                onSubmit={handleAddOutput}
+                defaultSheetName={mostRecentOutputSheet || undefined}
+              />
+            )}
+            {sortedOutputs.length === 0 ? (
+              <EmptyState message="No outputs configured yet. Use Add Output to capture calculated cells." />
+            ) : (
+              <div className="grid gap-4">
+                {sortedOutputs.map((mapping) => (
+                  <MappingCard
+                    key={mapping.id}
+                    mapping={mapping}
+                    onUpdate={handleUpdateMapping}
+                    onConstraintChange={handleConstraintChange}
+                    onRemove={handleRemoveMapping}
+                    errors={mappingErrors[mapping.id] ?? []}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <aside className="lg:flex lg:h-[85vh] lg:w-[360px] lg:flex-shrink-0 lg:min-h-0">
+          <div className="rounded-lg border border-border/60 bg-card/50 p-4 text-sm text-muted-foreground lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-medium text-foreground">Configuration</p>
+              <Badge
+                variant={liveValidation.isValid ? "success" : "destructive"}
+                className="whitespace-nowrap"
+              >
+                {liveValidation.isValid ? "Ready" : "Needs fixes"}
+              </Badge>
+            </div>
+            <Separator className="my-3" />
+            {!liveValidation.isValid && (
+              <div className="mb-3 space-y-2 rounded-md border border-destructive/60 bg-destructive/10 p-3 text-xs text-destructive-foreground">
+                <p className="font-semibold text-destructive-foreground">
+                  Resolve validation issues
+                </p>
+                <ul className="space-y-1">
+                  {liveValidation.errors.slice(0, 3).map((error, index) => (
+                    <li key={`${error.field ?? "error"}-${index}`}>
+                      {error.message}
+                    </li>
+                  ))}
+                </ul>
+                {liveValidation.errors.length > 3 && (
+                  <p className="text-[11px] text-destructive-foreground/80">
+                    +{liveValidation.errors.length - 3} more issue
+                    {liveValidation.errors.length - 3 === 1 ? "" : "s"}
                   </p>
-                  <ul className="space-y-1">
-                    {liveValidation.errors.slice(0, 3).map((error, index) => (
-                      <li key={`${error.field ?? "error"}-${index}`}>
-                        {error.message}
-                      </li>
-                    ))}
-                  </ul>
-                  {liveValidation.errors.length > 3 && (
-                    <p className="text-[11px] text-destructive-foreground/80">
-                      +{liveValidation.errors.length - 3} more issue
-                      {liveValidation.errors.length - 3 === 1 ? "" : "s"}
-                    </p>
-                  )}
-                </div>
-              )}
-              <ScrollArea className="max-h-[420px] rounded-md border border-border/60 bg-muted/10 p-3">
+                )}
+              </div>
+            )}
+            <div className="mt-3 flex-1 lg:min-h-0">
+              <ScrollArea className="h-[240px] rounded-md border border-border/60 bg-muted/10 p-3 lg:h-full">
                 <pre className="text-xs leading-relaxed text-muted-foreground">
                   <code>{previewJson}</code>
                 </pre>
               </ScrollArea>
-              <Button
-                size="sm"
-                className="mt-4 w-full"
-                onClick={() => handleDownloadJson(previewJson)}
-                disabled={!liveValidation.isValid}
-              >
-                <Download className="mr-2 h-4 w-4" /> Download JSON
-              </Button>
             </div>
-          </aside>
-        </section>
+            <Button
+              size="sm"
+              className="mt-4 w-full mb-2 lg:mb-4"
+              onClick={() => handleDownloadJson(previewJson)}
+              disabled={!liveValidation.isValid}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download
+            </Button>
+          </div>
+        </aside>
       </main>
 
       <Toaster />

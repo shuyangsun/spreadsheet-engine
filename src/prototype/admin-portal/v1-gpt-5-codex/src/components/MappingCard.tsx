@@ -29,8 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -69,12 +67,12 @@ const dataTypes: DataType[] = [
   "date",
 ];
 
-const dataTypeStyles: Record<DataType, string> = {
-  number: "border-sky-400/60 bg-sky-500/15 text-sky-300",
-  text: "border-amber-400/60 bg-amber-500/15 text-amber-300",
-  percentage: "border-emerald-400/60 bg-emerald-500/15 text-emerald-300",
-  currency: "border-indigo-400/60 bg-indigo-500/15 text-indigo-300",
-  date: "border-rose-400/60 bg-rose-500/15 text-rose-300",
+const dataTypeEmoji: Record<DataType, string> = {
+  number: "1️⃣",
+  text: "💬",
+  percentage: "﹪",
+  currency: "💲",
+  date: "📅",
 };
 
 export function MappingCard({
@@ -107,6 +105,13 @@ export function MappingCard({
     onUpdate(mapping.id, {
       dataType: value,
     } as Partial<InputMapping>);
+
+    if (
+      value === "text" &&
+      (mapping as InputMapping).constraints?.type === "range"
+    ) {
+      onConstraintChange(mapping.id, null);
+    }
   };
 
   const handleConstraintChange = (constraint: Constraint | null) => {
@@ -139,8 +144,8 @@ export function MappingCard({
                     {mapping.label || "Untitled mapping"}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {mapping.sheetName || "Unnamed sheet"} •{" "}
-                    {mapping.cellId || "—"}
+                    {cellReferenceLabel(mapping.sheetName, mapping.cellId) ??
+                      "-"}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -153,15 +158,14 @@ export function MappingCard({
                     </Badge>
                   )}
                   {isInput && (mapping as InputMapping).dataType && (
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-xs font-medium",
-                        dataTypeStyles[(mapping as InputMapping).dataType]
-                      )}
+                    <span
+                      className="text-lg"
+                      aria-label={`Data type ${
+                        (mapping as InputMapping).dataType
+                      }`}
                     >
-                      {(mapping as InputMapping).dataType}
-                    </Badge>
+                      {dataTypeEmoji[(mapping as InputMapping).dataType]}
+                    </span>
                   )}
                   <TooltipProvider>
                     <Tooltip>
@@ -259,25 +263,17 @@ export function MappingCard({
                       <ConstraintsInput
                         value={(mapping as InputMapping).constraints}
                         onChange={handleConstraintChange}
+                        dataType={(mapping as InputMapping).dataType}
                       />
                     </div>
                   ) : (
                     <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/10 p-6 text-sm text-muted-foreground">
-                      Output mappings inherit the spreadsheet value directly. No
+                      Outputs inherit the spreadsheet value directly. No
                       additional configuration needed.
                     </div>
                   )}
                 </div>
               </div>
-              <Separator className="my-6" />
-              <ScrollArea className="max-h-32 rounded-md border border-border/40 bg-muted/10 p-4 text-xs text-muted-foreground">
-                <p>
-                  <span className="font-semibold text-foreground">Note:</span>{" "}
-                  Changes are captured immediately and saved to your draft. Use
-                  the JSON preview panel to monitor validation and download the
-                  configuration whenever it passes checks.
-                </p>
-              </ScrollArea>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -294,4 +290,8 @@ export function MappingCard({
       </Card>
     </div>
   );
+}
+
+function cellReferenceLabel(sheetName: string, cellId: string) {
+  return `${sheetName} - ${cellId}`;
 }

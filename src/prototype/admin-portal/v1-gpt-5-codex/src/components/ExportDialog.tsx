@@ -58,7 +58,8 @@ export function ExportDialog({
             <Copy className="mr-2 h-4 w-4" /> Copy to Clipboard
           </Button>
           <Button onClick={onDownload}>
-            <Download className="mr-2 h-4 w-4" /> Download JSON
+            <Download className="mr-2 h-4 w-4" />
+            Download
           </Button>
         </DialogFooter>
       </DialogContent>
