@@ -21,8 +21,8 @@ description: "Task list for Import JSON Configurations"
 
 **Purpose**: Ensure the prototype workspace is ready for iteration.
 
-- [ ] T001 Install npm dependencies in `src/prototype/admin-portal/v1-gpt-5-codex`
-- [ ] T002 Review existing sample configuration data in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/sample-data.ts`
+- [x] T001 Install npm dependencies in `src/prototype/admin-portal/v1-gpt-5-codex`
+- [x] T002 Review existing sample configuration data in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/sample-data.ts`
 
 ---
 
@@ -30,9 +30,9 @@ description: "Task list for Import JSON Configurations"
 
 **Purpose**: Establish baseline data structures and utilities required by all stories.
 
-- [ ] T003 Update configuration and baseline types to include import metadata and enforce input/output metadata rules (input `dataType` required, input `constraints` optional, outputs without either) in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/types.ts`
-- [ ] T004 Persist draft plus baseline bundles through local storage helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/storage.ts`
-- [ ] T005 Add normalized export comparison and version parsing utilities in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/utils.ts`
+- [x] T003 Update configuration and baseline types to include import metadata and enforce input/output metadata rules (input `dataType` required, input `constraints` optional, outputs without either) in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/types.ts`
+- [x] T004 Persist draft plus baseline bundles through local storage helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/storage.ts`
+- [x] T005 Add normalized export comparison and version parsing utilities in `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/utils.ts`
 
 **Checkpoint**: Shared foundations in place; user story work can begin.
 
@@ -46,11 +46,11 @@ description: "Task list for Import JSON Configurations"
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Insert an "Import" button and hidden file input beside the configuration heading in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
-- [ ] T007 [P] [US1] Create `ImportConfirmDialog` component using shadcn/ui alert dialog primitives in `src/prototype/admin-portal/v1-gpt-5-codex/src/components/ImportConfirmDialog.tsx`
-- [ ] T008 [US1] Detect unsaved edits and render the confirmation dialog before importing in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
-- [ ] T009 [US1] Implement FileReader-based JSON import and mapping helpers that validate metadata rules (require input `dataType`, optional input `constraints`, ignore output metadata) in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx` and `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
-- [ ] T010 [US1] Persist imported drafts and baseline snapshots through the updated storage helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T006 [US1] Insert an "Import" button and hidden file input beside the configuration heading in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T007 [P] [US1] Create `ImportConfirmDialog` component using shadcn/ui alert dialog primitives in `src/prototype/admin-portal/v1-gpt-5-codex/src/components/ImportConfirmDialog.tsx`
+- [x] T008 [US1] Detect unsaved edits and render the confirmation dialog before importing in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T009 [US1] Implement FileReader-based JSON import and mapping helpers that validate metadata rules (require input `dataType`, optional input `constraints`, ignore output metadata) in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx` and `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/validation.ts`
+- [x] T010 [US1] Persist imported drafts and baseline snapshots through the updated storage helpers in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 
 **Checkpoint**: Import workflow operational with confirmation safeguards.
 
@@ -64,9 +64,9 @@ description: "Task list for Import JSON Configurations"
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Compare normalized export payloads against the baseline before download in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
-- [ ] T012 [US2] Refresh the baseline snapshot after successful exports to prevent duplicate increments in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx` and `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/storage.ts`
-- [ ] T013 [P] [US2] Display toast messaging that indicates whether the version was retained or incremented in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T011 [US2] Compare normalized export payloads against the baseline before download in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
+- [x] T012 [US2] Refresh the baseline snapshot after successful exports to prevent duplicate increments in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx` and `src/prototype/admin-portal/v1-gpt-5-codex/src/lib/storage.ts`
+- [x] T013 [P] [US2] Display toast messaging that indicates whether the version was retained or incremented in `src/prototype/admin-portal/v1-gpt-5-codex/src/App.tsx`
 
 **Checkpoint**: Version management consistent across import/export cycles.
 

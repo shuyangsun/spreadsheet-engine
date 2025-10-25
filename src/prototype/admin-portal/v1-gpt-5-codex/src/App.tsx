@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Download, Plus, X } from "lucide-react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Download, Plus, Upload, X } from "lucide-react";
 
 import { Header } from "@/components/Header";
 import {
@@ -14,13 +14,20 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
+import { ImportConfirmDialog } from "@/components/ImportConfirmDialog";
 
-import { loadConfiguration, saveConfiguration } from "@/lib/storage";
-import { createId } from "@/lib/utils";
-import { toExportConfiguration, validateConfiguration } from "@/lib/validation";
+import { loadDraftBundle, saveDraftBundle } from "@/lib/storage";
+import { areExportsEqual, createId, incrementVersionTag } from "@/lib/utils";
+import {
+  draftFromExportConfiguration,
+  toExportConfiguration,
+  validateImportedJson,
+  validateConfiguration,
+} from "@/lib/validation";
 import type {
   Constraint,
   DraftConfiguration,
+  ImportBaseline,
   InputMapping,
   OutputMapping,
 } from "@/lib/types";
@@ -29,7 +36,6 @@ const makeLocationKey = (sheetName: string, cellId: string) =>
   `${sheetName.trim().toLowerCase()}::${cellId.trim().toUpperCase()}`;
 
 const createExampleConfiguration = (): DraftConfiguration => ({
-  version: "1.0",
   inputs: [
     {
       id: createId("example-input"),
@@ -48,15 +54,19 @@ const createExampleConfiguration = (): DraftConfiguration => ({
       sheetName: "Loan Calculator",
       cellId: "B6",
       label: "Example Output: Monthly Payment",
-      dataType: null,
-      constraints: null,
     },
   ],
   metadata: {
     createdAt: new Date().toISOString(),
+    updatedAt: null,
     version: "v1",
   },
 });
+
+const cloneExportConfiguration = (
+  configuration: ReturnType<typeof toExportConfiguration>
+): ReturnType<typeof toExportConfiguration> =>
+  JSON.parse(JSON.stringify(configuration));
 
 function EmptyState({ message }: { message: string }) {
   return (
@@ -75,6 +85,11 @@ function App() {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [showInputForm, setShowInputForm] = useState(false);
   const [showOutputForm, setShowOutputForm] = useState(false);
+  const [importBaseline, setImportBaseline] = useState<ImportBaseline | null>(
+    null
+  );
+  const [isImportConfirmOpen, setIsImportConfirmOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { toast } = useToast();
 
@@ -145,10 +160,23 @@ function App() {
     return errorsByMapping;
   }, [configuration.inputs, configuration.outputs, liveValidation.errors]);
 
-  const previewJson = useMemo(
-    () => JSON.stringify(toExportConfiguration(configuration), null, 2),
+  const exportSnapshot = useMemo(
+    () => toExportConfiguration(configuration),
     [configuration]
   );
+
+  const previewJson = useMemo(
+    () => JSON.stringify(exportSnapshot, null, 2),
+    [exportSnapshot]
+  );
+
+  const hasUnsavedEdits = useMemo(() => {
+    if (!importBaseline) {
+      return false;
+    }
+
+    return !areExportsEqual(importBaseline.snapshot, exportSnapshot);
+  }, [importBaseline, exportSnapshot]);
 
   const mostRecentInputSheet = useMemo(() => {
     if (configuration.inputs.length === 0) {
@@ -167,10 +195,11 @@ function App() {
   }, [configuration.outputs]);
 
   useEffect(() => {
-    const stored = loadConfiguration();
+    const stored = loadDraftBundle();
 
     if (stored) {
-      setConfiguration(stored);
+      setConfiguration(stored.configuration);
+      setImportBaseline(stored.importBaseline);
       setLastSavedAt(new Date());
     }
 
@@ -185,13 +214,16 @@ function App() {
     setIsSaving(true);
 
     const handle = window.setTimeout(() => {
-      saveConfiguration(configuration);
+      saveDraftBundle({
+        configuration,
+        importBaseline,
+      });
       setLastSavedAt(new Date());
       setIsSaving(false);
     }, 500);
 
     return () => window.clearTimeout(handle);
-  }, [configuration, hasLoaded]);
+  }, [configuration, importBaseline, hasLoaded]);
 
   const sortedInputs = useMemo(
     () => configuration.inputs,
@@ -265,8 +297,6 @@ function App() {
       sheetName: values.sheetName,
       cellId: values.cellId,
       label: values.label,
-      dataType: null,
-      constraints: null,
     };
 
     setConfiguration((current) => ({
@@ -339,9 +369,16 @@ function App() {
 
   const handleDownloadJson = (
     json: string,
-    filenamePrefix = "configuration"
+    filenamePrefix = "configuration",
+    options?: {
+      skipValidation?: boolean;
+      successMessage?: {
+        title: string;
+        description?: string;
+      };
+    }
   ) => {
-    if (!liveValidation.isValid) {
+    if (!options?.skipValidation && !liveValidation.isValid) {
       toast({
         variant: "destructive",
         title: "Download blocked",
@@ -358,11 +395,197 @@ function App() {
     anchor.click();
     URL.revokeObjectURL(url);
 
+    if (options?.successMessage) {
+      toast({
+        title: options.successMessage.title,
+        description: options.successMessage.description,
+      });
+      return;
+    }
+
     toast({
       title: "Download started",
       description:
         "Check your downloads folder for the exported configuration.",
     });
+  };
+
+  const handleExportConfiguration = () => {
+    if (!liveValidation.isValid) {
+      toast({
+        variant: "destructive",
+        title: "Download blocked",
+        description: "Resolve configuration issues before exporting.",
+      });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const baselineSnapshot = importBaseline?.snapshot ?? null;
+    const baselineSourceFileName = importBaseline?.sourceFileName ?? null;
+
+    let exportPayload = cloneExportConfiguration(exportSnapshot);
+    let nextVersion = exportPayload.metadata.version;
+    let versionMessage = "";
+    let versionDescription = "";
+
+    if (baselineSnapshot) {
+      const hasDifferences = !areExportsEqual(baselineSnapshot, exportSnapshot);
+
+      if (hasDifferences) {
+        nextVersion = incrementVersionTag(baselineSnapshot.metadata.version);
+      } else {
+        nextVersion = baselineSnapshot.metadata.version;
+      }
+
+      exportPayload = {
+        ...exportPayload,
+        version: nextVersion,
+        metadata: {
+          ...exportPayload.metadata,
+          version: nextVersion,
+          updatedAt: now,
+        },
+      };
+
+      setConfiguration((current) => ({
+        ...current,
+        metadata: {
+          ...current.metadata,
+          version: nextVersion,
+          updatedAt: now,
+        },
+      }));
+
+      setImportBaseline({
+        snapshot: exportPayload,
+        importedAt: now,
+        sourceFileName: baselineSourceFileName,
+      });
+
+      if (hasDifferences) {
+        versionMessage = `Export ready (version ${nextVersion})`;
+        versionDescription = "Detected changes and incremented the version.";
+      } else {
+        versionMessage = `Export ready (version ${nextVersion})`;
+        versionDescription = "No changes detected; original version retained.";
+      }
+    } else {
+      exportPayload = {
+        ...exportPayload,
+        metadata: {
+          ...exportPayload.metadata,
+          updatedAt: now,
+        },
+      };
+
+      setConfiguration((current) => ({
+        ...current,
+        metadata: {
+          ...current.metadata,
+          updatedAt: now,
+        },
+      }));
+
+      setImportBaseline({
+        snapshot: exportPayload,
+        importedAt: now,
+        sourceFileName: null,
+      });
+
+      versionMessage = `Export ready (version ${nextVersion})`;
+      versionDescription = "Baseline initialized for future comparisons.";
+    }
+
+    handleDownloadJson(
+      JSON.stringify(exportPayload, null, 2),
+      "configuration",
+      {
+        skipValidation: true,
+        successMessage: {
+          title: versionMessage,
+          description: versionDescription,
+        },
+      }
+    );
+  };
+
+  const handleImportButtonClick = () => {
+    if (hasUnsavedEdits) {
+      setIsImportConfirmOpen(true);
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const fileContents = await file.text();
+      const result = validateImportedJson(fileContents);
+
+      if (!result.success) {
+        console.warn("Imported configuration failed validation", result.errors);
+        toast({
+          variant: "destructive",
+          title: "Import failed",
+          description:
+            result.errors[0] ?? "Configuration did not pass validation.",
+        });
+        return;
+      }
+
+      setConfiguration(result.draft);
+      setImportBaseline({
+        snapshot: result.snapshot,
+        importedAt: new Date().toISOString(),
+        sourceFileName: file.name,
+      });
+      setShowInputForm(false);
+      setShowOutputForm(false);
+      setIsImportConfirmOpen(false);
+
+      toast({
+        title: "Configuration imported",
+        description: `${file.name} loaded successfully.`,
+      });
+    } catch (error) {
+      console.error("Unable to read imported configuration", error);
+      toast({
+        variant: "destructive",
+        title: "Import failed",
+        description: "Unable to read the selected file.",
+      });
+    }
+  };
+
+  const handleCancelImport = () => {
+    setIsImportConfirmOpen(false);
+  };
+
+  const handleDownloadCurrentBeforeImport = () => {
+    handleDownloadJson(previewJson, "configuration", { skipValidation: true });
+  };
+
+  const handleDiscardAndContinue = () => {
+    setIsImportConfirmOpen(false);
+
+    if (importBaseline) {
+      setConfiguration(draftFromExportConfiguration(importBaseline.snapshot));
+    }
+
+    window.setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 0);
   };
 
   return (
@@ -490,7 +713,25 @@ function App() {
         <aside className="lg:flex lg:h-[85vh] lg:w-[360px] lg:flex-shrink-0 lg:min-h-0">
           <div className="rounded-lg border border-border/60 bg-card/50 p-4 text-sm text-muted-foreground lg:flex lg:h-full lg:min-h-0 lg:flex-col">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-medium text-foreground">Configuration</p>
+              <div className="flex items-center gap-3">
+                <p className="font-medium text-foreground">Configuration</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={handleImportButtonClick}
+                >
+                  <Upload className="h-4 w-4" />
+                  Import
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/json"
+                  className="hidden"
+                  onChange={handleFileInputChange}
+                />
+              </div>
               <Badge
                 variant={liveValidation.isValid ? "success" : "destructive"}
                 className="whitespace-nowrap"
@@ -529,7 +770,7 @@ function App() {
             <Button
               size="sm"
               className="mt-4 w-full mb-2 lg:mb-4"
-              onClick={() => handleDownloadJson(previewJson)}
+              onClick={handleExportConfiguration}
               disabled={!liveValidation.isValid}
             >
               <Download className="mr-2 h-4 w-4" />
@@ -539,6 +780,12 @@ function App() {
         </aside>
       </main>
 
+      <ImportConfirmDialog
+        open={isImportConfirmOpen}
+        onCancel={handleCancelImport}
+        onDownloadCurrent={handleDownloadCurrentBeforeImport}
+        onDiscardAndContinue={handleDiscardAndContinue}
+      />
       <Toaster />
     </div>
   );

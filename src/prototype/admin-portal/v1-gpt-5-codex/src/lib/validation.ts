@@ -1,10 +1,19 @@
 import type {
+  Constraint,
+  DataType,
   DraftConfiguration,
   ExportConfiguration,
+  ExportInputMapping,
+  ExportOutputMapping,
   InputMapping,
   OutputMapping,
   ValidationError,
 } from "@/lib/types";
+import {
+  createId,
+  normalizeExportConfiguration,
+  parseVersionTag,
+} from "@/lib/utils";
 
 export interface ValidationResult {
   isValid: boolean;
@@ -31,12 +40,6 @@ const sanitizeCommonFields = (mapping: InputMapping | OutputMapping) => {
     cellId,
     label,
   };
-};
-
-const stripId = <T extends { id: string }>(mapping: T) => {
-  const { id: _discard, ...rest } = mapping;
-  void _discard;
-  return rest;
 };
 
 const ensureConstraintIntegrity = (
@@ -200,12 +203,422 @@ export const validateConfiguration = (
 
 export const toExportConfiguration = (
   configuration: DraftConfiguration
-): ExportConfiguration => ({
-  version: "1.0",
-  inputs: configuration.inputs.map((input) => stripId(input)),
-  outputs: configuration.outputs.map((output) => stripId(output)),
+): ExportConfiguration => normalizeExportConfiguration(configuration);
+
+export const draftFromExportConfiguration = (
+  snapshot: ExportConfiguration
+): DraftConfiguration => ({
+  inputs: snapshot.inputs.map((mapping) => ({
+    id: createId("input"),
+    type: "input" as const,
+    sheetName: mapping.sheetName,
+    cellId: mapping.cellId,
+    label: mapping.label,
+    dataType: mapping.dataType,
+    constraints: mapping.constraints ?? null,
+  })),
+  outputs: snapshot.outputs.map((mapping) => ({
+    id: createId("output"),
+    type: "output" as const,
+    sheetName: mapping.sheetName,
+    cellId: mapping.cellId,
+    label: mapping.label,
+  })),
   metadata: {
-    ...configuration.metadata,
-    createdAt: new Date().toISOString(),
+    createdAt: snapshot.metadata.createdAt,
+    updatedAt: snapshot.metadata.updatedAt ?? null,
+    version: snapshot.metadata.version,
+    ...(snapshot.metadata.source !== undefined
+      ? { source: snapshot.metadata.source }
+      : {}),
   },
 });
+
+const allowedDataTypes: DataType[] = [
+  "number",
+  "text",
+  "percentage",
+  "currency",
+  "date",
+];
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const asString = (value: unknown): string | null =>
+  typeof value === "string" ? value : null;
+
+type ConstraintParseResult =
+  | {
+      ok: true;
+      constraint: Constraint | null | undefined;
+    }
+  | {
+      ok: false;
+    };
+
+const parseConstraintValue = (
+  value: unknown,
+  context: string,
+  errors: string[]
+): ConstraintParseResult => {
+  if (value === undefined) {
+    return {
+      ok: true,
+      constraint: undefined,
+    };
+  }
+
+  if (value === null) {
+    return {
+      ok: true,
+      constraint: null,
+    };
+  }
+
+  if (!isRecord(value)) {
+    errors.push(`${context}: constraints must be an object or null.`);
+    return { ok: false };
+  }
+
+  if (value.type === "discrete") {
+    if (!Array.isArray(value.values) || value.values.length === 0) {
+      errors.push(
+        `${context}: discrete constraints require a non-empty array of values.`
+      );
+      return { ok: false };
+    }
+
+    const values = value.values
+      .map((item) =>
+        typeof item === "string" ? item.trim() : String(item ?? "").trim()
+      )
+      .filter((item) => item.length > 0);
+
+    if (values.length === 0) {
+      errors.push(
+        `${context}: discrete constraints must include at least one non-empty value.`
+      );
+      return { ok: false };
+    }
+
+    return {
+      ok: true,
+      constraint: {
+        type: "discrete",
+        values,
+      },
+    };
+  }
+
+  if (value.type === "range") {
+    const minValue =
+      value.min === null || typeof value.min === "number"
+        ? (value.min as number | null)
+        : Number(value.min);
+    const maxValue =
+      value.max === null || typeof value.max === "number"
+        ? (value.max as number | null)
+        : Number(value.max);
+
+    if (Number.isNaN(minValue ?? 0) || Number.isNaN(maxValue ?? 0)) {
+      errors.push(
+        `${context}: range constraints require numeric minimum and maximum values.`
+      );
+      return { ok: false };
+    }
+
+    return {
+      ok: true,
+      constraint: {
+        type: "range",
+        min: minValue ?? null,
+        max: maxValue ?? null,
+      },
+    };
+  }
+
+  errors.push(`${context}: unsupported constraint type.`);
+  return { ok: false };
+};
+
+const parseExportInputMapping = (
+  value: unknown,
+  index: number,
+  errors: string[]
+): ExportInputMapping | null => {
+  if (!isRecord(value)) {
+    errors.push(`Input #${index + 1}: expected an object.`);
+    return null;
+  }
+
+  const context = `Input #${index + 1}`;
+  const startErrorCount = errors.length;
+
+  if (value.type !== "input") {
+    errors.push(`${context}: type must be "input".`);
+  }
+
+  const sheetName = asString(value.sheetName);
+  if (!sheetName) {
+    errors.push(`${context}: sheetName is required.`);
+  }
+
+  const cellId = asString(value.cellId);
+  if (!cellId) {
+    errors.push(`${context}: cellId is required.`);
+  }
+
+  const label = asString(value.label);
+  if (!label) {
+    errors.push(`${context}: label is required.`);
+  }
+
+  const rawDataType = asString(value.dataType);
+  if (!rawDataType) {
+    errors.push(`${context}: dataType is required.`);
+  }
+
+  const normalizedDataType = rawDataType?.toLowerCase() as DataType | undefined;
+  if (!normalizedDataType || !allowedDataTypes.includes(normalizedDataType)) {
+    errors.push(
+      `${context}: dataType must be one of ${allowedDataTypes.join(", ")}.`
+    );
+  }
+
+  const constraintResult = parseConstraintValue(
+    value.constraints,
+    context,
+    errors
+  );
+
+  if (!constraintResult.ok || errors.length > startErrorCount) {
+    return null;
+  }
+
+  return {
+    type: "input",
+    sheetName: sheetName ?? "",
+    cellId: cellId ?? "",
+    label: label ?? "",
+    dataType: normalizedDataType as DataType,
+    ...(constraintResult.constraint !== undefined
+      ? { constraints: constraintResult.constraint }
+      : {}),
+  };
+};
+
+const parseExportOutputMapping = (
+  value: unknown,
+  index: number,
+  errors: string[]
+): ExportOutputMapping | null => {
+  if (!isRecord(value)) {
+    errors.push(`Output #${index + 1}: expected an object.`);
+    return null;
+  }
+
+  const context = `Output #${index + 1}`;
+  const startErrorCount = errors.length;
+
+  if (value.type !== "output") {
+    errors.push(`${context}: type must be "output".`);
+  }
+
+  const sheetName = asString(value.sheetName);
+  if (!sheetName) {
+    errors.push(`${context}: sheetName is required.`);
+  }
+
+  const cellId = asString(value.cellId);
+  if (!cellId) {
+    errors.push(`${context}: cellId is required.`);
+  }
+
+  const label = asString(value.label);
+  if (!label) {
+    errors.push(`${context}: label is required.`);
+  }
+
+  if (errors.length > startErrorCount) {
+    return null;
+  }
+
+  return {
+    type: "output",
+    sheetName: sheetName ?? "",
+    cellId: cellId ?? "",
+    label: label ?? "",
+  };
+};
+
+const collectUniqueErrors = (messages: string[]): string[] => [
+  ...new Set(messages.map((message) => message.trim()).filter(Boolean)),
+];
+
+export type ImportValidationResult =
+  | {
+      success: true;
+      draft: DraftConfiguration;
+      snapshot: ExportConfiguration;
+    }
+  | {
+      success: false;
+      errors: string[];
+    };
+
+export const validateImportedJson = (raw: string): ImportValidationResult => {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    void error;
+    return {
+      success: false,
+      errors: ["The selected file does not contain valid JSON."],
+    };
+  }
+
+  if (!isRecord(parsed)) {
+    return {
+      success: false,
+      errors: ["Imported configuration must be a JSON object."],
+    };
+  }
+
+  const errors: string[] = [];
+
+  const versionValue = asString(parsed.version);
+  if (!versionValue) {
+    errors.push('Configuration is missing a top-level version (e.g., "v5").');
+  } else if (parseVersionTag(versionValue) === null) {
+    errors.push(`Version '${versionValue}' must follow the pattern v<number>.`);
+  }
+
+  const inputsValue = Array.isArray(parsed.inputs) ? parsed.inputs : null;
+  if (!inputsValue) {
+    errors.push("Configuration requires an 'inputs' array.");
+  }
+
+  const outputsValue = Array.isArray(parsed.outputs) ? parsed.outputs : null;
+  if (!outputsValue) {
+    errors.push("Configuration requires an 'outputs' array.");
+  }
+
+  const metadataValue = isRecord(parsed.metadata) ? parsed.metadata : null;
+  if (!metadataValue) {
+    errors.push("Configuration requires a 'metadata' object.");
+  }
+
+  let metadata: DraftConfiguration["metadata"] | null = null;
+  if (metadataValue) {
+    const createdAt = asString(metadataValue.createdAt);
+    if (!createdAt) {
+      errors.push("metadata.createdAt must be an ISO timestamp string.");
+    }
+
+    const metadataVersion = asString(metadataValue.version);
+    if (!metadataVersion) {
+      errors.push('metadata.version must be provided (e.g., "v5").');
+    } else if (parseVersionTag(metadataVersion) === null) {
+      errors.push(
+        `metadata.version '${metadataVersion}' must follow the pattern v<number>.`
+      );
+    }
+
+    const updatedAtRaw = metadataValue.updatedAt;
+    const updatedAt =
+      updatedAtRaw === null
+        ? null
+        : typeof updatedAtRaw === "string"
+        ? updatedAtRaw
+        : null;
+
+    if (updatedAtRaw !== undefined && updatedAtRaw !== null && !updatedAt) {
+      errors.push("metadata.updatedAt must be null or a timestamp string.");
+    }
+
+    const sourceRaw = metadataValue.source;
+    const source =
+      sourceRaw === undefined || sourceRaw === null
+        ? undefined
+        : typeof sourceRaw === "string"
+        ? sourceRaw
+        : null;
+
+    if (sourceRaw !== undefined && source === null) {
+      errors.push("metadata.source must be a string when provided.");
+    }
+
+    if (createdAt && metadataVersion) {
+      metadata = {
+        createdAt,
+        updatedAt: updatedAt ?? null,
+        version: metadataVersion as DraftConfiguration["metadata"]["version"],
+        ...(source !== undefined ? { source } : {}),
+      };
+    }
+  }
+
+  const parsedInputs: ExportInputMapping[] = inputsValue
+    ? inputsValue
+        .map((mapping, index) =>
+          parseExportInputMapping(mapping, index, errors)
+        )
+        .filter((mapping): mapping is ExportInputMapping => Boolean(mapping))
+    : [];
+
+  const parsedOutputs: ExportOutputMapping[] = outputsValue
+    ? outputsValue
+        .map((mapping, index) =>
+          parseExportOutputMapping(mapping, index, errors)
+        )
+        .filter((mapping): mapping is ExportOutputMapping => Boolean(mapping))
+    : [];
+
+  if (metadata && versionValue && metadata.version !== versionValue) {
+    errors.push("Top-level version must match metadata.version.");
+  }
+
+  if (!metadata) {
+    errors.push("Configuration metadata is incomplete.");
+  }
+
+  const uniqueErrors = collectUniqueErrors(errors);
+  if (uniqueErrors.length > 0) {
+    return {
+      success: false,
+      errors: uniqueErrors,
+    };
+  }
+
+  const exportConfiguration: ExportConfiguration = {
+    version: metadata!.version,
+    inputs: parsedInputs,
+    outputs: parsedOutputs,
+    metadata: metadata!,
+  };
+
+  const draft = draftFromExportConfiguration(exportConfiguration);
+  const validation = validateConfiguration(draft);
+
+  if (!validation.isValid) {
+    const validationMessages = collectUniqueErrors(
+      validation.errors.map((error) =>
+        error.field ? `${error.field}: ${error.message}` : error.message
+      )
+    );
+
+    return {
+      success: false,
+      errors: validationMessages,
+    };
+  }
+
+  return {
+    success: true,
+    draft,
+    snapshot: toExportConfiguration(draft),
+  };
+};

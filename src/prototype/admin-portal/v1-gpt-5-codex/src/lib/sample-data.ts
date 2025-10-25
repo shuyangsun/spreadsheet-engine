@@ -16,7 +16,6 @@ const buildOutput = (mapping: Omit<OutputMapping, "id">): OutputMapping => ({
 });
 
 export const sampleConfiguration = (): DraftConfiguration => ({
-  version: "1.0",
   inputs: [
     buildInput({
       sheetName: "Loan Calculator",
@@ -60,20 +59,17 @@ export const sampleConfiguration = (): DraftConfiguration => ({
       cellId: "B6",
       label: "Monthly Payment",
       type: "output",
-      dataType: null,
-      constraints: null,
     }),
     buildOutput({
       sheetName: "Loan Calculator",
       cellId: "B7",
       label: "Total Interest Paid",
       type: "output",
-      dataType: null,
-      constraints: null,
     }),
   ],
   metadata: {
     createdAt: new Date().toISOString(),
+    updatedAt: null,
     version: "v1",
   },
 });
