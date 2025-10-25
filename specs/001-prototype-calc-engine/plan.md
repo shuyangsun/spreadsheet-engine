@@ -5,7 +5,7 @@
 
 ## Summary
 
-Create a front-end-only calculation engine prototype that loads a JSON configuration and a Google Sheet link, enforces configured constraints, surfaces outputs, and offers single-variable exploration using hardcoded data. The UI must leverage shadcn components with the same color theme as the existing admin portal prototype while remaining layout-flexible for the new workflow.
+Create a front-end-only calculation engine prototype that loads a JSON configuration and a Google Sheet link, enforces configured constraints, surfaces outputs, and offers single-variable exploration using hardcoded data. The UI must leverage shadcn components with the same color theme as the existing admin portal prototype while remaining layout-flexible for the new workflow. The loader should automatically parse and adopt any newly uploaded configuration without requiring a separate confirmation step.
 
 ## Technical Context
 

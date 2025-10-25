@@ -80,6 +80,7 @@ An analyst experiments with a single input variable by sweeping through its perm
 - **FR-010**: The prototype MUST visualize the exploration dataset as a simple x-y plot and list the underlying numeric values so testers can validate the chart.
 - **FR-011**: All prototype assets MUST reside within `src/prototype/calculation-engine`, keeping the implementation isolated from production code paths.
 - **FR-012**: The prototype MUST build its interface with shadcn UI components and match the color theme used in `src/prototype/admin-portal/v1-gpt-5-codex`, while permitting layout differences appropriate to the calculation workflow.
+- **FR-013**: When the analyst uploads a new JSON configuration, the prototype MUST immediately parse and load the configuration without requiring extra confirmation, replacing any prior staged config as soon as validation succeeds.
 
 ### Key Entities _(include if feature involves data)_
 
