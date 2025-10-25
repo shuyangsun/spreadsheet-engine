@@ -1,0 +1,379 @@
+openapi: 3.1.0
+info:
+  title: Calculation Engine Prototype Mock API
+  version: 0.1.0
+  description: >-
+    Stub contract that documents the client-side simulation flows. No real
+    network calls are made; the prototype generates responses locally.
+servers:
+  - url: https://local.prototype/calculation-engine
+    description: Conceptual endpoint for documentation only
+paths:
+  /prototype/load-config:
+    post:
+      summary: Validate and stage a configuration file
+      description: Accepts a JSON configuration payload and returns parsed metadata plus input definitions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrototypeConfiguration"
+      responses:
+        "200":
+          description: Configuration accepted and staged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigLoadResponse"
+        "422":
+          description: Validation errors in configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+  /prototype/simulate-sheet:
+    post:
+      summary: Simulate Google Sheet fetch
+      description: Uses the provided link to select a bundled sheet snapshot and returns preview rows after latency delay.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sheetLink
+              properties:
+                sheetLink:
+                  type: string
+                  format: uri
+                  description: Human-provided link used to choose the matching stub dataset
+      responses:
+        "200":
+          description: Simulated sheet snapshot ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SheetSnapshot"
+        "404":
+          description: No matching sheet snapshot bundled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+  /prototype/compute-outputs:
+    post:
+      summary: Produce outputs for current input mapping
+      description: Combines configuration rules with provided values to return the result set.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComputeRequest"
+      responses:
+        "200":
+          description: Calculated outputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComputeResponse"
+        "400":
+          description: Input constraints violated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+  /prototype/explore-variable:
+    post:
+      summary: Generate single-variable exploration dataset
+      description: Sweeps the designated input across its allowed range and returns paired outputs for charting.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExplorationRequest"
+      responses:
+        "200":
+          description: Exploration samples for plotting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExplorationResponse"
+        "400":
+          description: Invalid input key or range configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+components:
+  schemas:
+    PrototypeConfiguration:
+      type: object
+      required:
+        - configId
+        - title
+        - inputs
+        - outputs
+      properties:
+        configId:
+          type: string
+        title:
+          type: string
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/InputDefinition"
+        outputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/OutputDefinition"
+        exploration:
+          $ref: "#/components/schemas/ExplorationSpec"
+    ConfigLoadResponse:
+      type: object
+      required:
+        - config
+        - summary
+      properties:
+        config:
+          $ref: "#/components/schemas/PrototypeConfiguration"
+        summary:
+          type: object
+          required:
+            - inputCount
+            - outputCount
+          properties:
+            inputCount:
+              type: integer
+            outputCount:
+              type: integer
+            notes:
+              type: array
+              items:
+                type: string
+    InputDefinition:
+      type: object
+      required:
+        - key
+        - label
+        - type
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        type:
+          type: string
+          enum:
+            - number
+            - text
+            - enum
+        defaultValue:
+          oneOf:
+            - type: string
+            - type: number
+        constraints:
+          $ref: "#/components/schemas/Constraints"
+        sheetMapping:
+          $ref: "#/components/schemas/SheetMapping"
+    Constraints:
+      type: object
+      properties:
+        min:
+          type: number
+        max:
+          type: number
+        allowedValues:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: number
+        step:
+          type: number
+        notes:
+          type: string
+    SheetMapping:
+      type: object
+      required:
+        - sheetId
+        - column
+      properties:
+        sheetId:
+          type: string
+        column:
+          type: string
+        row:
+          type: integer
+    OutputDefinition:
+      type: object
+      required:
+        - key
+        - label
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        calculation:
+          type: string
+        units:
+          type: string
+        notes:
+          type: string
+    SheetSnapshot:
+      type: object
+      required:
+        - sheetId
+        - metadata
+        - rows
+      properties:
+        sheetId:
+          type: string
+        metadata:
+          type: object
+          properties:
+            tabName:
+              type: string
+            updatedAt:
+              type: string
+              format: date-time
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/SheetRow"
+    SheetRow:
+      type: object
+      required:
+        - rowIndex
+        - cells
+      properties:
+        rowIndex:
+          type: integer
+        cells:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+    ComputeRequest:
+      type: object
+      required:
+        - configId
+        - inputs
+      properties:
+        configId:
+          type: string
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/InputValue"
+    InputValue:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+        value:
+          oneOf:
+            - type: string
+            - type: number
+        source:
+          type: string
+          enum:
+            - configDefault
+            - sheet
+            - user
+    ComputeResponse:
+      type: object
+      required:
+        - scenarioId
+        - timestamp
+        - results
+      properties:
+        scenarioId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultValue"
+    ResultValue:
+      type: object
+      required:
+        - key
+        - displayValue
+      properties:
+        key:
+          type: string
+        displayValue:
+          oneOf:
+            - type: string
+            - type: number
+        explanation:
+          type: string
+    ExplorationRequest:
+      type: object
+      required:
+        - configId
+        - inputKey
+      properties:
+        configId:
+          type: string
+        inputKey:
+          type: string
+        sampleCount:
+          type: integer
+          minimum: 5
+        strategy:
+          type: string
+          enum:
+            - linear
+            - logarithmic
+    ExplorationResponse:
+      type: object
+      required:
+        - inputKey
+        - samples
+      properties:
+        inputKey:
+          type: string
+        samples:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExplorationPoint"
+    ExplorationPoint:
+      type: object
+      required:
+        - inputValue
+        - outputValues
+      properties:
+        inputValue:
+          type: number
+        outputValues:
+          type: object
+          additionalProperties:
+            type: number
+        label:
+          type: string
+    ValidationError:
+      type: object
+      required:
+        - message
+        - issues
+      properties:
+        message:
+          type: string
+        issues:
+          type: array
+          items:
+            type: string
