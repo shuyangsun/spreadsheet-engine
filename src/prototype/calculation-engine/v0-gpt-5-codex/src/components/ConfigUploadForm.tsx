@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,8 @@ export function ConfigUploadForm({
     },
   });
 
+  const lastUploadedFileRef = useRef<File | null>(null);
+
   const isLoading = status === "loading" || disabled;
 
   const submitLabel = useMemo(() => {
@@ -55,7 +57,7 @@ export function ConfigUploadForm({
   }, [status]);
 
   const handleSubmit = form.handleSubmit((values) => {
-    const file = values.configFile?.[0] ?? null;
+    const file = values.configFile?.[0] ?? lastUploadedFileRef.current;
 
     if (!file) {
       form.setError("configFile", {
@@ -66,6 +68,7 @@ export function ConfigUploadForm({
     }
 
     form.clearErrors("configFile");
+    lastUploadedFileRef.current = file;
 
     onSubmit({
       file,
@@ -95,12 +98,42 @@ export function ConfigUploadForm({
                   onChange={(event) => {
                     const files = event.target.files;
                     field.onChange(files ?? null);
+
+                    if (!files || files.length === 0) {
+                      return;
+                    }
+
+                    const sheetLinkValue = form.getValues("sheetLink").trim();
+
+                    if (!sheetLinkValue) {
+                      form.setError("sheetLink", {
+                        type: "manual",
+                        message:
+                          "Enter a sheet link before uploading a configuration.",
+                      });
+                      return;
+                    }
+
+                    form.clearErrors("sheetLink");
+                    form.clearErrors("configFile");
+
+                    const selectedFile = files[0];
+                    lastUploadedFileRef.current = selectedFile;
+
+                    onSubmit({
+                      file: selectedFile,
+                      sheetLink: sheetLinkValue,
+                    });
+
+                    form.setValue("configFile", null, { shouldDirty: false });
+                    event.target.value = "";
                   }}
                 />
               </FormControl>
               <FormDescription>
-                Upload the JSON export from the admin portal prototype. Only
-                local processing occurs in this demo.
+                Upload the JSON export from the admin portal prototype. Loading
+                starts immediately after the file is selected; no extra
+                confirmation required.
               </FormDescription>
               <FormMessage />
             </FormItem>

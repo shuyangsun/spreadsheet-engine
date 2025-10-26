@@ -54,7 +54,7 @@
 - [x] T013 [P] [US1] Implement `useConfigLoader` hook coordinating file parsing and simulated sheet fetch in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useConfigLoader.ts`
 - [x] T014 [US1] Render input overview list in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/InputOverviewPanel.tsx`
 - [x] T015 [US1] Integrate loader flow and state gating inside `src/prototype/calculation-engine/v0-gpt-5-codex/src/App.tsx`
-- [ ] T015A [US1] Automatically adopt newly uploaded JSON configs in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useConfigLoader.ts`
+- [x] T015A [US1] Automatically adopt newly uploaded JSON configs in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useConfigLoader.ts`
 
 **Checkpoint**: User Story 1 delivers a functioning loading experience and exposes input mappings for review.
 
