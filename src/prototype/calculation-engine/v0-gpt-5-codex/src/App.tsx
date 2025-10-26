@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ConfigUploadForm } from "@/components/ConfigUploadForm";
 import { InputOverviewPanel } from "@/components/InputOverviewPanel";
+import { InputControls } from "@/components/InputControls";
+import { OutputSummary } from "@/components/OutputSummary";
 import { useThemeStatus } from "@/components/theme-provider";
 import {
   Card,
@@ -13,6 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useConfigLoader } from "@/hooks/useConfigLoader";
+import { useCalculationForm } from "@/hooks/useCalculationForm";
 import type { ConfigLoadResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +38,14 @@ const App = () => {
   const [phase, setPhase] = useState<"boot" | "ready">(
     isThemeReady ? "ready" : "boot"
   );
+
+  const currentData: ConfigLoadResponse | undefined = loaderData;
+
+  const calculation = useCalculationForm({
+    configuration: currentData?.configuration,
+    initialInputs: currentData?.inputs,
+    sheetSnapshot: currentData?.sheetSnapshot,
+  });
 
   useEffect(() => {
     if (!isThemeReady) {
@@ -106,8 +117,29 @@ const App = () => {
             ? "pending"
             : "default",
       },
+      {
+        label: "Input capture",
+        detail:
+          loaderStatus !== "success"
+            ? "Waiting for configuration"
+            : calculation.status === "success"
+            ? "Outputs refreshed"
+            : calculation.status === "processing"
+            ? "Running calculation"
+            : "Ready",
+        tone:
+          loaderStatus !== "success"
+            ? "default"
+            : calculation.status === "success"
+            ? "success"
+            : calculation.status === "processing"
+            ? "pending"
+            : calculation.status === "error"
+            ? "error"
+            : "default",
+      },
     ],
-    [isBooting, loaderStatus, statusLabel]
+    [calculation.status, isBooting, loaderStatus, statusLabel]
   );
 
   const handleUpload = (payload: { file: File; sheetLink: string }) => {
@@ -121,8 +153,6 @@ const App = () => {
   const handleReset = () => {
     resetLoader();
   };
-
-  const currentData: ConfigLoadResponse | undefined = loaderData;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -247,13 +277,36 @@ const App = () => {
                   <TabsTrigger value="exploration">Exploration</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="pt-4">
-                  <InputOverviewPanel
-                    configuration={currentData?.configuration}
-                    inputs={currentData?.inputs}
-                    sheetSnapshot={currentData?.sheetSnapshot}
-                    sheetLink={loaderMeta?.sheetLink}
-                    isLoading={busy}
-                  />
+                  <div className="space-y-6">
+                    <InputOverviewPanel
+                      configuration={currentData?.configuration}
+                      inputs={calculation.mappings ?? currentData?.inputs}
+                      sheetSnapshot={currentData?.sheetSnapshot}
+                      sheetLink={loaderMeta?.sheetLink}
+                      isLoading={busy}
+                    />
+
+                    <InputControls
+                      configuration={currentData?.configuration}
+                      form={calculation.form}
+                      onSubmit={calculation.submit}
+                      onReset={calculation.reset}
+                      status={calculation.status}
+                      disabled={busy || loaderStatus !== "success"}
+                      mappings={calculation.mappings}
+                      sheetSuggestions={calculation.sheetSuggestions}
+                      applyConfigDefault={calculation.applyConfigDefault}
+                      applySheetSuggestion={calculation.applySheetSuggestion}
+                      error={calculation.error}
+                    />
+
+                    <OutputSummary
+                      configuration={currentData?.configuration}
+                      scenario={calculation.scenario}
+                      status={calculation.status}
+                      lastSubmittedAt={calculation.lastSubmittedAt}
+                    />
+                  </div>
                 </TabsContent>
                 <TabsContent value="exploration" className="pt-4">
                   {busy ? (

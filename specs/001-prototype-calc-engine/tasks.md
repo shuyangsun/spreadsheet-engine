@@ -68,11 +68,11 @@
 
 ### Implementation Tasks (US2)
 
-- [ ] T016 [US2] Create `useCalculationForm` hook managing react-hook-form state in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useCalculationForm.ts`
-- [ ] T017 [P] [US2] Implement constraint helpers in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/constraints.ts`
-- [ ] T018 [US2] Build interactive input controls with inline errors in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/InputControls.tsx`
-- [ ] T019 [P] [US2] Encode hardcoded calculation logic in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/calculator.ts`
-- [ ] T020 [US2] Display outputs and notes via `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/OutputSummary.tsx`
+- [x] T016 [US2] Create `useCalculationForm` hook managing react-hook-form state in `src/prototype/calculation-engine/v0-gpt-5-codex/src/hooks/useCalculationForm.ts`
+- [x] T017 [P] [US2] Implement constraint helpers in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/constraints.ts`
+- [x] T018 [US2] Build interactive input controls with inline errors in `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/InputControls.tsx`
+- [x] T019 [P] [US2] Encode hardcoded calculation logic in `src/prototype/calculation-engine/v0-gpt-5-codex/src/lib/calculator.ts`
+- [x] T020 [US2] Display outputs and notes via `src/prototype/calculation-engine/v0-gpt-5-codex/src/components/OutputSummary.tsx`
 
 **Checkpoint**: User Story 2 completes when valid submissions refresh outputs and invalid entries show actionable feedback.
 
