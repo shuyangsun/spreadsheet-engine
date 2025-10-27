@@ -1,0 +1,157 @@
+openapi: 3.1.0
+info:
+  title: Spreadsheet Engine Conversion API
+  version: 1.0.0
+  description: |
+    Upload an Excel workbook and convert it into a governed Google Sheet.
+servers:
+  - url: https://sheet-conversion.api.example.com
+paths:
+  /conversion/upload:
+    post:
+      summary: Upload Excel workbook for Google Sheet conversion
+      description: |
+        Accepts an authenticated multipart upload of an Excel workbook, converts it to a Google Sheet
+        using Google Drive, and returns the resulting sheet identifiers.
+      operationId: uploadConversionWorkbook
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Excel XLSX file, maximum 10 MiB.
+                targetDriveFolderId:
+                  type: string
+                  description: Optional Google Drive folder ID to own the converted sheet.
+                clientRequestId:
+                  type: string
+                  description: Optional caller-supplied identifier echoed in audit logs.
+      responses:
+        "201":
+          description: Conversion succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversionUploadResponse"
+        "400":
+          description: Invalid request (file format, size, or metadata).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Authentication failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "413":
+          description: File too large.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Google API quota throttling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Client-generated key to ensure conversion idempotency.
+  schemas:
+    ConversionUploadResponse:
+      type: object
+      required:
+        - conversionRequestId
+        - googleSheetId
+        - googleSheetLink
+        - fileMetadata
+      properties:
+        conversionRequestId:
+          type: string
+          format: uuid
+        googleSheetId:
+          type: string
+        googleSheetLink:
+          type: string
+          format: uri
+        fileMetadata:
+          type: object
+          required:
+            - fileName
+            - fileSizeBytes
+            - worksheetCount
+            - checksumSha256
+          properties:
+            fileName:
+              type: string
+            fileSizeBytes:
+              type: integer
+            worksheetCount:
+              type: integer
+            checksumSha256:
+              type: string
+        audit:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [SUCCEEDED]
+            capturedAt:
+              type: string
+              format: date-time
+            clientRequestId:
+              type: string
+              nullable: true
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            category:
+              type: string
+              enum: [VALIDATION, AUTH, QUOTA, TRANSIENT, UNKNOWN]
+            correlationId:
+              type: string
+              description: Trace identifier for audit purposes.

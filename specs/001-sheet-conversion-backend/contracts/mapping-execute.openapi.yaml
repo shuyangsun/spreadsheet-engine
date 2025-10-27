@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: Spreadsheet Engine Mapping Execution API
+  version: 1.0.0
+  description: Execute admin-defined mappings against Google Sheets and return output parameters.
+servers:
+  - url: https://sheet-conversion.api.example.com
+paths:
+  /mapping/execute:
+    post:
+      summary: Execute mapping configuration to produce output parameters
+      description: |
+        Validates the provided mapping configuration JSON, loads required ranges from Google Sheets, applies
+        the shared transforms, and returns computed outputs with warnings.
+      operationId: executeMapping
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MappingExecutionRequest"
+      responses:
+        "200":
+          description: Execution succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MappingExecutionResponse"
+        "400":
+          description: Mapping validation failed or required inputs missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Authentication failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Google Sheet not accessible or does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Another execution is already in progress for the same sheet.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Google API quota throttling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Ensures retries do not trigger duplicate executions.
+  schemas:
+    MappingExecutionRequest:
+      type: object
+      required:
+        - googleSheetId
+        - mappingConfig
+        - inputParameters
+      properties:
+        googleSheetId:
+          type: string
+        mappingConfig:
+          type: object
+          description: JSON payload produced by the admin portal; must match the shared configuration schema.
+        inputParameters:
+          type: object
+          additionalProperties: true
+          description: Runtime values keyed by parameter identifier.
+        clientRequestId:
+          type: string
+          description: Optional caller identifier echoed in audit logs.
+    MappingExecutionResponse:
+      type: object
+      required:
+        - executionId
+        - status
+        - outputParameters
+      properties:
+        executionId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [SUCCEEDED]
+        outputParameters:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+              - value
+              - type
+            properties:
+              value:
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  - type: "null"
+              type:
+                type: string
+                description: Data type classification from mapping config.
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Non-fatal validation or completeness warnings.
+        audit:
+          type: object
+          properties:
+            capturedAt:
+              type: string
+              format: date-time
+            correlationId:
+              type: string
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            category:
+              type: string
+              enum: [VALIDATION, AUTH, QUOTA, TRANSIENT, UNKNOWN]
+            correlationId:
+              type: string
