@@ -10,6 +10,7 @@
 ### Session 2025-10-26
 
 - Q: What backend framework and language should power the production APIs? → A: Express.js with TypeScript per platform direction.
+- Q: How will the service satisfy Cloudflare Workers' database connectivity constraints? → A: Use Prisma Data Proxy (HTTPS) to access PostgreSQL from Cloudflare Workers while honoring constitution deployment rules.
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -95,13 +96,13 @@ Platform operators review recent conversion and mapping execution activity to di
 - Admin portal mapping configurations are current and match the structure of the Google Sheet produced by the latest successful conversion.
 - The organization maintains a Google Cloud project with Google Drive and Google Sheets APIs enabled, including service accounts with permission to create and manage sheets in the designated Drive folders.
 - Output parameter consumers can process null or default values when mappings omit optional parameters or underlying cells are blank.
-- The backend service implementation will use Express.js with TypeScript to align with established platform standards.
+- The backend service implementation will use Express.js with TypeScript and connect to PostgreSQL via Prisma Data Proxy (HTTPS) so Cloudflare Workers can meet constitution deployment requirements.
 
 ## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
-- **SC-001**: Excel uploads that encounter unsupported conditions (e.g., password-protected workbooks or incorrect formats) return descriptive error payloads that guide remediation.
-- **SC-002**: Mapping execution requests that pass validation return complete output parameter sets with associated warnings when data is missing or defaults are applied.
-- **SC-003**: Mapping execution requests that fail validation provide targeted error details indicating which schema properties or sheet references must be corrected.
-- **SC-004**: Audit log retrieval supplies conversion and execution records with correlation identifiers and error summaries so operators can confirm history and investigate issues.
+- **SC-001**: 95% of accepted Excel uploads (≤10 MiB) complete conversion and return Google Sheet ID + link within 60 seconds; 100% of rejected uploads include an error code, category, and remediation message.
+- **SC-002**: 99% of successful mapping execution responses return all requested output parameters and any non-blocking warnings within 5 seconds when reading ≤1,000 cells.
+- **SC-003**: 100% of mapping validation failures include the first offending schema path and error category, enabling operators to correct configurations without additional support.
+- **SC-004**: Audit retrieval queries for a Google Sheet ID covering the last 30 days respond in under 3 seconds and always include correlation IDs plus upstream Google error metadata when failures occurred.
